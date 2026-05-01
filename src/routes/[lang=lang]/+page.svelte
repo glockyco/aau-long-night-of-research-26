@@ -2,6 +2,7 @@
   import { page } from '$app/state';
   import Hero from '$lib/components/Hero.svelte';
   import Seo from '$lib/components/Seo.svelte';
+  import TaskTier from '$lib/components/TaskTier.svelte';
   import { websiteJsonLd } from '$lib/seo/jsonld';
 
   let { data } = $props();
@@ -23,3 +24,4 @@
 />
 
 <Hero dict={data.dict} />
+<TaskTier lang={data.lang} dict={data.dict} />
