@@ -34,6 +34,7 @@
   const altUrl = $derived(altLangUrl(path, altLang));
   const xDefault = $derived(altLangUrl(path, 'de'));
   const ldArray = $derived(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []);
+  const scriptTag = 'script';
 </script>
 
 <svelte:head>
@@ -64,7 +65,7 @@
   <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
 
   {#each ldArray as ld, index (index)}
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html '<script type="application/ld+json">' + JSON.stringify(ld) + '</' + 'script>'}
+    <svelte:element this={scriptTag} type="application/ld+json">{JSON.stringify(ld)}</svelte:element
+    >
   {/each}
 </svelte:head>

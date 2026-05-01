@@ -9,10 +9,6 @@
   const altPath = $derived(page.url.pathname.replace(/^\/(de|en)(\/|$)/, `/${altLang}$2`));
 </script>
 
-<svelte:head>
-  <html lang={data.lang}></html>
-</svelte:head>
-
 <header class="site-nav">
   <a class="site-brand" href="/{data.lang}">LNF 2026 · U27</a>
   <a class="lang-toggle" href={altPath} hreflang={altLang}>{data.dict.nav.langSwitch}</a>
