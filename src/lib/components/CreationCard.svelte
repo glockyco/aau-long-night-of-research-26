@@ -11,7 +11,6 @@
   const { creation, lang, dict }: Props = $props();
 
   const href = $derived(`/${lang}/creations/${creation.slug}`);
-  const caption = $derived(creation.caption?.[lang]);
 </script>
 
 <a class="creation-card" {href}>
@@ -27,9 +26,6 @@
   <div class="creation-meta">
     <h3 class="creation-title">{creation.titleNative}</h3>
     <div class="creation-time">{dict.creations.builtAt} {creation.builtAt}</div>
-    {#if caption}
-      <p class="creation-caption">{caption}</p>
-    {/if}
   </div>
 </a>
 
@@ -78,12 +74,5 @@
     color: var(--fg-muted);
     font-size: 0.8rem;
     font-variant-numeric: tabular-nums;
-  }
-
-  .creation-caption {
-    margin-top: 0.5rem;
-    color: var(--fg-muted);
-    font-size: 0.85rem;
-    line-height: 1.45;
   }
 </style>

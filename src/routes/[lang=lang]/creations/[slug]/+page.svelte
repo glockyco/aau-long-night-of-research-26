@@ -16,7 +16,6 @@
       ? `${creation.titleNative} — gebaut um ${creation.builtAt} an Station U27, Lange Nacht der Forschung 2026.`
       : `${creation.titleNative} — built at ${creation.builtAt} at Station U27, Long Night of Research 2026.`
   );
-  const caption = $derived(creation.caption?.[lang]);
   const caveat = $derived(creation.caveat?.[lang]);
   const standalone = $derived(`/raw/${creation.slug}.html`);
 
@@ -55,9 +54,6 @@
     </a>
   </header>
 
-  {#if caption}
-    <p class="creation-caption">{caption}</p>
-  {/if}
 
   <CreationFrame {creation} />
 
@@ -122,11 +118,6 @@
     color: var(--accent);
   }
 
-  .creation-caption {
-    max-width: 70ch;
-    margin-bottom: 1rem;
-    color: var(--fg-muted);
-  }
 
   .creation-caveat {
     margin-top: 0.75rem;
