@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import CreationsGrid from '$lib/components/CreationsGrid.svelte';
   import Hero from '$lib/components/Hero.svelte';
   import HowItWorked from '$lib/components/HowItWorked.svelte';
   import Seo from '$lib/components/Seo.svelte';
@@ -26,6 +27,7 @@
 />
 
 <Hero dict={data.dict} />
+<CreationsGrid lang={data.lang} dict={data.dict} />
 <TaskTier lang={data.lang} dict={data.dict} />
 <HowItWorked dict={data.dict} />
 <TeamSection lang={data.lang} dict={data.dict} />
