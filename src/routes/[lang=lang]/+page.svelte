@@ -1,11 +1,12 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import Hero from '$lib/components/Hero.svelte';
   import Seo from '$lib/components/Seo.svelte';
   import { websiteJsonLd } from '$lib/seo/jsonld';
 
   let { data } = $props();
 
-  const title = $derived('LNF 2026 — Station U27');
+  const title = $derived(`${data.dict.hero.metaWhen} — Showcase`);
   const description = $derived(
     data.lang === 'de'
       ? 'Was Besucher:innen am 24. April 2026 an Station U27 mit Claude Code gebaut haben.'
@@ -21,6 +22,4 @@
   jsonLd={websiteJsonLd(data.lang)}
 />
 
-<main style="padding: 2rem; max-width: 800px; margin: 0 auto;">
-  <p>{data.dict.hero.line1}</p>
-</main>
+<Hero dict={data.dict} />

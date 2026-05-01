@@ -84,3 +84,25 @@ button {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section {
+  padding: 4rem 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+.section-label {
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
