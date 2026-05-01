@@ -1,0 +1,367 @@
+würfelspiel<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Würfelspiel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.3rem;
+    text-shadow: 0 0 20px rgba(255,200,0,0.5);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+  }
+
+  .players {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .player-card {
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    min-width: 180px;
+    transition: all 0.3s;
+  }
+
+  .player-card.active {
+    border-color: #ffd700;
+    background: rgba(255,215,0,0.12);
+    box-shadow: 0 0 25px rgba(255,215,0,0.3);
+  }
+
+  .player-card.winner {
+    border-color: #00ff88;
+    background: rgba(0,255,136,0.15);
+    box-shadow: 0 0 30px rgba(0,255,136,0.4);
+    animation: pulse 0.8s infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.04); }
+  }
+
+  .player-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .player-score {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .player-score.winner-score { color: #00ff88; }
+
+  .player-label { font-size: 0.8rem; color: #aaa; margin-top: 0.2rem; }
+
+  .turn-label {
+    font-size: 1rem;
+    color: #ffd700;
+    margin-top: 0.5rem;
+    min-height: 1.3rem;
+  }
+
+  .dice-area {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .dice {
+    width: 110px;
+    height: 110px;
+    background: white;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 2px 6px rgba(255,255,255,0.6);
+    user-select: none;
+  }
+
+  .dice.rolling {
+    animation: rollDice 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .dice.landing {
+    animation: landDice 0.35s ease-out;
+  }
+
+  @keyframes rollDice {
+    0%   { transform: rotate(0deg) scale(1); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+    10%  { transform: rotate(-28deg) scale(1.3) translateY(-12px); box-shadow: 0 22px 45px rgba(0,0,0,0.6); }
+    25%  { transform: rotate(22deg) scale(1.2) translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
+    40%  { transform: rotate(-18deg) scale(1.25) translateY(-10px); box-shadow: 0 20px 42px rgba(0,0,0,0.58); }
+    55%  { transform: rotate(14deg) scale(1.12) translateY(-5px); box-shadow: 0 14px 32px rgba(0,0,0,0.52); }
+    70%  { transform: rotate(-8deg) scale(1.06) translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.5); }
+    85%  { transform: rotate(4deg) scale(1.02); }
+    100% { transform: rotate(0deg) scale(1); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+  }
+
+  @keyframes landDice {
+    0%   { transform: scale(1.12); }
+    50%  { transform: scale(0.93); }
+    75%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  .roll-result {
+    font-size: 1.3rem;
+    color: #ccc;
+    text-align: center;
+    min-height: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .roll-result span { color: #ffd700; font-weight: bold; }
+
+  button {
+    padding: 1rem 2.5rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0.4rem;
+  }
+
+  #rollBtn {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #1a1a2e;
+    box-shadow: 0 4px 20px rgba(255,140,0,0.4);
+  }
+
+  #rollBtn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,140,0,0.5);
+  }
+
+  #rollBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #resetBtn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+
+  #resetBtn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+
+  .goal-info {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin-top: 1rem;
+  }
+
+  .winner-banner {
+    display: none;
+    font-size: 2rem;
+    color: #00ff88;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(0,255,136,0.6);
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<h1>🎲 Würfelspiel</h1>
+<p class="subtitle">Wer zuerst 50 Punkte erreicht, gewinnt!</p>
+
+<div class="players">
+  <div class="player-card active" id="card0">
+    <div class="player-name">🧑 Spieler 1</div>
+    <div class="player-score" id="score0">0</div>
+    <div class="player-label">Punkte</div>
+    <div class="turn-label" id="turn0">▶ Du bist dran</div>
+  </div>
+  <div class="player-card" id="card1">
+    <div class="player-name">🧒 Spieler 2</div>
+    <div class="player-score" id="score1">0</div>
+    <div class="player-label">Punkte</div>
+    <div class="turn-label" id="turn1"></div>
+  </div>
+</div>
+
+<div class="dice-area">
+  <div class="dice" id="dice1"></div>
+  <div class="dice" id="dice2"></div>
+</div>
+
+<div class="roll-result" id="rollResult">Drücke den Knopf!</div>
+
+<div class="winner-banner" id="winnerBanner">🏆 Gewonnen! 🏆</div>
+
+<div>
+  <button id="rollBtn" onclick="roll()">🎲 Würfeln!</button>
+  <button id="resetBtn" onclick="reset()">🔄 Neu starten</button>
+</div>
+
+<div class="goal-info">Ziel: 50 Punkte · 2 Würfel pro Runde</div>
+
+<script>
+  const DOT_POSITIONS = {
+    1: [[50,50]],
+    2: [[72,28],[28,72]],
+    3: [[72,28],[50,50],[28,72]],
+    4: [[28,28],[72,28],[28,72],[72,72]],
+    5: [[28,28],[72,28],[50,50],[28,72],[72,72]],
+    6: [[28,28],[72,28],[28,50],[72,50],[28,72],[72,72]]
+  };
+
+  function diceFace(n) {
+    const circles = DOT_POSITIONS[n]
+      .map(([cx,cy]) => `<circle cx="${cx}" cy="${cy}" r="8.5" fill="#1a1a2e"/>`)
+      .join('');
+    return `<svg viewBox="0 0 100 100" width="82" height="82">${circles}</svg>`;
+  }
+
+  function setFace(el, n) { el.innerHTML = diceFace(n); }
+
+  let scores = [0, 0];
+  let current = 0;
+  let gameOver = false;
+
+  // Init dice
+  setFace(document.getElementById('dice1'), Math.ceil(Math.random()*6));
+  setFace(document.getElementById('dice2'), Math.ceil(Math.random()*6));
+
+  function roll() {
+    if (gameOver) return;
+
+    const d1El = document.getElementById('dice1');
+    const d2El = document.getElementById('dice2');
+
+    document.getElementById('rollBtn').disabled = true;
+
+    // Restart rolling animation
+    d1El.classList.remove('rolling', 'landing');
+    d2El.classList.remove('rolling', 'landing');
+    void d1El.offsetWidth;
+    d1El.classList.add('rolling');
+    d2El.classList.add('rolling');
+
+    // Rapidly shuffle faces during roll
+    const shuffleInterval = setInterval(() => {
+      setFace(d1El, Math.ceil(Math.random()*6));
+      setFace(d2El, Math.ceil(Math.random()*6));
+    }, 90);
+
+    setTimeout(() => {
+      clearInterval(shuffleInterval);
+
+      const v1 = Math.floor(Math.random() * 6) + 1;
+      const v2 = Math.floor(Math.random() * 6) + 1;
+      const sum = v1 + v2;
+
+      d1El.classList.remove('rolling');
+      d2El.classList.remove('rolling');
+      d1El.classList.add('landing');
+      d2El.classList.add('landing');
+      setFace(d1El, v1);
+      setFace(d2El, v2);
+
+      scores[current] += sum;
+
+      const resultEl = document.getElementById('rollResult');
+      if (v1 === v2) {
+        resultEl.innerHTML = `Pasch! <span>${v1}+${v2} = ${sum}</span> Punkte 🎉`;
+      } else {
+        resultEl.innerHTML = `<span>${v1} + ${v2} = ${sum}</span> Punkte`;
+      }
+
+      document.getElementById('score' + current).textContent = scores[current];
+
+      setTimeout(() => {
+        d1El.classList.remove('landing');
+        d2El.classList.remove('landing');
+        if (scores[current] >= 50) {
+          endGame();
+        } else {
+          switchPlayer();
+          document.getElementById('rollBtn').disabled = false;
+        }
+      }, 350);
+    }, 750);
+  }
+
+  function switchPlayer() {
+    document.getElementById('card' + current).classList.remove('active');
+    document.getElementById('turn' + current).textContent = '';
+    current = 1 - current;
+    document.getElementById('card' + current).classList.add('active');
+    document.getElementById('turn' + current).textContent = '▶ Du bist dran';
+  }
+
+  function endGame() {
+    gameOver = true;
+    document.getElementById('card' + current).classList.add('winner');
+    document.getElementById('score' + current).classList.add('winner-score');
+    document.getElementById('turn' + current).textContent = '🏆 Gewinner!';
+    document.getElementById('winnerBanner').style.display = 'block';
+    document.getElementById('rollBtn').disabled = true;
+  }
+
+  function reset() {
+    scores = [0, 0];
+    current = 0;
+    gameOver = false;
+    for (let i = 0; i < 2; i++) {
+      document.getElementById('score' + i).textContent = '0';
+      document.getElementById('score' + i).classList.remove('winner-score');
+      document.getElementById('card' + i).classList.remove('active', 'winner');
+      document.getElementById('turn' + i).textContent = '';
+    }
+    document.getElementById('card0').classList.add('active');
+    document.getElementById('turn0').textContent = '▶ Du bist dran';
+    setFace(document.getElementById('dice1'), Math.ceil(Math.random()*6));
+    setFace(document.getElementById('dice2'), Math.ceil(Math.random()*6));
+    document.getElementById('rollResult').textContent = 'Drücke den Knopf!';
+    document.getElementById('winnerBanner').style.display = 'none';
+    document.getElementById('rollBtn').disabled = false;
+  }
+</script>
+</body>
+</html>

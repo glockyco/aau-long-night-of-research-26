@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Jump & Run</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #1a0a2e; overflow: hidden; font-family: Arial, sans-serif; }
+  #ui { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 22px; display: flex; gap: 50px; z-index: 10; text-shadow: 0 0 6px #000; }
+  canvas { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+  #message { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 15px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <span>🐻 <span id="lives">3</span></span>
+  <span>⭐ <span id="score">0</span></span>
+  <span>Level <span id="level">1</span></span>
+</div>
+<canvas id="c" width="800" height="450"></canvas>
+<div id="message">← → bewegen &nbsp;|&nbsp; ↑ oder Leertaste springen</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 800, H = 450;
+
+const GRAVITY = 0.5;
+const JUMP = -13;
+const SPEED = 4;
+
+// --- Level definitions ---
+// platforms: static ground
+// movingPlatforms: {x,y,w,h, axis:'x'|'y', min, max, speed}  — colored blue/cyan
+// spikes: {x,y,w,h}  — instant kill
+// springs: {x,y}  — super jump
+// enemies: {x,y,dir,minX,maxX}
+// coins, goal, spawnX, spawnY
+
+const levels = [
+  // ── Level 1 — Einführung mit einer beweglichen Plattform ──
+  {
+    platforms: [
+      {x:0,   y:410, w:200, h:40},
+      {x:240, y:370, w:120, h:20},
+      {x:410, y:320, w:120, h:20},
+      {x:580, y:280, w:100, h:20},
+      {x:680, y:410, w:120, h:40},
+    ],
+    movingPlatforms: [
+      {x:300, y:200, w:80, h:18, axis:'x', min:300, max:500, speed:1.8},
+    ],
+    spikes: [
+      {x:210, y:400, w:30, h:14},
+      {x:560, y:400, w:30, h:14},
+    ],
+    springs: [],
+    enemies: [
+      {x:50,  y:390, dir:1, minX:10,  maxX:180},
+      {x:440, y:300, dir:1, minX:415, maxX:510},
+    ],
+    coins: [
+      {x:260,y:345},{x:300,y:345},{x:340,y:345},
+      {x:430,y:295},{x:470,y:295},{x:510,y:295},
+      {x:600,y:255},{x:640,y:255},
+      {x:340,y:175},
+    ],
+    goal: {x:750, y:370},
+    spawnX: 30, spawnY: 350,
+  },
+
+  // ── Level 2 — Vertikale bewegliche Plattformen & mehr Stacheln ──
+  {
+    platforms: [
+      {x:0,   y:410, w:120, h:40},
+      {x:280, y:380, w:80,  h:20},
+      {x:460, y:340, w:80,  h:20},
+      {x:640, y:410, w:160, h:40},
+    ],
+    movingPlatforms: [
+      {x:150, y:300, w:80, h:18, axis:'y', min:240, max:380, speed:2.0},
+      {x:370, y:250, w:80, h:18, axis:'y', min:180, max:340, speed:1.6},
+      {x:540, y:200, w:80, h:18, axis:'x', min:480, max:620, speed:2.2},
+    ],
+    spikes: [
+      {x:130, y:398, w:25, h:14},
+      {x:360, y:368, w:25, h:14},
+      {x:540, y:328, w:25, h:14},
+      {x:620, y:398, w:25, h:14},
+    ],
+    springs: [
+      {x:30, y:395},
+    ],
+    enemies: [
+      {x:290, y:360, dir:1, minX:282, maxX:345},
+      {x:470, y:320, dir:1, minX:462, maxX:525},
+      {x:660, y:390, dir:1, minX:645, maxX:775},
+    ],
+    coins: [
+      {x:175,y:275},{x:175,y:245},
+      {x:385,y:225},{x:385,y:195},
+      {x:555,y:175},{x:555,y:145},
+      {x:700,y:385},{x:740,y:385},
+    ],
+    goal: {x:755, y:370},
+    spawnX: 20, spawnY: 360,
+  },
+
+  // ── Level 3 — Gemischtes Chaos ──
+  {
+    platforms: [
+      {x:0,   y:410, w:100, h:40},
+      {x:180, y:360, w:60,  h:20},
+      {x:420, y:300, w:60,  h:20},
+      {x:620, y:260, w:60,  h:20},
+      {x:720, y:410, w:80,  h:40},
+    ],
+    movingPlatforms: [
+      {x:110, y:280, w:70, h:18, axis:'x', min:110, max:260, speed:2.5},
+      {x:300, y:220, w:70, h:18, axis:'y', min:160, max:340, speed:2.0},
+      {x:500, y:180, w:70, h:18, axis:'x', min:460, max:620, speed:3.0},
+      {x:650, y:150, w:70, h:18, axis:'y', min:120, max:240, speed:1.8},
+    ],
+    spikes: [
+      {x:100, y:398, w:25, h:14},
+      {x:160, y:348, w:25, h:14},
+      {x:400, y:288, w:25, h:14},
+      {x:600, y:248, w:25, h:14},
+      {x:700, y:398, w:25, h:14},
+    ],
+    springs: [
+      {x:40, y:395},
+      {x:440, y:285},
+    ],
+    enemies: [
+      {x:185, y:340, dir:1, minX:182, maxX:225},
+      {x:425, y:280, dir:1, minX:422, maxX:465},
+      {x:625, y:240, dir:1, minX:622, maxX:665},
+      {x:725, y:390, dir:1, minX:722, maxX:780},
+    ],
+    coins: [
+      {x:120,y:255},{x:155,y:215},
+      {x:315,y:195},{x:315,y:160},
+      {x:515,y:155},{x:515,y:120},
+      {x:665,y:125},{x:700,y:125},
+    ],
+    goal: {x:755, y:370},
+    spawnX: 20, spawnY: 370,
+  },
+];
+
+let currentLevel = 0;
+let lives = 3;
+let score = 0;
+let gameState = 'playing';
+
+let platforms, movingPlatforms, spikes, springs, coins, enemies, goal;
+let player;
+
+function loadLevel(idx) {
+  const lvl = levels[idx];
+  platforms = lvl.platforms.map(p => ({...p}));
+  movingPlatforms = lvl.movingPlatforms.map(p => ({...p, t: Math.random() * Math.PI * 2}));
+  spikes = lvl.spikes.map(s => ({...s}));
+  springs = lvl.springs.map(s => ({...s, w:20, h:14}));
+  coins = lvl.coins.map(c => ({...c, collected: false}));
+  enemies = lvl.enemies.map(e => ({...e, w:36, h:36, vy:0}));
+  goal = {...lvl.goal};
+  player = {
+    x: lvl.spawnX, y: lvl.spawnY,
+    w: 30, h: 36,
+    vx: 0, vy: 0,
+    onGround: false,
+    facing: 1,
+    frame: 0, frameTimer: 0,
+    invincible: 0,
+    onMoving: null,
+  };
+  gameState = 'playing';
+}
+
+loadLevel(0);
+
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === 'ArrowUp' || e.key === ' ') && player.onGround && gameState === 'playing') {
+    player.vy = JUMP;
+    player.onGround = false;
+    player.onMoving = null;
+  }
+  if ((e.key === ' ' || e.key === 'Enter') && (gameState === 'dead' || gameState === 'gameover' || gameState === 'win')) {
+    if (gameState === 'gameover') { lives = 3; score = 0; currentLevel = 0; }
+    if (gameState === 'win')      { currentLevel = 0; score = 0; lives = 3; }
+    loadLevel(currentLevel);
+  }
+  e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+function rectOverlap(a, b) {
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+
+function resolvePlayer(p, plat, isMoving) {
+  const prevBottom = p.y + p.h - p.vy;
+  const prevTop    = p.y - p.vy;
+  if (p.vy >= 0 && prevBottom <= plat.y + 4) {
+    p.y = plat.y - p.h;
+    p.vy = 0;
+    p.onGround = true;
+    if (isMoving) p.onMoving = plat;
+    return 'top';
+  }
+  if (p.vy < 0 && prevTop >= plat.y + plat.h - 4) {
+    p.y = plat.y + plat.h;
+    p.vy = 0;
+    return 'bottom';
+  }
+  if (p.vx > 0) p.x = plat.x - p.w;
+  else if (p.vx < 0) p.x = plat.x + plat.w;
+  p.vx = 0;
+  return 'side';
+}
+
+function updateMovingPlatforms() {
+  for (const mp of movingPlatforms) {
+    const prev = mp.axis === 'x' ? mp.x : mp.y;
+    mp.t += mp.speed * 0.02;
+    const range = (mp.max - mp.min) / 2;
+    const center = (mp.max + mp.min) / 2;
+    if (mp.axis === 'x') {
+      mp.x = center + Math.sin(mp.t) * range;
+    } else {
+      mp.y = center + Math.sin(mp.t) * range;
+    }
+    // carry player
+    if (player.onMoving === mp) {
+      if (mp.axis === 'x') player.x += mp.x - prev;
+      else                  player.y += mp.y - prev;
+    }
+  }
+}
+
+function update() {
+  if (gameState !== 'playing') return;
+
+  updateMovingPlatforms();
+
+  player.vx = 0;
+  if (keys['ArrowLeft'])  { player.vx = -SPEED; player.facing = -1; }
+  if (keys['ArrowRight']) { player.vx =  SPEED;  player.facing =  1; }
+
+  player.vy += GRAVITY;
+  player.x += player.vx;
+  player.y += player.vy;
+  player.onGround = false;
+  player.onMoving = null;
+
+  for (const p of platforms) {
+    if (rectOverlap(player, p)) resolvePlayer(player, p, false);
+  }
+  for (const mp of movingPlatforms) {
+    if (rectOverlap(player, mp)) resolvePlayer(player, mp, true);
+  }
+
+  // Fall off
+  if (player.y > H + 60) die();
+
+  // Spikes
+  if (player.invincible === 0) {
+    for (const s of spikes) {
+      if (rectOverlap(player, {x:s.x+2, y:s.y+4, w:s.w-4, h:s.h-4})) { die(); return; }
+    }
+  }
+
+  // Springs
+  for (const sp of springs) {
+    if (player.vy > 0 && rectOverlap(player, {x:sp.x, y:sp.y, w:sp.w, h:sp.h})) {
+      player.vy = JUMP * 1.7;
+      player.onGround = false;
+    }
+  }
+
+  // Invincibility
+  if (player.invincible > 0) player.invincible--;
+
+  // Animate
+  if (player.vx !== 0 && player.onGround) {
+    player.frameTimer++;
+    if (player.frameTimer > 8) { player.frame = (player.frame+1)%4; player.frameTimer=0; }
+  } else { player.frame = 0; }
+
+  // Coins
+  for (const coin of coins) {
+    if (!coin.collected && rectOverlap(player, {x:coin.x-9,y:coin.y-9,w:18,h:18})) {
+      coin.collected = true;
+      score += 10;
+      document.getElementById('score').textContent = score;
+    }
+  }
+
+  // Enemies
+  for (const e of enemies) {
+    e.x += e.dir * 1.5;
+    if (e.x <= e.minX || e.x + e.w >= e.maxX) e.dir *= -1;
+    if (rectOverlap(player, e) && player.invincible === 0) {
+      if (player.vy > 0 && player.y + player.h < e.y + e.h * 0.6) {
+        e.dead = true;
+        player.vy = JUMP * 0.6;
+        score += 20;
+        document.getElementById('score').textContent = score;
+      } else { die(); return; }
+    }
+  }
+  enemies = enemies.filter(e => !e.dead);
+
+  // Goal
+  if (rectOverlap(player, {x:goal.x, y:goal.y, w:30, h:50})) {
+    currentLevel++;
+    if (currentLevel >= levels.length) {
+      gameState = 'win';
+    } else {
+      document.getElementById('level').textContent = currentLevel + 1;
+      loadLevel(currentLevel);
+    }
+  }
+}
+
+function die() {
+  if (player.invincible > 0) return;
+  lives--;
+  document.getElementById('lives').textContent = lives;
+  if (lives <= 0) {
+    gameState = 'gameover';
+  } else {
+    gameState = 'dead';
+    setTimeout(() => loadLevel(currentLevel), 900);
+  }
+}
+
+// ── Drawing ──
+
+function drawPlayer(p) {
+  if (p.invincible > 0 && Math.floor(p.invincible/4)%2===0) return;
+  const {x,y,w,h,facing:f} = p;
+  ctx.save();
+  ctx.translate(x+w/2, y+h/2);
+  ctx.scale(f,1);
+  ctx.fillStyle='#e74c3c'; ctx.fillRect(-w/2,-h/2+14,w,h-14);
+  ctx.fillStyle='#f5cba7'; ctx.beginPath(); ctx.arc(0,-h/2+10,11,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#c0392b'; ctx.fillRect(-11,-h/2-2,22,6); ctx.fillRect(-7,-h/2-10,14,10);
+  ctx.fillStyle='#fff'; ctx.fillRect(3,-h/2+5,6,6);
+  ctx.fillStyle='#222'; ctx.fillRect(5,-h/2+7,3,3);
+  const legOff=[0,-4,0,4][p.frame]||0;
+  ctx.fillStyle='#2980b9';
+  ctx.fillRect(-w/2,h/2-14,12,14+legOff);
+  ctx.fillRect(w/2-12,h/2-14,12,14-legOff);
+  ctx.restore();
+}
+
+function drawEnemy(e) {
+  const cx=e.x+e.w/2, cy=e.y+e.h/2;
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(e.dir>0?1:-1,1);
+  ctx.fillStyle='#8e44ad'; ctx.beginPath(); ctx.ellipse(0,4,14,16,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(-5,-2,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(5,-2,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#c00';
+  ctx.beginPath(); ctx.arc(-4,-2,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(6,-2,3,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#6c3483'; ctx.fillRect(-14,14,10,6); ctx.fillRect(4,14,10,6);
+  ctx.restore();
+}
+
+function drawPlatform(p) {
+  ctx.fillStyle='#27ae60'; ctx.fillRect(p.x,p.y,p.w,8);
+  ctx.fillStyle='#795548'; ctx.fillRect(p.x,p.y+8,p.w,p.h-8);
+  ctx.fillStyle='#2ecc71';
+  for (let i=4; i<p.w-4; i+=12) ctx.fillRect(p.x+i,p.y-2,5,4);
+}
+
+function drawMovingPlatform(mp) {
+  // Glowing blue platform
+  ctx.shadowColor = '#00cfff';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = '#0e7490';
+  ctx.fillRect(mp.x, mp.y, mp.w, mp.h);
+  ctx.fillStyle = '#22d3ee';
+  ctx.fillRect(mp.x, mp.y, mp.w, 5);
+  // arrow indicator
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(mp.axis==='x' ? '◄►' : '▲▼', mp.x+mp.w/2, mp.y+mp.h-3);
+}
+
+function drawSpike(s) {
+  ctx.fillStyle = '#e74c3c';
+  const n = Math.floor(s.w / 10);
+  const tw = s.w / n;
+  for (let i=0; i<n; i++) {
+    ctx.beginPath();
+    ctx.moveTo(s.x + i*tw, s.y + s.h);
+    ctx.lineTo(s.x + i*tw + tw/2, s.y);
+    ctx.lineTo(s.x + i*tw + tw, s.y + s.h);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawSpring(sp) {
+  ctx.fillStyle = '#f39c12';
+  ctx.fillRect(sp.x, sp.y+8, sp.w, 6);
+  ctx.fillStyle = '#e67e22';
+  for (let i=0; i<3; i++) {
+    ctx.fillRect(sp.x+2, sp.y+i*3, sp.w-4, 3);
+  }
+  ctx.fillStyle = '#f1c40f';
+  ctx.fillRect(sp.x-2, sp.y, sp.w+4, 5);
+}
+
+function drawCoin(c) {
+  if (c.collected) return;
+  const t = Date.now()/400;
+  ctx.save(); ctx.translate(c.x,c.y); ctx.scale(Math.abs(Math.cos(t+c.x)),1);
+  ctx.fillStyle='#f1c40f'; ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#f39c12'; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 8px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('$',0,0);
+  ctx.restore();
+}
+
+function drawGoal(g) {
+  const t=Date.now()/500;
+  ctx.fillStyle='#bdc3c7'; ctx.fillRect(g.x+12,g.y-60,6,110);
+  ctx.fillStyle='#e74c3c';
+  ctx.beginPath();
+  ctx.moveTo(g.x+18,g.y-60);
+  ctx.lineTo(g.x+18+28+Math.sin(t)*4,g.y-45);
+  ctx.lineTo(g.x+18,g.y-30);
+  ctx.fill();
+  ctx.fillStyle='#f1c40f'; ctx.font='18px Arial';
+  ctx.fillText('⭐',g.x+4,g.y-65);
+}
+
+function drawBackground() {
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0a0520'); grad.addColorStop(1,'#1a0a2e');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,0.6)';
+  const stars=[[50,30],[120,80],[200,20],[300,60],[420,15],[500,45],[600,25],[720,70],[780,35],[100,120],[350,100],[650,90],[170,50],[440,35],[560,75],[690,20]];
+  for (const [sx,sy] of stars) { ctx.beginPath(); ctx.arc(sx,sy,1.5,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle='#f0e68c'; ctx.beginPath(); ctx.arc(740,55,30,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a0a2e'; ctx.beginPath(); ctx.arc(752,48,24,0,Math.PI*2); ctx.fill();
+}
+
+function drawOverlay(text, sub) {
+  ctx.fillStyle='rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#fff'; ctx.font='bold 52px Arial'; ctx.textAlign='center';
+  ctx.fillText(text,W/2,H/2-20);
+  ctx.font='22px Arial'; ctx.fillStyle='#ccc';
+  ctx.fillText(sub,W/2,H/2+30);
+}
+
+function draw() {
+  ctx.shadowBlur = 0;
+  drawBackground();
+  for (const p of platforms) drawPlatform(p);
+  for (const mp of movingPlatforms) drawMovingPlatform(mp);
+  for (const s of spikes) drawSpike(s);
+  for (const sp of springs) drawSpring(sp);
+  drawGoal(goal);
+  for (const c of coins) drawCoin(c);
+  for (const e of enemies) drawEnemy(e);
+  drawPlayer(player);
+  ctx.shadowBlur = 0;
+
+  if (gameState==='dead')     drawOverlay('Autsch! 💥','Neu starten...');
+  if (gameState==='gameover') drawOverlay('Game Over 😢','LEERTASTE zum Neustart');
+  if (gameState==='win')      drawOverlay('🎉 Gewonnen! 🎉',`Punkte: ${score} — LEERTASTE für neues Spiel`);
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+loop();
+</script>
+</body>
+</html>

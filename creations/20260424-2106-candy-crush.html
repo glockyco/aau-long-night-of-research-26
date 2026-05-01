@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Candy Crush</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #1a0033, #3d0066, #1a0033);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+    color: white;
+    overflow: hidden;
+  }
+  h1 {
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px #ff66cc, 0 0 40px #ff66cc;
+    letter-spacing: 3px;
+  }
+  #scoreboard {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+  }
+  .score-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 8px 20px;
+    text-align: center;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .score-box span { font-size: 1.5em; font-weight: bold; color: #ffee00; }
+  #board-container {
+    position: relative;
+  }
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    gap: 4px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 16px;
+    border: 3px solid rgba(255,255,255,0.25);
+    box-shadow: 0 0 40px rgba(255,100,200,0.4);
+  }
+  .cell {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .cell:hover { transform: scale(1.08); }
+  .cell.selected {
+    box-shadow: 0 0 0 3px #fff, 0 0 15px #ffff00;
+    transform: scale(1.12);
+    z-index: 10;
+  }
+  .cell.matched {
+    animation: pop 0.35s ease forwards;
+  }
+  .cell.falling {
+    animation: fall 0.3s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  @keyframes fall {
+    from { transform: translateY(-60px); opacity: 0.5; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .c0 { background: linear-gradient(135deg, #ff3366, #cc0044); }
+  .c1 { background: linear-gradient(135deg, #ff9900, #cc6600); }
+  .c2 { background: linear-gradient(135deg, #33cc33, #006600); }
+  .c3 { background: linear-gradient(135deg, #3399ff, #0033cc); }
+  .c4 { background: linear-gradient(135deg, #cc33ff, #6600cc); }
+  .c5 { background: linear-gradient(135deg, #ffff33, #ccaa00); }
+  #msg {
+    margin-top: 15px;
+    font-size: 1.3em;
+    min-height: 1.5em;
+    text-align: center;
+    text-shadow: 0 0 10px #fff;
+    letter-spacing: 1px;
+  }
+  #restart-btn {
+    margin-top: 12px;
+    padding: 10px 30px;
+    font-size: 1em;
+    background: linear-gradient(135deg, #ff66cc, #cc0099);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 15px rgba(255,0,150,0.5);
+    transition: transform 0.1s;
+  }
+  #restart-btn:hover { transform: scale(1.05); }
+  #combo-msg {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3em;
+    font-weight: bold;
+    color: #ffee00;
+    text-shadow: 0 0 30px #ff6600;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 100;
+    transition: opacity 0.1s;
+  }
+</style>
+</head>
+<body>
+<h1>🍬 Candy Crush 🍭</h1>
+<div id="scoreboard">
+  <div class="score-box">Punkte<br><span id="score">0</span></div>
+  <div class="score-box">Züge<br><span id="moves">30</span></div>
+  <div class="score-box">Level<br><span id="level">1</span></div>
+</div>
+<div id="board-container">
+  <div id="board"></div>
+</div>
+<div id="msg"></div>
+<button id="restart-btn" onclick="startGame()">🔄 Neu starten</button>
+<div id="combo-msg"></div>
+
+<script>
+const COLS = 8, ROWS = 8;
+const CANDIES = ['🍬','🍭','🍫','🍇','🍊','⭐'];
+const COLORS = ['c0','c1','c2','c3','c4','c5'];
+let board = [], selected = null, score = 0, moves = 30, level = 1, busy = false;
+
+function startGame() {
+  score = 0; moves = 30 + (level-1)*5; selected = null; busy = false;
+  document.getElementById('score').textContent = score;
+  document.getElementById('moves').textContent = moves;
+  document.getElementById('level').textContent = level;
+  document.getElementById('msg').textContent = '';
+  initBoard();
+  render();
+}
+
+function initBoard() {
+  board = [];
+  for (let r = 0; r < ROWS; r++) {
+    board[r] = [];
+    for (let c = 0; c < COLS; c++) {
+      board[r][c] = randomCandy();
+    }
+  }
+  // Ensure no starting matches
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      while (hasMatchAt(r, c)) board[r][c] = randomCandy();
+    }
+  }
+}
+
+function randomCandy() { return Math.floor(Math.random() * CANDIES.length); }
+
+function hasMatchAt(r, c) {
+  let v = board[r][c];
+  if (c >= 2 && board[r][c-1] === v && board[r][c-2] === v) return true;
+  if (r >= 2 && board[r-1][c] === v && board[r-2][c] === v) return true;
+  return false;
+}
+
+function render() {
+  const el = document.getElementById('board');
+  el.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + COLORS[board[r][c]];
+      cell.textContent = CANDIES[board[r][c]];
+      cell.dataset.r = r; cell.dataset.c = c;
+      if (selected && selected.r === r && selected.c === c) cell.classList.add('selected');
+      cell.addEventListener('click', () => onCellClick(r, c));
+      el.appendChild(cell);
+    }
+  }
+}
+
+function onCellClick(r, c) {
+  if (busy) return;
+  if (!selected) {
+    selected = {r, c};
+    render();
+  } else {
+    if (selected.r === r && selected.c === c) {
+      selected = null; render(); return;
+    }
+    if (isAdjacent(selected, {r, c})) {
+      const sr = selected.r, sc = selected.c;
+      selected = null;
+      swap(sr, sc, r, c);
+      moves--;
+      document.getElementById('moves').textContent = moves;
+    } else {
+      selected = {r, c}; render();
+    }
+  }
+}
+
+function isAdjacent(a, b) {
+  return (Math.abs(a.r - b.r) + Math.abs(a.c - b.c)) === 1;
+}
+
+async function swap(r1, c1, r2, c2) {
+  busy = true;
+  [board[r1][c1], board[r2][c2]] = [board[r2][c2], board[r1][c1]];
+  render();
+  let matched = findMatches();
+  if (matched.length === 0) {
+    await delay(200);
+    [board[r1][c1], board[r2][c2]] = [board[r2][c2], board[r1][c1]];
+    render();
+    moves++;
+    document.getElementById('moves').textContent = moves;
+    document.getElementById('msg').textContent = '❌ Kein Match!';
+    setTimeout(() => document.getElementById('msg').textContent = '', 1000);
+    busy = false;
+    return;
+  }
+  document.getElementById('msg').textContent = '';
+  await resolveMatches();
+  busy = false;
+  checkGameOver();
+}
+
+function findMatches() {
+  let matched = new Set();
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS - 2; c++) {
+      if (board[r][c] === board[r][c+1] && board[r][c] === board[r][c+2]) {
+        matched.add(`${r},${c}`); matched.add(`${r},${c+1}`); matched.add(`${r},${c+2}`);
+        if (c+3 < COLS && board[r][c] === board[r][c+3]) matched.add(`${r},${c+3}`);
+        if (c+4 < COLS && board[r][c] === board[r][c+4]) matched.add(`${r},${c+4}`);
+      }
+    }
+  }
+  for (let c = 0; c < COLS; c++) {
+    for (let r = 0; r < ROWS - 2; r++) {
+      if (board[r][c] === board[r+1][c] && board[r][c] === board[r+2][c]) {
+        matched.add(`${r},${c}`); matched.add(`${r+1},${c}`); matched.add(`${r+2},${c}`);
+        if (r+3 < ROWS && board[r][c] === board[r+3][c]) matched.add(`${r+3},${c}`);
+        if (r+4 < ROWS && board[r][c] === board[r+4][c]) matched.add(`${r+4},${c}`);
+      }
+    }
+  }
+  return [...matched].map(k => { let [r,c] = k.split(','); return {r:+r, c:+c}; });
+}
+
+async function resolveMatches(combo = 1) {
+  let matched = findMatches();
+  if (matched.length === 0) return;
+  let pts = matched.length * 10 * combo;
+  score += pts;
+  document.getElementById('score').textContent = score;
+  if (combo > 1) showCombo(combo);
+  // Animate pop
+  matched.forEach(({r, c}) => {
+    let idx = r * COLS + c;
+    let el = document.getElementById('board').children[idx];
+    if (el) el.classList.add('matched');
+  });
+  await delay(350);
+  matched.forEach(({r, c}) => board[r][c] = -1);
+  gravity();
+  render();
+  await delay(300);
+  await resolveMatches(combo + 1);
+}
+
+function gravity() {
+  for (let c = 0; c < COLS; c++) {
+    let empty = [];
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r][c] === -1) empty.push(r);
+      else if (empty.length > 0) {
+        board[empty.shift()][c] = board[r][c];
+        board[r][c] = -1;
+        empty.push(r);
+      }
+    }
+    for (let r of empty) board[r][c] = randomCandy();
+  }
+}
+
+function showCombo(n) {
+  const el = document.getElementById('combo-msg');
+  el.textContent = `${n}x COMBO! 🔥`;
+  el.style.opacity = '1';
+  setTimeout(() => el.style.opacity = '0', 900);
+}
+
+function checkGameOver() {
+  if (moves <= 0) {
+    document.getElementById('msg').textContent = `🎮 Spiel vorbei! ${score} Punkte`;
+    busy = true;
+    return;
+  }
+  let target = level * 500;
+  if (score >= target) {
+    level++;
+    document.getElementById('level').textContent = level;
+    document.getElementById('msg').textContent = `🎉 Level ${level}! Weiter so!`;
+    setTimeout(() => { document.getElementById('msg').textContent = ''; }, 1500);
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+startGame();
+</script>
+</body>
+</html>

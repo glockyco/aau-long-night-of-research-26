@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaktionstest</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    color: #e0e0ff;
+  }
+
+  #subtitle {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 2rem;
+  }
+
+  #arena {
+    width: 380px;
+    height: 380px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    background: #16213e;
+    border: 3px solid #0f3460;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #arena.wait   { background: #16213e; border-color: #0f3460; }
+  #arena.ready  { background: #1a472a; border-color: #2ecc71; }
+  #arena.go     { background: #145a32; border-color: #27ae60; animation: pulse 0.4s ease-out; }
+  #arena.early  { background: #4a1010; border-color: #e74c3c; }
+  #arena.result { background: #1a1a3e; border-color: #9b59b6; }
+
+  @keyframes pulse {
+    0%   { transform: scale(0.97); }
+    50%  { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  #arena-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+  }
+
+  #arena-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 1rem;
+    line-height: 1.4;
+  }
+
+  #arena-sub {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  #reaction-time {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #2ecc71;
+    margin-top: 0.5rem;
+  }
+
+  #history {
+    margin-top: 2rem;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    height: 80px;
+  }
+
+  .bar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .bar {
+    width: 32px;
+    border-radius: 6px 6px 0 0;
+    background: #9b59b6;
+    transition: height 0.3s ease;
+    min-height: 4px;
+  }
+
+  .bar-label {
+    font-size: 0.7rem;
+    color: #aaa;
+  }
+
+  #stats {
+    margin-top: 1.2rem;
+    font-size: 0.95rem;
+    color: #bbb;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  #stats span {
+    color: #e0e0ff;
+    font-weight: bold;
+  }
+
+  #reset-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 2rem;
+    border: 2px solid #555;
+    background: transparent;
+    color: #aaa;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #reset-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+
+  #rating {
+    font-size: 1.1rem;
+    margin-top: 0.3rem;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h1>⚡ Reaktionstest</h1>
+<p id="subtitle">Wie schnell bist du?</p>
+
+<div id="arena" class="wait" onclick="handleClick()">
+  <div id="arena-icon">🖱️</div>
+  <div id="arena-text">Klick zum Starten</div>
+  <div id="arena-sub"></div>
+  <div id="reaction-time"></div>
+</div>
+
+<div id="history"></div>
+
+<div id="stats"></div>
+
+<button id="reset-btn" onclick="resetAll()">Neu starten</button>
+
+<script>
+  let state = 'idle'; // idle | waiting | go | result | early
+  let goTimeout = null;
+  let goTimestamp = null;
+  let times = [];
+
+  const arena     = document.getElementById('arena');
+  const icon      = document.getElementById('arena-icon');
+  const text      = document.getElementById('arena-text');
+  const sub       = document.getElementById('arena-sub');
+  const rtDisplay = document.getElementById('reaction-time');
+  const histDiv   = document.getElementById('history');
+  const statsDiv  = document.getElementById('stats');
+
+  function handleClick() {
+    if (state === 'idle' || state === 'result') {
+      startWaiting();
+    } else if (state === 'waiting') {
+      tooEarly();
+    } else if (state === 'go') {
+      registerReaction();
+    } else if (state === 'early') {
+      startWaiting();
+    }
+  }
+
+  function startWaiting() {
+    state = 'waiting';
+    arena.className = 'ready';
+    icon.textContent = '⏳';
+    text.textContent = 'Warte auf Grün…';
+    sub.textContent = 'Nicht zu früh klicken!';
+    rtDisplay.textContent = '';
+
+    const delay = 1500 + Math.random() * 3500;
+    goTimeout = setTimeout(showGo, delay);
+  }
+
+  function showGo() {
+    state = 'go';
+    arena.className = 'go';
+    icon.textContent = '🟢';
+    text.textContent = 'JETZT KLICKEN!';
+    sub.textContent = '';
+    goTimestamp = performance.now();
+  }
+
+  function registerReaction() {
+    const elapsed = Math.round(performance.now() - goTimestamp);
+    times.push(elapsed);
+    state = 'result';
+    arena.className = 'result';
+    icon.textContent = ratingEmoji(elapsed);
+    text.textContent = 'Deine Reaktionszeit:';
+    sub.textContent = ratingText(elapsed);
+    rtDisplay.textContent = elapsed + ' ms';
+
+    updateHistory();
+    updateStats();
+  }
+
+  function tooEarly() {
+    clearTimeout(goTimeout);
+    state = 'early';
+    arena.className = 'early';
+    icon.textContent = '❌';
+    text.textContent = 'Zu früh!';
+    sub.textContent = 'Klick nochmal zum Wiederholen';
+    rtDisplay.textContent = '';
+  }
+
+  function ratingEmoji(ms) {
+    if (ms < 180) return '🚀';
+    if (ms < 230) return '⚡';
+    if (ms < 300) return '✅';
+    if (ms < 400) return '👍';
+    return '🐢';
+  }
+
+  function ratingText(ms) {
+    if (ms < 180) return 'Unglaublich schnell!';
+    if (ms < 230) return 'Sehr gut!';
+    if (ms < 300) return 'Gut!';
+    if (ms < 400) return 'Durchschnittlich';
+    return 'Etwas langsam – nochmal versuchen!';
+  }
+
+  function updateHistory() {
+    histDiv.innerHTML = '';
+    const maxMs = Math.max(...times, 400);
+    const maxH  = 64;
+    times.slice(-8).forEach((t, i) => {
+      const h = Math.max(4, Math.round((t / maxMs) * maxH));
+      const wrap = document.createElement('div');
+      wrap.className = 'bar-wrap';
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = h + 'px';
+      bar.title = t + ' ms';
+      const lbl = document.createElement('div');
+      lbl.className = 'bar-label';
+      lbl.textContent = t;
+      wrap.appendChild(bar);
+      wrap.appendChild(lbl);
+      histDiv.appendChild(wrap);
+    });
+  }
+
+  function updateStats() {
+    if (times.length < 2) { statsDiv.innerHTML = ''; return; }
+    const avg = Math.round(times.reduce((a,b)=>a+b,0)/times.length);
+    const best = Math.min(...times);
+    statsDiv.innerHTML =
+      `Versuche: <span>${times.length}</span> &nbsp;|&nbsp; ` +
+      `Schnellste: <span>${best} ms</span> &nbsp;|&nbsp; ` +
+      `Durchschnitt: <span>${avg} ms</span>`;
+  }
+
+  function resetAll() {
+    clearTimeout(goTimeout);
+    times = [];
+    state = 'idle';
+    arena.className = 'wait';
+    icon.textContent = '🖱️';
+    text.textContent = 'Klick zum Starten';
+    sub.textContent = '';
+    rtDisplay.textContent = '';
+    histDiv.innerHTML = '';
+    statsDiv.innerHTML = '';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Reaktionstest</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    user-select: none;
+  }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  #subtitle { color: #aaa; margin-bottom: 2rem; font-size: 1rem; }
+
+  #arena {
+    width: 420px;
+    height: 420px;
+    background: #16213e;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    border: 3px solid #0f3460;
+    transition: background 0.2s;
+  }
+  #arena.waiting  { background: #16213e; border-color: #0f3460; }
+  #arena.ready    { background: #0d7a3e; border-color: #1db954; }
+  #arena.red      { background: #7a1a0d; border-color: #e74c3c; }
+  #arena.too-early { background: #4a0d7a; border-color: #a020f0; }
+  #arena.clicked-red { background: #7a1a0d; border-color: #e74c3c; }
+
+  #message {
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1rem;
+    pointer-events: none;
+  }
+
+  #result {
+    margin-top: 1.5rem;
+    font-size: 1.3rem;
+    height: 2rem;
+    color: #1db954;
+  }
+
+  #scores {
+    margin-top: 1.5rem;
+    background: #16213e;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    min-width: 420px;
+    text-align: center;
+  }
+  #scores h2 { font-size: 1rem; color: #aaa; margin-bottom: 0.5rem; }
+  #score-list { list-style: none; }
+  #score-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    font-size: 1rem;
+  }
+  #score-list li span.ms { color: #1db954; font-weight: bold; }
+
+  #btn-reset {
+    margin-top: 1.2rem;
+    padding: 0.6rem 2rem;
+    background: #0f3460;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  #btn-reset:hover { background: #1a4a80; }
+</style>
+</head>
+<body>
+
+<h1>⚡ Reaktionstest</h1>
+<p id="subtitle">🟢 Grün = klicken! &nbsp; 🔴 Rot = NICHT klicken!</p>
+
+<div id="arena" class="waiting">
+  <div id="message">Hier klicken zum Starten</div>
+</div>
+
+<div id="result"></div>
+
+<div id="scores">
+  <h2>Deine Ergebnisse (letzte 5)</h2>
+  <ul id="score-list"><li style="color:#555">Noch keine Ergebnisse</li></ul>
+</div>
+
+<button id="btn-reset">Bestenliste leeren</button>
+
+<script>
+  const arena = document.getElementById('arena');
+  const message = document.getElementById('message');
+  const result = document.getElementById('result');
+  const scoreList = document.getElementById('score-list');
+
+  // states: idle, waiting, go, red, tooearly, clickedred
+  let state = 'idle';
+  let startTime = 0;
+  let timeout = null;
+  let scores = [];
+
+  function setState(s) {
+    state = s;
+    arena.className = '';
+    result.textContent = '';
+    if (s === 'waiting') {
+      arena.classList.add('waiting');
+      message.textContent = 'Warte...';
+    } else if (s === 'go') {
+      arena.classList.add('ready');
+      message.textContent = 'JETZT KLICKEN! 🟢';
+      startTime = performance.now();
+    } else if (s === 'red') {
+      arena.classList.add('red');
+      message.textContent = 'STOP! 🔴';
+    } else if (s === 'tooearly') {
+      arena.classList.add('too-early');
+      message.textContent = 'Zu früh geklickt! 😬';
+      result.textContent = '⚠️ Nochmal klicken zum Starten.';
+    } else if (s === 'clickedred') {
+      arena.classList.add('clicked-red');
+      message.textContent = 'Bei ROT nicht klicken! ❌';
+      result.textContent = '❌ Fehler! Nochmal klicken.';
+    } else {
+      arena.classList.add('waiting');
+      message.textContent = 'Hier klicken zum Starten';
+    }
+  }
+
+  function startRound() {
+    setState('waiting');
+    const delay = 1500 + Math.random() * 3000;
+    // randomly show red or green
+    timeout = setTimeout(() => {
+      if (Math.random() < 0.35) {
+        setState('red');
+        // auto-advance after 1.2s if they don't click
+        timeout = setTimeout(() => {
+          if (state === 'red') startRound();
+        }, 1200);
+      } else {
+        setState('go');
+        // miss — no click in 2s counts as idle
+        timeout = setTimeout(() => {
+          if (state === 'go') {
+            result.textContent = '⏰ Zu langsam! Nochmal klicken.';
+            setState('idle');
+          }
+        }, 2000);
+      }
+    }, delay);
+  }
+
+  function addScore(ms) {
+    scores.unshift(ms);
+    if (scores.length > 5) scores.pop();
+    renderScores();
+  }
+
+  function renderScores() {
+    if (scores.length === 0) {
+      scoreList.innerHTML = '<li style="color:#555">Noch keine Ergebnisse</li>';
+      return;
+    }
+    const avg = Math.round(scores.reduce((a,b) => a+b, 0) / scores.length);
+    scoreList.innerHTML = scores.map((ms, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+      return `<li><span>${medal} Versuch ${scores.length - i}</span><span class="ms">${ms} ms</span></li>`;
+    }).join('') + `<li style="border-top:1px solid #333;margin-top:0.4rem;padding-top:0.4rem"><span>⌀ Durchschnitt</span><span class="ms">${avg} ms</span></li>`;
+  }
+
+  arena.addEventListener('click', () => {
+    if (state === 'idle' || state === 'tooearly' || state === 'clickedred') {
+      startRound();
+    } else if (state === 'waiting') {
+      clearTimeout(timeout);
+      setState('tooearly');
+    } else if (state === 'red') {
+      clearTimeout(timeout);
+      setState('clickedred');
+    } else if (state === 'go') {
+      clearTimeout(timeout);
+      const ms = Math.round(performance.now() - startTime);
+      addScore(ms);
+      let emoji = ms < 200 ? '🚀' : ms < 300 ? '⚡' : ms < 400 ? '👍' : '🐢';
+      result.textContent = `${emoji} ${ms} ms — nochmal klicken!`;
+      message.textContent = `${ms} ms`;
+      arena.classList.remove('ready');
+      arena.classList.add('waiting');
+      state = 'idle';
+    }
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    scores = [];
+    renderScores();
+    result.textContent = '';
+    setState('idle');
+  });
+</script>
+</body>
+</html>

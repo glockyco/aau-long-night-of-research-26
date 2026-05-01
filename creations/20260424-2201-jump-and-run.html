@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jump & Run</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif; }
+  canvas { border: 3px solid #e94560; border-radius: 8px; display: block; }
+  #ui { color: #fff; font-size: 18px; margin-bottom: 10px; display: flex; gap: 30px; }
+  #msg { color: #ffd700; font-size: 22px; margin-top: 10px; height: 30px; }
+  #controls { color: #aaa; font-size: 13px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <span>⭐ Stars: <span id="score">0</span></span>
+  <span>❤️ Lives: <span id="lives">3</span></span>
+  <span>🏁 Goal: Reach the flag!</span>
+</div>
+<canvas id="c" width="800" height="450"></canvas>
+<div id="msg"></div>
+<div id="controls">Arrow keys / WASD to move &nbsp;|&nbsp; Space or ↑ to jump &nbsp;|&nbsp; Double-jump allowed!</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const msgEl = document.getElementById('msg');
+
+const W = 800, H = 450;
+const GRAVITY = 0.55;
+const GROUND = H - 60;
+
+let score = 0;
+let lives = 3;
+let gameState = 'playing'; // playing, dead, win
+
+// Camera
+let camX = 0;
+
+// Player
+const player = {
+  x: 100, y: GROUND - 40, w: 32, h: 40,
+  vx: 0, vy: 0,
+  onGround: false,
+  jumpsLeft: 2,
+  facing: 1,
+  frame: 0, frameTimer: 0,
+  running: false,
+};
+
+// World dimensions
+const WORLD_W = 3200;
+
+// Moving platforms
+const platforms = [
+  // x, y, w, h, type, speed, range, dir
+  { x: 0,    y: GROUND, w: 250, h: 20, type: 'ground', speed: 0, range: 0, dir: 1 },
+  { x: 300,  y: GROUND - 80,  w: 150, h: 18, type: 'move', speed: 1.5, range: 120, dir: 1, ox: 300 },
+  { x: 500,  y: GROUND - 50,  w: 120, h: 18, type: 'move', speed: 2,   range: 80,  dir: 1, ox: 500 },
+  { x: 680,  y: GROUND - 120, w: 130, h: 18, type: 'move', speed: 1.8, range: 100, dir: -1,ox: 680 },
+  { x: 870,  y: GROUND - 60,  w: 200, h: 18, type: 'ground', speed: 0, range: 0, dir: 1 },
+  { x: 1100, y: GROUND - 100, w: 110, h: 18, type: 'move', speed: 2.2, range: 90,  dir: 1, ox: 1100 },
+  { x: 1260, y: GROUND - 160, w: 100, h: 18, type: 'move', speed: 1.5, range: 110, dir: -1,ox: 1260 },
+  { x: 1430, y: GROUND - 80,  w: 180, h: 18, type: 'ground', speed: 0, range: 0, dir: 1 },
+  { x: 1650, y: GROUND - 130, w: 120, h: 18, type: 'move', speed: 2.5, range: 100, dir: 1, ox: 1650 },
+  { x: 1820, y: GROUND - 50,  w: 150, h: 18, type: 'move', speed: 2,   range: 130, dir: -1,ox: 1820 },
+  { x: 2020, y: GROUND - 110, w: 130, h: 18, type: 'ground', speed: 0, range: 0, dir: 1 },
+  { x: 2200, y: GROUND - 150, w: 100, h: 18, type: 'move', speed: 3,   range: 80,  dir: 1, ox: 2200 },
+  { x: 2360, y: GROUND - 90,  w: 140, h: 18, type: 'move', speed: 2,   range: 120, dir: -1,ox: 2360 },
+  { x: 2560, y: GROUND - 60,  w: 200, h: 18, type: 'ground', speed: 0, range: 0, dir: 1 },
+  { x: 2800, y: GROUND - 130, w: 130, h: 18, type: 'move', speed: 2.5, range: 100, dir: 1, ox: 2800 },
+  { x: 2980, y: GROUND - 80,  w: 180, h: 18, type: 'ground', speed: 0, range: 0, dir: 1 },
+];
+
+// Stars (collectibles)
+const stars = [];
+function placeStar(x, y) { stars.push({ x, y, collected: false, bob: Math.random() * Math.PI * 2 }); }
+placeStar(200, GROUND - 30);
+placeStar(370, GROUND - 120);
+placeStar(540, GROUND - 100);
+placeStar(740, GROUND - 165);
+placeStar(950, GROUND - 30);
+placeStar(1150, GROUND - 150);
+placeStar(1310, GROUND - 205);
+placeStar(1500, GROUND - 30);
+placeStar(1710, GROUND - 180);
+placeStar(1890, GROUND - 100);
+placeStar(2070, GROUND - 155);
+placeStar(2250, GROUND - 195);
+placeStar(2420, GROUND - 135);
+placeStar(2640, GROUND - 30);
+placeStar(2860, GROUND - 180);
+placeStar(3050, GROUND - 30);
+
+// Goal flag
+const goal = { x: 3100, y: GROUND - 100, w: 20, h: 100 };
+
+// Keys
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.code] = true; });
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+let jumpPressed = false;
+
+function isLeft()  { return keys['ArrowLeft']  || keys['KeyA']; }
+function isRight() { return keys['ArrowRight'] || keys['KeyD']; }
+function isJump()  { return keys['ArrowUp'] || keys['KeyW'] || keys['Space']; }
+
+function resetPlayer() {
+  player.x = 100; player.y = GROUND - 40;
+  player.vx = 0; player.vy = 0;
+  player.onGround = false; player.jumpsLeft = 2;
+  camX = 0;
+}
+
+function update() {
+  if (gameState !== 'playing') return;
+
+  // Move platforms
+  for (const p of platforms) {
+    if (p.type === 'move') {
+      p.x += p.speed * p.dir;
+      if (p.x > p.ox + p.range || p.x < p.ox - p.range) p.dir *= -1;
+    }
+  }
+
+  // Input
+  const speed = 4.5;
+  player.running = false;
+  if (isLeft())  { player.vx = -speed; player.facing = -1; player.running = true; }
+  else if (isRight()) { player.vx = speed; player.facing = 1; player.running = true; }
+  else { player.vx *= 0.8; }
+
+  const jumpNow = isJump();
+  if (jumpNow && !jumpPressed && player.jumpsLeft > 0) {
+    player.vy = -12;
+    player.jumpsLeft--;
+    player.onGround = false;
+  }
+  jumpPressed = jumpNow;
+
+  // Gravity
+  player.vy += GRAVITY;
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Clamp to world
+  if (player.x < 0) { player.x = 0; player.vx = 0; }
+  if (player.x + player.w > WORLD_W) { player.x = WORLD_W - player.w; player.vx = 0; }
+
+  // Platform collision
+  player.onGround = false;
+  for (const p of platforms) {
+    if (
+      player.x + player.w > p.x &&
+      player.x < p.x + p.w &&
+      player.y + player.h > p.y &&
+      player.y + player.h < p.y + p.h + Math.abs(player.vy) + 2 &&
+      player.vy >= 0
+    ) {
+      player.y = p.y - player.h;
+      player.vy = 0;
+      player.onGround = true;
+      player.jumpsLeft = 2;
+      // Ride platform
+      if (p.type === 'move') player.x += p.speed * p.dir;
+    }
+  }
+
+  // Fell off world
+  if (player.y > H + 50) {
+    lives--;
+    livesEl.textContent = lives;
+    if (lives <= 0) {
+      gameState = 'dead';
+      msgEl.textContent = '💀 Game Over! Press R to restart.';
+    } else {
+      msgEl.textContent = '💥 Ouch! ' + lives + ' lives left.';
+      setTimeout(() => { if (gameState === 'playing') msgEl.textContent = ''; }, 1500);
+      resetPlayer();
+    }
+  }
+
+  // Star collection
+  const t = Date.now() / 600;
+  for (const s of stars) {
+    if (!s.collected) {
+      const sx = s.x, sy = s.y + Math.sin(t + s.bob) * 6;
+      if (
+        player.x < sx + 18 && player.x + player.w > sx - 18 &&
+        player.y < sy + 18 && player.y + player.h > sy - 18
+      ) {
+        s.collected = true;
+        score++;
+        scoreEl.textContent = score;
+      }
+    }
+  }
+
+  // Goal
+  if (
+    player.x + player.w > goal.x &&
+    player.x < goal.x + goal.w &&
+    player.y + player.h > goal.y &&
+    player.y < goal.y + goal.h
+  ) {
+    gameState = 'win';
+    msgEl.textContent = '🏆 You win! Stars: ' + score + '/16 — Press R to play again!';
+  }
+
+  // Camera
+  const targetCam = player.x - W / 3;
+  camX += (targetCam - camX) * 0.12;
+  camX = Math.max(0, Math.min(WORLD_W - W, camX));
+
+  // Animation
+  player.frameTimer++;
+  if (player.frameTimer > 8) { player.frame = (player.frame + 1) % 4; player.frameTimer = 0; }
+}
+
+function drawSky() {
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#0f0c29');
+  grad.addColorStop(1, '#302b63');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  // Stars bg
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  for (let i = 0; i < 60; i++) {
+    const sx = ((i * 137 + 50) % WORLD_W - camX + WORLD_W) % WORLD_W;
+    if (sx < W) {
+      const sy = (i * 53 + 20) % (H * 0.6);
+      ctx.fillRect(sx, sy, 1.5, 1.5);
+    }
+  }
+}
+
+function drawPlatform(p) {
+  const px = p.x - camX;
+  if (px + p.w < 0 || px > W) return;
+  // Body
+  const g = ctx.createLinearGradient(px, p.y, px, p.y + p.h);
+  if (p.type === 'move') {
+    g.addColorStop(0, '#e94560');
+    g.addColorStop(1, '#8b1a2f');
+  } else {
+    g.addColorStop(0, '#4caf50');
+    g.addColorStop(1, '#2e7d32');
+  }
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(px, p.y, p.w, p.h, 5);
+  ctx.fill();
+  // Top shine
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillRect(px + 4, p.y + 2, p.w - 8, 4);
+}
+
+function drawStar(s) {
+  if (s.collected) return;
+  const t = Date.now() / 600;
+  const sx = s.x - camX;
+  const sy = s.y + Math.sin(t + s.bob) * 6;
+  if (sx < -20 || sx > W + 20) return;
+
+  ctx.save();
+  ctx.translate(sx, sy);
+  ctx.fillStyle = '#ffd700';
+  ctx.shadowColor = '#ffd700';
+  ctx.shadowBlur = 10;
+  // Draw star shape
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+    const r = i === 0 ? 12 : 12;
+    if (i === 0) ctx.moveTo(Math.cos(angle) * 12, Math.sin(angle) * 12);
+    else ctx.lineTo(Math.cos(angle) * 12, Math.sin(angle) * 12);
+    const ia = angle + (2 * Math.PI) / 10;
+    ctx.lineTo(Math.cos(ia) * 5, Math.sin(ia) * 5);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGoal() {
+  const gx = goal.x - camX;
+  if (gx < -30 || gx > W + 30) return;
+  // Pole
+  ctx.fillStyle = '#aaa';
+  ctx.fillRect(gx, goal.y, 5, goal.h);
+  // Flag
+  ctx.fillStyle = '#e94560';
+  ctx.beginPath();
+  ctx.moveTo(gx + 5, goal.y);
+  ctx.lineTo(gx + 45, goal.y + 15);
+  ctx.lineTo(gx + 5, goal.y + 30);
+  ctx.closePath();
+  ctx.fill();
+  // Animate flag wave
+  const t = Date.now() / 300;
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.beginPath();
+  ctx.moveTo(gx + 5, goal.y + 5);
+  ctx.quadraticCurveTo(gx + 25 + Math.sin(t) * 5, goal.y + 15, gx + 5, goal.y + 25);
+  ctx.fill();
+}
+
+function drawPlayer() {
+  const px = player.x - camX;
+  const py = player.y;
+
+  ctx.save();
+  ctx.translate(px + player.w / 2, py + player.h / 2);
+  ctx.scale(player.facing, 1);
+
+  // Body
+  ctx.fillStyle = '#4fc3f7';
+  ctx.beginPath();
+  ctx.roundRect(-14, -10, 28, 24, 6);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = '#ffe0b2';
+  ctx.beginPath();
+  ctx.arc(0, -18, 12, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eyes
+  ctx.fillStyle = '#333';
+  ctx.beginPath();
+  ctx.arc(4, -20, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(5, -21, 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Helmet
+  ctx.fillStyle = '#e94560';
+  ctx.beginPath();
+  ctx.arc(0, -22, 12, Math.PI, 0);
+  ctx.fill();
+
+  // Legs (animated)
+  const legSwing = player.running && player.onGround ? Math.sin(player.frame * Math.PI / 2) * 8 : 0;
+  ctx.fillStyle = '#1565c0';
+  ctx.fillRect(-12, 12, 10, 14 + legSwing);
+  ctx.fillRect(2,   12, 10, 14 - legSwing);
+
+  // Shoes
+  ctx.fillStyle = '#333';
+  ctx.fillRect(-14, 24 + legSwing, 12, 6);
+  ctx.fillRect(2,   24 - legSwing, 12, 6);
+
+  // Jump pose
+  if (!player.onGround) {
+    ctx.fillStyle = '#1565c0';
+    ctx.clearRect(-12, 12, 10, 20);
+    ctx.clearRect(2, 12, 10, 20);
+    ctx.fillRect(-14, 14, 10, 10);
+    ctx.fillRect(4,   14, 10, 10);
+  }
+
+  ctx.restore();
+}
+
+function drawHUD() {
+  // Progress bar
+  const progress = Math.min(1, (player.x) / (WORLD_W - 200));
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(10, 10, 200, 8);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillRect(10, 10, 200 * progress, 8);
+  ctx.fillStyle = '#ffd700';
+  ctx.font = '11px Arial';
+  ctx.fillText('Progress', 10, 30);
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, W, H);
+}
+
+let lastTime = 0;
+function loop(ts) {
+  const dt = ts - lastTime; lastTime = ts;
+  update();
+
+  ctx.clearRect(0, 0, W, H);
+  drawSky();
+
+  for (const p of platforms) drawPlatform(p);
+  drawGoal();
+  for (const s of stars) drawStar(s);
+  drawPlayer();
+  drawHUD();
+
+  if (gameState !== 'playing') drawGameOver();
+
+  requestAnimationFrame(loop);
+}
+
+// Restart
+window.addEventListener('keydown', e => {
+  if ((e.code === 'KeyR') && (gameState === 'dead' || gameState === 'win')) {
+    gameState = 'playing';
+    score = 0; lives = 3;
+    scoreEl.textContent = 0; livesEl.textContent = 3;
+    msgEl.textContent = '';
+    for (const s of stars) s.collected = false;
+    resetPlayer();
+  }
+});
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

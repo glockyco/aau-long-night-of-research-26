@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Würfelspiel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1e1e2e;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  h1 { font-size: 2.5rem; margin-bottom: 30px; color: #f0c040; }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  label { font-size: 1.2rem; }
+  input[type=range] {
+    width: 200px;
+    accent-color: #f0c040;
+  }
+  #anzahl-label {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #f0c040;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  button {
+    background: #f0c040;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 40px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+    margin-bottom: 40px;
+  }
+  button:hover { background: #ffd966; }
+  button:active { transform: scale(0.96); }
+
+  #wuerfel-bereich {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 700px;
+  }
+
+  .wuerfel {
+    width: 90px;
+    height: 90px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+    display: grid;
+    grid-template-areas:
+      "a . b"
+      "c d e"
+      "f . g";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    padding: 10px;
+    animation: roll 0.4s ease;
+  }
+
+  @keyframes roll {
+    0%   { transform: rotate(0deg) scale(0.5); opacity: 0; }
+    60%  { transform: rotate(20deg) scale(1.1); opacity: 1; }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+
+  .punkt {
+    width: 14px;
+    height: 14px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    justify-self: center;
+    align-self: center;
+  }
+
+  #summe {
+    margin-top: 30px;
+    font-size: 1.6rem;
+    color: #f0c040;
+    min-height: 2rem;
+  }
+</style>
+</head>
+<body>
+<h1>🎲 Würfelspiel</h1>
+
+<div class="controls">
+  <label>Anzahl Würfel:</label>
+  <input type="range" id="anzahl" min="1" max="6" value="2" oninput="document.getElementById('anzahl-label').textContent=this.value">
+  <span id="anzahl-label">2</span>
+</div>
+
+<button onclick="wuerfeln()">Würfeln!</button>
+
+<div id="wuerfel-bereich"></div>
+<div id="summe"></div>
+
+<script>
+  const punkte_positionen = {
+    1: ['d'],
+    2: ['a','g'],
+    3: ['a','d','g'],
+    4: ['a','b','f','g'],
+    5: ['a','b','d','f','g'],
+    6: ['a','b','c','e','f','g'],
+  };
+
+  function erstelleWuerfel(wert) {
+    const div = document.createElement('div');
+    div.className = 'wuerfel';
+    const bereiche = ['a','b','c','d','e','f','g'];
+    bereiche.forEach(area => {
+      const cell = document.createElement('div');
+      cell.style.gridArea = area;
+      if (punkte_positionen[wert].includes(area)) {
+        const p = document.createElement('div');
+        p.className = 'punkt';
+        cell.appendChild(p);
+      }
+      div.appendChild(cell);
+    });
+    return div;
+  }
+
+  function wuerfeln() {
+    const anzahl = parseInt(document.getElementById('anzahl').value);
+    const bereich = document.getElementById('wuerfel-bereich');
+    bereich.innerHTML = '';
+    let summe = 0;
+    for (let i = 0; i < anzahl; i++) {
+      const wert = Math.floor(Math.random() * 6) + 1;
+      summe += wert;
+      bereich.appendChild(erstelleWuerfel(wert));
+    }
+    document.getElementById('summe').textContent = `Summe: ${summe}`;
+    konfetti();
+  }
+
+  function konfetti() {
+    const farben = ['#f0c040','#ff6b6b','#4ecdc4','#a29bfe','#fd79a8','#55efc4','#fdcb6e'];
+    for (let i = 0; i < 120; i++) {
+      const k = document.createElement('div');
+      k.style.cssText = `
+        position:fixed;
+        left:${Math.random()*100}vw;
+        top:-10px;
+        width:${6+Math.random()*8}px;
+        height:${6+Math.random()*8}px;
+        background:${farben[Math.floor(Math.random()*farben.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        opacity:1;
+        pointer-events:none;
+        z-index:9999;
+        animation: fall ${1.5+Math.random()*2}s ease-in forwards;
+        animation-delay:${Math.random()*0.8}s;
+      `;
+      document.body.appendChild(k);
+      setTimeout(() => k.remove(), 4000);
+    }
+  }
+
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity:0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  wuerfeln();
+</script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Tiere Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 50%, #1b4332 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 650px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2em;
+    color: #1a472a;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1em;
+  }
+
+  /* Timer */
+  .timer-bar-wrapper {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 18px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .timer-bar {
+    height: 100%;
+    border-radius: 10px;
+    background: #52b788;
+    transition: width 0.2s linear, background 0.3s;
+  }
+
+  .timer-text {
+    text-align: right;
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  /* Progress */
+  .progress {
+    font-size: 0.85em;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  /* Question */
+  .question-emoji {
+    font-size: 3.5em;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .question-text {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  /* Answers */
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    padding: 16px 12px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background: #f9f9f9;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: #52b788;
+    background: #f0fff4;
+    transform: translateY(-2px);
+  }
+
+  .answer-btn.correct {
+    background: #d8f3dc;
+    border-color: #52b788;
+    color: #1a472a;
+  }
+
+  .answer-btn.wrong {
+    background: #ffe0e0;
+    border-color: #e63946;
+    color: #9b1a22;
+  }
+
+  .answer-btn.reveal {
+    background: #fff3cd;
+    border-color: #f4a261;
+    color: #7a3f00;
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  /* Feedback */
+  .feedback {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 600;
+    min-height: 40px;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .feedback.correct { color: #1a6b39; }
+  .feedback.wrong   { color: #c0392b; }
+  .feedback.timeout { color: #e67e22; }
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #1a472a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .next-btn:hover { background: #2d6a4f; transform: translateY(-1px); }
+  .next-btn:active { transform: translateY(0); }
+
+  /* Result screen */
+  #result-screen { display: none; text-align: center; }
+  #result-screen h2 { font-size: 2em; color: #1a472a; margin-bottom: 10px; }
+  .score-big { font-size: 4em; font-weight: 700; color: #52b788; margin: 20px 0; }
+  .score-label { font-size: 1.1em; color: #555; margin-bottom: 20px; }
+  .result-emoji { font-size: 4em; margin-bottom: 10px; }
+
+  .restart-btn {
+    padding: 14px 40px;
+    background: #1a472a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .restart-btn:hover { background: #2d6a4f; }
+
+  #quiz-screen { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen">
+    <h1>🐾 Tiere Quiz</h1>
+    <p class="subtitle">Wie gut kennst du die Tierwelt?</p>
+
+    <div class="timer-bar-wrapper">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
+    <div class="timer-text" id="timer-text">15 Sekunden</div>
+
+    <div class="progress" id="progress-text">Frage 1 von 10</div>
+    <div class="question-emoji" id="question-emoji"></div>
+    <div class="question-text" id="question-text"></div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none;" onclick="nextQuestion()">Weiter →</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen">
+    <div class="result-emoji" id="result-emoji"></div>
+    <h2>Quiz beendet!</h2>
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label" id="score-label"></div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Nochmal spielen</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    emoji: "🐘",
+    question: "Welches ist das größte Landtier der Erde?",
+    answers: ["Nilpferd", "Afrikanischer Elefant", "Giraffe", "Nashorm"],
+    correct: 1,
+    fact: "Der afrikanische Elefant kann bis zu 7 Tonnen wiegen!"
+  },
+  {
+    emoji: "🦁",
+    question: "Wie nennt man eine Gruppe von Löwen?",
+    answers: ["Rudel", "Herde", "Rotte", "Rudel"],
+    correct: 0,
+    fact: "Ein Rudel besteht meist aus einem männlichen Löwen und mehreren Weibchen."
+  },
+  {
+    emoji: "🦋",
+    question: "Wie viele Beine hat ein Schmetterling?",
+    answers: ["4", "8", "6", "10"],
+    correct: 2,
+    fact: "Alle Insekten haben genau 6 Beine — so auch der Schmetterling."
+  },
+  {
+    emoji: "🐬",
+    question: "Zu welcher Tiergruppe gehören Delfine?",
+    answers: ["Fische", "Reptilien", "Säugetiere", "Amphibien"],
+    correct: 2,
+    fact: "Delfine sind Säugetiere — sie atmen Luft und stillen ihre Jungen."
+  },
+  {
+    emoji: "🦒",
+    question: "Welches Tier hat die längsten Beine im Verhältnis zum Körper?",
+    answers: ["Strauß", "Giraffe", "Flamingo", "Pferd"],
+    correct: 1,
+    fact: "Die Beine der Giraffe allein sind schon etwa 1,8 Meter lang!"
+  },
+  {
+    emoji: "🐙",
+    question: "Wie viele Arme hat ein Tintenfisch (Oktopus)?",
+    answers: ["6", "10", "8", "12"],
+    correct: 2,
+    fact: "Der Oktopus hat genau 8 Arme — daher der Name (griech. okto = acht)."
+  },
+  {
+    emoji: "🦅",
+    question: "Welcher Vogel kann NICHT fliegen?",
+    answers: ["Adler", "Pinguin", "Falke", "Pelikan"],
+    correct: 1,
+    fact: "Pinguine können nicht fliegen, aber sie sind exzellente Taucher!"
+  },
+  {
+    emoji: "🐸",
+    question: "Was fressen die meisten ausgewachsenen Frösche?",
+    answers: ["Pflanzen", "Insekten", "Fische", "Algen"],
+    correct: 1,
+    fact: "Frösche sind Fleischfresser und fangen Insekten mit ihrer langen Zunge."
+  },
+  {
+    emoji: "🦓",
+    question: "Welche Farbe haben Zebras unter ihren Streifen?",
+    answers: ["Weiß", "Schwarz", "Grau", "Braun"],
+    correct: 1,
+    fact: "Das Fell des Zebras ist schwarz — die weißen Streifen sind helle Bereiche."
+  },
+  {
+    emoji: "🐝",
+    question: "Wie viele Augen hat eine Biene?",
+    answers: ["2", "4", "5", "6"],
+    correct: 2,
+    fact: "Bienen haben 2 große Facettenaugen + 3 kleine Punktaugen = 5 Augen!"
+  }
+];
+
+const TIME_LIMIT = 15;
+
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let timerInterval = null;
+let timeLeft = TIME_LIMIT;
+let shuffledQuestions = [];
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function startQuiz() {
+  shuffledQuestions = shuffle(QUESTIONS);
+  currentIndex = 0;
+  score = 0;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  timeLeft = TIME_LIMIT;
+  clearInterval(timerInterval);
+
+  const q = shuffledQuestions[currentIndex];
+  document.getElementById('progress-text').textContent = `Frage ${currentIndex + 1} von ${shuffledQuestions.length}`;
+  document.getElementById('question-emoji').textContent = q.emoji;
+  document.getElementById('question-text').textContent = q.question;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').style.display = 'none';
+
+  // Build answers
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = ans;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  updateTimerBar(1);
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    const ratio = timeLeft / TIME_LIMIT;
+    updateTimerBar(ratio);
+    document.getElementById('timer-text').textContent = `${Math.ceil(timeLeft)} Sekunden`;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      timeOut();
+    }
+  }, 100);
+}
+
+function updateTimerBar(ratio) {
+  const bar = document.getElementById('timer-bar');
+  bar.style.width = (ratio * 100) + '%';
+  if (ratio > 0.5) bar.style.background = '#52b788';
+  else if (ratio > 0.25) bar.style.background = '#f4a261';
+  else bar.style.background = '#e63946';
+}
+
+function selectAnswer(index) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const q = shuffledQuestions[currentIndex];
+  const buttons = document.querySelectorAll('.answer-btn');
+
+  buttons.forEach(b => b.disabled = true);
+
+  if (index === q.correct) {
+    buttons[index].classList.add('correct');
+    document.getElementById('feedback').textContent = '✅ Richtig! ' + q.fact;
+    document.getElementById('feedback').className = 'feedback correct';
+    score++;
+  } else {
+    buttons[index].classList.add('wrong');
+    buttons[q.correct].classList.add('reveal');
+    document.getElementById('feedback').textContent = `❌ Falsch! Die richtige Antwort war: "${q.answers[q.correct]}" — ${q.fact}`;
+    document.getElementById('feedback').className = 'feedback wrong';
+  }
+
+  document.getElementById('next-btn').style.display = 'block';
+  updateTimerBar(timeLeft / TIME_LIMIT);
+}
+
+function timeOut() {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffledQuestions[currentIndex];
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach(b => b.disabled = true);
+  buttons[q.correct].classList.add('reveal');
+
+  document.getElementById('feedback').textContent = `⏰ Zeit abgelaufen! Die Antwort war: "${q.answers[q.correct]}"`;
+  document.getElementById('feedback').className = 'feedback timeout';
+  document.getElementById('next-btn').style.display = 'block';
+  updateTimerBar(0);
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= shuffledQuestions.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const total = shuffledQuestions.length;
+  document.getElementById('score-big').textContent = `${score} / ${total}`;
+
+  let emoji, label;
+  const pct = score / total;
+  if (pct === 1)        { emoji = '🏆'; label = 'Perfekt! Du bist ein echter Tierexperte!'; }
+  else if (pct >= 0.8)  { emoji = '🥇'; label = 'Sehr gut! Du kennst dich super aus!'; }
+  else if (pct >= 0.6)  { emoji = '🥈'; label = 'Gut gemacht! Noch ein bisschen üben!'; }
+  else if (pct >= 0.4)  { emoji = '🥉'; label = 'Nicht schlecht — beim nächsten Mal besser!'; }
+  else                  { emoji = '🐣'; label = 'Viel Potenzial! Lern die Tiere besser kennen!'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('score-label').textContent = label;
+}
+
+function restartQuiz() {
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  startQuiz();
+}
+
+startQuiz();
+</script>
+</body>
+</html>

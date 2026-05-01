@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRON Lightcycle Race</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #0ff;
+    overflow: hidden;
+  }
+  h1 {
+    font-size: 2.5em;
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+    margin-bottom: 10px;
+  }
+  #info {
+    display: flex;
+    gap: 60px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+  }
+  .p1-label { color: #0ff; text-shadow: 0 0 10px #0ff; }
+  .p2-label { color: #f90; text-shadow: 0 0 10px #f90; }
+  #canvas-wrap {
+    position: relative;
+  }
+  canvas {
+    border: 2px solid #0ff;
+    box-shadow: 0 0 30px #0ff, inset 0 0 30px rgba(0,255,255,0.05);
+    display: block;
+  }
+  #overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.75);
+  }
+  #overlay h2 {
+    font-size: 2em;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px currentColor;
+  }
+  #controls-hint {
+    font-size: 0.85em;
+    color: #888;
+    margin-bottom: 25px;
+    text-align: center;
+    line-height: 1.8;
+  }
+  #controls-hint span.c1 { color: #0ff; }
+  #controls-hint span.c2 { color: #f90; }
+  button {
+    background: transparent;
+    border: 2px solid #0ff;
+    color: #0ff;
+    font-family: 'Courier New', monospace;
+    font-size: 1.3em;
+    letter-spacing: 0.2em;
+    padding: 12px 40px;
+    cursor: pointer;
+    text-shadow: 0 0 10px #0ff;
+    box-shadow: 0 0 15px #0ff, inset 0 0 15px rgba(0,255,255,0.1);
+    transition: all 0.2s;
+  }
+  button:hover {
+    background: rgba(0,255,255,0.15);
+    box-shadow: 0 0 30px #0ff, inset 0 0 20px rgba(0,255,255,0.2);
+  }
+  #result-msg {
+    font-size: 1.6em;
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px currentColor;
+  }
+</style>
+</head>
+<body>
+<h1>TRON</h1>
+<div id="info">
+  <span class="p1-label">● SPIELER 1 — WASD</span>
+  <span class="p2-label">● SPIELER 2 — PFEILTASTEN</span>
+</div>
+<div id="canvas-wrap">
+  <canvas id="c" width="700" height="500"></canvas>
+  <div id="overlay">
+    <h2 style="color:#0ff">LIGHTCYCLE RACE</h2>
+    <div id="controls-hint">
+      <span class="c1">SPIELER 1: W A S D</span><br>
+      <span class="c2">SPIELER 2: ↑ ← ↓ →</span>
+    </div>
+    <button id="startBtn" onclick="startGame()">START</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const CELL = 5;
+const COLS = W / CELL, ROWS = H / CELL;
+
+let p1, p2, grid, running, animId;
+
+const C1 = '#00ffff';
+const C2 = '#ff9900';
+const C1_DIM = '#005555';
+const C2_DIM = '#553300';
+
+function initGame() {
+  grid = new Uint8Array(COLS * ROWS); // 0=empty, 1=p1 trail, 2=p2 trail
+
+  p1 = { x: Math.floor(COLS * 0.25), y: Math.floor(ROWS * 0.5), dx: 1, dy: 0, color: C1, trail: C1_DIM, id: 1 };
+  p2 = { x: Math.floor(COLS * 0.75), y: Math.floor(ROWS * 0.5), dx: -1, dy: 0, color: C2, trail: C2_DIM, id: 2 };
+
+  setCell(p1.x, p1.y, 1);
+  setCell(p2.x, p2.y, 2);
+}
+
+function setCell(x, y, v) { grid[y * COLS + x] = v; }
+function getCell(x, y) { return grid[y * COLS + x]; }
+
+function drawGrid() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const v = getCell(x, y);
+      if (v === 1) ctx.fillStyle = C1_DIM;
+      else if (v === 2) ctx.fillStyle = C2_DIM;
+      else continue;
+      ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+    }
+  }
+}
+
+function drawBike(p) {
+  // Glow head
+  ctx.shadowBlur = 18;
+  ctx.shadowColor = p.color;
+  ctx.fillStyle = p.color;
+  ctx.fillRect(p.x * CELL, p.y * CELL, CELL, CELL);
+  ctx.shadowBlur = 0;
+}
+
+function move(p) {
+  const nx = p.x + p.dx;
+  const ny = p.y + p.dy;
+  if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return false;
+  if (getCell(nx, ny) !== 0) return false;
+  p.x = nx;
+  p.y = ny;
+  setCell(p.x, p.y, p.id);
+  return true;
+}
+
+// Input buffering — store next intended direction
+let p1next = null, p2next = null;
+
+document.addEventListener('keydown', e => {
+  if (!running) return;
+  switch(e.key) {
+    case 'w': case 'W': if (p1.dy !== 1)  p1next = {dx:0, dy:-1}; break;
+    case 's': case 'S': if (p1.dy !== -1) p1next = {dx:0, dy:1};  break;
+    case 'a': case 'A': if (p1.dx !== 1)  p1next = {dx:-1,dy:0};  break;
+    case 'd': case 'D': if (p1.dx !== -1) p1next = {dx:1, dy:0};  break;
+    case 'ArrowUp':    e.preventDefault(); if (p2.dy !== 1)  p2next = {dx:0, dy:-1}; break;
+    case 'ArrowDown':  e.preventDefault(); if (p2.dy !== -1) p2next = {dx:0, dy:1};  break;
+    case 'ArrowLeft':  e.preventDefault(); if (p2.dx !== 1)  p2next = {dx:-1,dy:0};  break;
+    case 'ArrowRight': e.preventDefault(); if (p2.dx !== -1) p2next = {dx:1, dy:0};  break;
+  }
+});
+
+let lastTime = 0;
+const SPEED = 80; // ms per step
+
+function loop(ts) {
+  if (!running) return;
+  animId = requestAnimationFrame(loop);
+  if (ts - lastTime < SPEED) return;
+  lastTime = ts;
+
+  // Apply buffered directions
+  if (p1next) { p1.dx = p1next.dx; p1.dy = p1next.dy; p1next = null; }
+  if (p2next) { p2.dx = p2next.dx; p2.dy = p2next.dy; p2next = null; }
+
+  const ok1 = move(p1);
+  const ok2 = move(p2);
+
+  drawGrid();
+  drawBike(p1);
+  drawBike(p2);
+
+  if (!ok1 && !ok2) { endGame(0); return; }
+  if (!ok1) { endGame(2); return; }
+  if (!ok2) { endGame(1); return; }
+}
+
+function endGame(winner) {
+  running = false;
+  cancelAnimationFrame(animId);
+
+  const overlay = document.getElementById('overlay');
+  const msg = document.getElementById('result-msg') || (() => {
+    const d = document.createElement('div');
+    d.id = 'result-msg';
+    overlay.insertBefore(d, overlay.querySelector('button'));
+    return d;
+  })();
+
+  if (winner === 0) {
+    msg.style.color = '#fff';
+    msg.textContent = 'UNENTSCHIEDEN!';
+  } else if (winner === 1) {
+    msg.style.color = C1;
+    msg.textContent = 'SPIELER 1 GEWINNT!';
+  } else {
+    msg.style.color = C2;
+    msg.textContent = 'SPIELER 2 GEWINNT!';
+  }
+
+  const hint = overlay.querySelector('#controls-hint');
+  if (hint) hint.style.display = 'none';
+
+  overlay.style.display = 'flex';
+  document.getElementById('startBtn').textContent = 'NOCHMAL';
+}
+
+function startGame() {
+  const overlay = document.getElementById('overlay');
+  overlay.style.display = 'none';
+
+  const hint = overlay.querySelector('#controls-hint');
+  if (hint) hint.style.display = 'block';
+
+  const msg = document.getElementById('result-msg');
+  if (msg) msg.textContent = '';
+
+  p1next = null; p2next = null;
+  initGame();
+  drawGrid();
+  drawBike(p1);
+  drawBike(p2);
+
+  running = true;
+  lastTime = 0;
+  animId = requestAnimationFrame(loop);
+}
+
+// Initial draw
+ctx.fillStyle = '#000';
+ctx.fillRect(0, 0, W, H);
+</script>
+</body>
+</html>

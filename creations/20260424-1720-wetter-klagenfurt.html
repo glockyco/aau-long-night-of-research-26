@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wetter Klagenfurt</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg, linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%));
+    transition: background 1.5s ease;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 50px 60px;
+    text-align: center;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .city { font-size: 1.3rem; opacity: 0.8; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .emoji { font-size: 6rem; margin: 20px 0; }
+  .temp { font-size: 5rem; font-weight: 300; margin-bottom: 5px; }
+  .desc { font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px; text-transform: capitalize; }
+  .details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 10px;
+  }
+  .detail-item { display: flex; flex-direction: column; gap: 5px; }
+  .detail-label { font-size: 0.75rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+  .detail-value { font-size: 1.1rem; font-weight: 500; }
+  .loading { font-size: 1.5rem; opacity: 0.7; }
+  .error { color: #ff6b6b; }
+  .update-time { margin-top: 20px; font-size: 0.75rem; opacity: 0.5; }
+  .refresh-btn {
+    margin-top: 20px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,0.25); }
+  .forecast-title { margin-top: 30px; font-size: 0.85rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
+  .forecast {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+  .forecast::-webkit-scrollbar { height: 4px; }
+  .forecast::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+  .fc-item {
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 12px 10px;
+    min-width: 70px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .fc-time { font-size: 0.75rem; opacity: 0.6; margin-bottom: 6px; }
+  .fc-emoji { font-size: 1.6rem; }
+  .fc-temp { font-size: 1rem; font-weight: 500; margin-top: 5px; }
+  .fc-rain { font-size: 0.7rem; opacity: 0.7; margin-top: 3px; }
+  .outfit {
+    margin-top: 25px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 18px 20px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .outfit-title { font-size: 0.75rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="city">📍 Klagenfurt</div>
+  <div class="emoji loading">⏳</div>
+  <div class="temp loading-text">Lade...</div>
+</div>
+
+<script>
+const WMO = {
+  0: ['☀️','Klar'],
+  1: ['🌤️','Meist klar'],
+  2: ['⛅','Teilweise bewölkt'],
+  3: ['☁️','Bedeckt'],
+  45: ['🌫️','Nebel'],
+  48: ['🌫️','Reifnebel'],
+  51: ['🌦️','Leichter Nieselregen'],
+  53: ['🌦️','Nieselregen'],
+  55: ['🌧️','Starker Nieselregen'],
+  61: ['🌧️','Leichter Regen'],
+  63: ['🌧️','Regen'],
+  65: ['🌧️','Starker Regen'],
+  71: ['🌨️','Leichter Schneefall'],
+  73: ['🌨️','Schneefall'],
+  75: ['❄️','Starker Schneefall'],
+  77: ['🌨️','Schneekörner'],
+  80: ['🌦️','Leichte Schauer'],
+  81: ['🌧️','Schauer'],
+  82: ['⛈️','Starke Schauer'],
+  85: ['🌨️','Schneeschauer'],
+  86: ['❄️','Starke Schneeschauer'],
+  95: ['⛈️','Gewitter'],
+  96: ['⛈️','Gewitter mit Hagel'],
+  99: ['⛈️','Starkes Gewitter'],
+};
+
+async function loadWeather() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=46.6228&longitude=14.3051&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation&hourly=temperature_2m,weather_code,precipitation_probability&wind_speed_unit=kmh&timezone=Europe/Vienna&forecast_days=1&forecast_hours=24';
+    const res = await fetch(url);
+    const data = await res.json();
+    const now = new Date();
+    const times = data.hourly.time;
+    const temps = data.hourly.temperature_2m;
+    const codes = data.hourly.weather_code;
+    const rain = data.hourly.precipitation_probability;
+
+    let forecastHTML = '';
+    let count = 0;
+    for (let i = 0; i < times.length && count < 24; i++) {
+      const t = new Date(times[i]);
+      if (t <= now && count === 0) continue;
+      const h = t.getHours();
+      const [fem, ] = WMO[codes[i]] || ['🌡️', ''];
+      forecastHTML += `
+        <div class="fc-item">
+          <div class="fc-time">${String(h).padStart(2,'0')}:00</div>
+          <div class="fc-emoji">${fem}</div>
+          <div class="fc-temp">${Math.round(temps[i])}°</div>
+          <div class="fc-rain">💧${rain[i]}%</div>
+        </div>`;
+      count++;
+    }
+
+    const c = data.current;
+    const code = c.weather_code;
+    const [emoji, desc] = WMO[code] || ['🌡️', 'Unbekannt'];
+    const timeStr = now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'});
+
+    const BG = {
+      sunny:  'linear-gradient(135deg, #f7971e, #ffd200, #ff8c00)',
+      cloudy: 'linear-gradient(135deg, #606c88, #3f4c6b)',
+      rainy:  'linear-gradient(135deg, #1c3f6e, #2c5f8a, #4a7fa5)',
+      snow:   'linear-gradient(135deg, #a8c0d6, #c9d6df, #e2ebf0)',
+      fog:    'linear-gradient(135deg, #757f9a, #d7dde8)',
+      storm:  'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+      night:  'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
+    };
+    const h = now.getHours();
+    const isNight = h < 6 || h >= 21;
+    let bg;
+    if (isNight && code <= 2) bg = BG.night;
+    else if (code <= 1) bg = BG.sunny;
+    else if (code <= 3) bg = BG.cloudy;
+    else if (code <= 48) bg = BG.fog;
+    else if (code <= 67) bg = BG.rainy;
+    else if (code <= 77) bg = BG.snow;
+    else if (code <= 82) bg = BG.rainy;
+    else if (code <= 86) bg = BG.snow;
+    else bg = BG.storm;
+    document.body.style.setProperty('--bg', bg);
+
+    const temp = c.temperature_2m;
+    let outfit = '';
+    if (code >= 95) outfit = '⛈️ Gewitter — bleib lieber drinnen!';
+    else if (code >= 80) outfit = '🌧️ Schauer — Regenjacke und wasserdichte Schuhe mitnehmen.';
+    else if (code >= 61) outfit = '🌧️ Regen — unbedingt Regenjacke und Schirm einpacken.';
+    else if (code >= 71) outfit = '❄️ Schnee — warme Winterjacke, Handschuhe und feste Schuhe.';
+    else if (code >= 45) outfit = '🌫️ Nebel — eine leichte Jacke reicht, aber fahr vorsichtig.';
+    else if (temp < 0) outfit = '🥶 Sehr kalt — Winterjacke, Schal, Mütze und Handschuhe.';
+    else if (temp < 8) outfit = '🧥 Kalt — warme Jacke und eventuell Schal empfehlenswert.';
+    else if (temp < 15) outfit = '🍂 Kühl — eine leichte Jacke oder einen Pullover anziehen.';
+    else if (temp < 22) outfit = '👕 Angenehm — T-Shirt mit einer dünnen Jacke für den Abend.';
+    else if (temp < 28) outfit = '☀️ Warm — T-Shirt und leichte Kleidung, Sonnenbrille nicht vergessen.';
+    else outfit = '🌞 Heiß — leichte Sommerkleidung, Sonnencreme und viel trinken!';
+
+    document.getElementById('card').innerHTML = `
+      <div class="city">📍 Klagenfurt</div>
+      <div class="emoji">${emoji}</div>
+      <div class="temp">${Math.round(c.temperature_2m)}°C</div>
+      <div class="desc">${desc}</div>
+      <div class="details">
+        <div class="detail-item">
+          <span class="detail-label">Gefühlt</span>
+          <span class="detail-value">${Math.round(c.apparent_temperature)}°C</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Luftfeuchte</span>
+          <span class="detail-value">${c.relative_humidity_2m}%</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Wind</span>
+          <span class="detail-value">${Math.round(c.wind_speed_10m)} km/h</span>
+        </div>
+      </div>
+      <div class="update-time">Aktualisiert: ${timeStr}</div>
+      <button class="refresh-btn" onclick="loadWeather()">🔄 Aktualisieren</button>
+      <div class="outfit">
+        <div class="outfit-title">👗 Was anziehen?</div>
+        ${outfit}
+      </div>
+      <div class="forecast-title">Nächste 24 Stunden</div>
+      <div class="forecast">${forecastHTML}</div>ggfffg
+    `;
+  } catch(e) {
+    document.getElementById('card').innerHTML = `
+      <div class="city">📍 Klagenfurt</div>
+      <div class="emoji">❌</div>
+      <div class="desc error">Fehler beim Laden der Wetterdaten.<br>Bitte Internetverbindung prüfen.</div>
+      <button class="refresh-btn" onclick="loadWeather()">🔄 Nochmal versuchen</button>
+    `;
+  }
+}
+
+loadWeather();
+setInterval(loadWeather, 5 * 60 * 1000);
+</script>
+</body>
+</html>

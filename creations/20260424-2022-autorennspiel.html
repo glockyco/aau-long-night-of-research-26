@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Autorennen</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
+  }
+  h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 0 0 20px #f39c12; }
+  .subtitle { color: #aaa; margin-bottom: 30px; font-size: 1.1em; }
+
+  .racetrack {
+    width: 800px;
+    background: #2d2d2d;
+    border-radius: 16px;
+    padding: 20px;
+    border: 3px solid #444;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  .lane {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    height: 80px;
+    background: #3a3a3a;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #555;
+  }
+
+  .lane::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%;
+    border-top: 2px dashed #555;
+  }
+
+  .finish-line {
+    position: absolute;
+    right: 60px;
+    top: 0; bottom: 0;
+    width: 6px;
+    background: repeating-linear-gradient(
+      to bottom,
+      white 0px, white 10px,
+      black 10px, black 20px
+    );
+    z-index: 5;
+  }
+
+  .car {
+    position: absolute;
+    left: 10px;
+    font-size: 2.5em;
+    transition: left 0.1s linear;
+    z-index: 10;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+  }
+
+  .player-label {
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    font-size: 0.75em;
+    font-weight: bold;
+    color: #ccc;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .controls {
+    display: flex;
+    gap: 30px;
+    margin-top: 25px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .player-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-control span {
+    font-size: 1em;
+    font-weight: bold;
+  }
+
+  .btn-gas {
+    width: 130px;
+    height: 60px;
+    font-size: 1.3em;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .btn-gas:active {
+    transform: scale(0.93);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .btn1 {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    box-shadow: 0 5px 15px rgba(231,76,60,0.4);
+  }
+  .btn2 {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+  }
+
+  .key-hint {
+    font-size: 0.8em;
+    color: #888;
+  }
+
+  #start-btn {
+    width: 160px;
+    height: 60px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(39,174,96,0.4);
+    transition: transform 0.1s;
+  }
+  #start-btn:hover { transform: scale(1.05); }
+  #start-btn:disabled { background: #555; box-shadow: none; cursor: default; transform: none; }
+
+  #status {
+    margin-top: 20px;
+    font-size: 1.6em;
+    font-weight: bold;
+    text-align: center;
+    min-height: 40px;
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  .winner-msg {
+    animation: pulse 0.5s infinite alternate;
+  }
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
+
+  .progress-bar-wrap {
+    margin-top: 6px;
+    width: 100%;
+    background: #222;
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .bar1 { background: linear-gradient(90deg, #e74c3c, #f39c12); }
+  .bar2 { background: linear-gradient(90deg, #3498db, #9b59b6); }
+  .bar3 { background: linear-gradient(90deg, #2ecc71, #f1c40f); }
+  .btn3 {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    box-shadow: 0 5px 15px rgba(46,204,113,0.4);
+  }
+</style>
+</head>
+<body>
+
+<h1>🏁 Autorennen!</h1>
+<p class="subtitle">Drückt eure Tasten so schnell wie möglich — wer zuerst die Ziellinie erreicht, gewinnt!</p>
+
+<div class="racetrack">
+
+  <div style="display:flex; gap:20px; flex-direction:column;">
+
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span style="font-size:1.1em; font-weight:bold; color:#e74c3c;">🔴 Spieler 1</span>
+      </div>
+      <div class="lane" id="lane1">
+        <div class="finish-line"></div>
+        <span class="car" id="car1">🚗</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar bar1" id="bar1"></div></div>
+    </div>
+
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span style="font-size:1.1em; font-weight:bold; color:#3498db;">🔵 Spieler 2</span>
+      </div>
+      <div class="lane" id="lane2">
+        <div class="finish-line"></div>
+        <span class="car" id="car2">🚙</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar bar2" id="bar2"></div></div>
+    </div>
+
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span style="font-size:1.1em; font-weight:bold; color:#2ecc71;">🟢 Spieler 3</span>
+      </div>
+      <div class="lane" id="lane3">
+        <div class="finish-line"></div>
+        <span class="car" id="car3">🚕</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar bar3" id="bar3"></div></div>
+    </div>
+
+  </div>
+
+  <div class="controls">
+    <div class="player-control">
+      <span style="color:#e74c3c;">🔴 Spieler 1</span>
+      <button class="btn-gas btn1" id="btn1" disabled>GAS geben!<br><small>Taste: A</small></button>
+      <span class="key-hint">Taste: <strong>A</strong></span>
+    </div>
+
+    <button id="start-btn">▶ START</button>
+
+    <div class="player-control">
+      <span style="color:#3498db;">🔵 Spieler 2</span>
+      <button class="btn-gas btn2" id="btn2" disabled>GAS geben!<br><small>Taste: L</small></button>
+      <span class="key-hint">Taste: <strong>L</strong></span>
+    </div>
+
+    <div class="player-control">
+      <span style="color:#2ecc71;">🟢 Spieler 3</span>
+      <button class="btn-gas btn3" id="btn3" disabled>GAS geben!<br><small>Taste: .</small></button>
+      <span class="key-hint">Taste: <strong>.</strong></span>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+</div>
+
+<script>
+  const TRACK_WIDTH = 800 - 40; // racetrack padding
+  const FINISH_OFFSET = 60; // finish line from right edge
+  const CAR_SIZE = 44;
+  const MAX_POS = TRACK_WIDTH - FINISH_OFFSET - CAR_SIZE - 20;
+
+  let pos1 = 0, pos2 = 0, pos3 = 0;
+  let running = false;
+  let winner = null;
+
+  const car1 = document.getElementById('car1');
+  const car2 = document.getElementById('car2');
+  const car3 = document.getElementById('car3');
+  const bar1 = document.getElementById('bar1');
+  const bar2 = document.getElementById('bar2');
+  const bar3 = document.getElementById('bar3');
+  const status = document.getElementById('status');
+  const startBtn = document.getElementById('start-btn');
+  const btn1 = document.getElementById('btn1');
+  const btn2 = document.getElementById('btn2');
+  const btn3 = document.getElementById('btn3');
+
+  function updateCar(car, bar, pos) {
+    car.style.left = (10 + pos) + 'px';
+    bar.style.width = Math.min(100, (pos / MAX_POS) * 100) + '%';
+  }
+
+  const playerColors = { 1: '#e74c3c', 2: '#3498db', 3: '#2ecc71' };
+
+  function checkWin(player, pos) {
+    if (pos >= MAX_POS && !winner) {
+      winner = player;
+      running = false;
+      btn1.disabled = true;
+      btn2.disabled = true;
+      btn3.disabled = true;
+      startBtn.disabled = false;
+      startBtn.textContent = '🔄 Nochmal!';
+      status.innerHTML = `<span class="winner-msg" style="color:${playerColors[player]};">🏆 Spieler ${player} gewinnt! 🎉</span>`;
+    }
+  }
+
+  function press1() {
+    if (!running) return;
+    pos1 = Math.min(MAX_POS, pos1 + 12 + Math.random() * 6);
+    updateCar(car1, bar1, pos1);
+    checkWin(1, pos1);
+  }
+
+  function press2() {
+    if (!running) return;
+    pos2 = Math.min(MAX_POS, pos2 + 12 + Math.random() * 6);
+    updateCar(car2, bar2, pos2);
+    checkWin(2, pos2);
+  }
+
+  function press3() {
+    if (!running) return;
+    pos3 = Math.min(MAX_POS, pos3 + 12 + Math.random() * 6);
+    updateCar(car3, bar3, pos3);
+    checkWin(3, pos3);
+  }
+
+  btn1.addEventListener('mousedown', press1);
+  btn1.addEventListener('touchstart', e => { e.preventDefault(); press1(); });
+  btn2.addEventListener('mousedown', press2);
+  btn2.addEventListener('touchstart', e => { e.preventDefault(); press2(); });
+  btn3.addEventListener('mousedown', press3);
+  btn3.addEventListener('touchstart', e => { e.preventDefault(); press3(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'a' || e.key === 'A') press1();
+    if (e.key === 'l' || e.key === 'L') press2();
+    if (e.key === '.') press3();
+  });
+
+  startBtn.addEventListener('click', () => {
+    pos1 = 0; pos2 = 0; pos3 = 0;
+    winner = null;
+    running = true;
+    updateCar(car1, bar1, 0);
+    updateCar(car2, bar2, 0);
+    updateCar(car3, bar3, 0);
+    status.textContent = '🚦 Los geht\'s!';
+    setTimeout(() => { if (running) status.textContent = ''; }, 1500);
+    btn1.disabled = false;
+    btn2.disabled = false;
+    btn3.disabled = false;
+    startBtn.disabled = true;
+  });
+</script>
+</body>
+</html>

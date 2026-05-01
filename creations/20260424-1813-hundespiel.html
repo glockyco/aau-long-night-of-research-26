@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hundespiel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    gap: 10px;
+    user-select: none;
+  }
+  h1 { color: #e94560; font-size: 1.6rem; letter-spacing: 2px; }
+
+  #hud {
+    display: flex; gap: 24px;
+  }
+  .hud-box {
+    background: #0f0f1a;
+    border-radius: 16px;
+    padding: 7px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #eee;
+  }
+
+  #arena {
+    position: relative;
+    width: min(720px, 96vw);
+    height: min(460px, 58vh);
+    background: linear-gradient(180deg, #87CEEB 0%, #b0e0ff 45%, #4CAF50 45%, #2E7D32 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  }
+
+  /* Path */
+  #path {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 55%;
+  }
+
+  #dog {
+    position: absolute;
+    font-size: 3rem;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+    transition: transform 0.08s;
+  }
+
+  .item {
+    position: absolute;
+    font-size: 2.2rem;
+    z-index: 8;
+    pointer-events: none;
+    animation: moveLeft linear forwards;
+  }
+  @keyframes moveLeft {
+    from { left: calc(100% + 60px); }
+    to   { left: -80px; }
+  }
+
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 1.3rem;
+    z-index: 12;
+    animation: burst 0.6s ease-out forwards;
+  }
+  @keyframes burst {
+    0%   { transform: scale(1) translateY(0); opacity: 1; }
+    100% { transform: scale(0.2) translateY(-50px); opacity: 0; }
+  }
+  .score-pop {
+    position: absolute;
+    font-size: 1.4rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 13;
+    animation: floatUp 0.8s ease-out forwards;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+  }
+  @keyframes floatUp {
+    from { transform: translateY(0); opacity: 1; }
+    to   { transform: translateY(-55px); opacity: 0; }
+  }
+
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    font-size: 2.5rem;
+    opacity: 0.8;
+    animation: drift linear infinite;
+    pointer-events: none;
+  }
+  @keyframes drift {
+    from { left: -80px; }
+    to   { left: calc(100% + 80px); }
+  }
+
+  /* Screens */
+  .screen {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(0,0,0,0.5);
+    z-index: 20;
+    text-align: center;
+    padding: 20px;
+  }
+  .screen h2 { font-size: 2.4rem; color: #fff; }
+  .screen p  { font-size: 1.1rem; color: #ddd; }
+  .screen .big { font-size: 2rem; color: #f0c040; font-weight: bold; }
+  .play-btn {
+    padding: 14px 44px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #e94560, #c0392b);
+    color: white; border: none; border-radius: 40px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(233,69,96,0.5);
+  }
+
+  #timer-bar-wrap {
+    width: min(720px, 96vw);
+    height: 10px;
+    background: #0f0f1a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  #timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #e94560, #f0c040);
+    border-radius: 10px;
+    transition: width 0.15s linear;
+  }
+
+  /* Controls hint */
+  #controls-hint {
+    color: #aaa;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>🐶 Hundespiel</h1>
+
+<div id="hud">
+  <div class="hud-box">🦴 <span id="score-el">0</span></div>
+  <div class="hud-box">❤️ <span id="lives-el">3</span></div>
+  <div class="hud-box">⏱️ <span id="time-el">30</span>s</div>
+  <div class="hud-box">🏆 <span id="best-el">0</span></div>
+</div>
+
+<div id="arena">
+  <!-- clouds added by JS -->
+  <div id="dog">🐕</div>
+
+  <div class="screen" id="start-screen">
+    <h2>🐶 Hundespiel</h2>
+    <p>Sammle Knochen 🦴 und Leckerlis 🍖!</p>
+    <p>Weiche Pfützen 💧 und Katzen 🐱 aus!</p>
+    <p><b>↑ ↓</b> oder <b>W S</b> oder <b>Tippen</b> zum Bewegen</p>
+    <button class="play-btn" id="play-btn">Los geht's! 🐾</button>
+  </div>
+  <div class="screen" id="over-screen" style="display:none">
+    <h2>🐾 Spiel vorbei!</h2>
+    <div class="big">🦴 <span id="final-score">0</span> Punkte</div>
+    <p id="best-msg"></p>
+    <button class="play-btn" id="replay-btn">Nochmal! 🐶</button>
+  </div>
+</div>
+
+<div id="timer-bar-wrap"><div id="timer-bar" style="width:100%"></div></div>
+<div id="controls-hint">↑ ↓ &nbsp;|&nbsp; W S &nbsp;|&nbsp; Tippen</div>
+
+<script>
+const arena   = document.getElementById('arena');
+const dogEl   = document.getElementById('dog');
+const scoreEl = document.getElementById('score-el');
+const livesEl = document.getElementById('lives-el');
+const timeEl  = document.getElementById('time-el');
+const bestEl  = document.getElementById('best-el');
+const timerBar = document.getElementById('timer-bar');
+
+const GOOD  = ['🦴','🦴','🦴','🍖','🍕','🧀','🎾'];
+const BAD   = ['💧','🐱','🌵','🦨'];
+const SPARKS_GOOD = ['✨','⭐','💫'];
+const SPARKS_BAD  = ['💥','😵','❌'];
+
+let score=0, lives=3, best=0, timeLeft=30, running=false;
+let dogY, dogVY=0;
+let items=[], animFrame, timerInterval, spawnTimer;
+let spawnDelay=1600, invincible=false;
+
+function aW() { return arena.clientWidth; }
+function aH() { return arena.clientHeight; }
+const LANES = 5; // vertical lanes
+
+// Clouds
+for (let i=0;i<4;i++) {
+  const c = document.createElement('div');
+  c.className='cloud'; c.textContent='☁️';
+  c.style.top=(5+Math.random()*35)+'%';
+  c.style.animationDuration=(14+Math.random()*16)+'s';
+  c.style.animationDelay=(-Math.random()*20)+'s';
+  c.style.fontSize=(2+Math.random()*1.5)+'rem';
+  arena.appendChild(c);
+}
+
+// Input
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (['ArrowUp','ArrowDown','w','s','W','S'].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e => keys[e.key]=false);
+
+// Touch: tap upper/lower half
+let touchStartY = null;
+arena.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+  e.preventDefault();
+}, { passive: false });
+arena.addEventListener('touchend', e => {
+  if (touchStartY === null) return;
+  const r = arena.getBoundingClientRect();
+  const mid = r.top + r.height/2;
+  if (touchStartY < mid) dogVY = -3.5;
+  else dogVY = 3.5;
+  touchStartY = null;
+}, { passive: false });
+
+function clampDog() {
+  const minY = aH()*0.08;
+  const maxY = aH()*0.88 - 48;
+  dogY = Math.max(minY, Math.min(maxY, dogY));
+}
+
+function spawnItem() {
+  if (!running) return;
+  const isGood = Math.random() < 0.62;
+  const emoji = isGood
+    ? GOOD[Math.floor(Math.random()*GOOD.length)]
+    : BAD[Math.floor(Math.random()*BAD.length)];
+
+  const el = document.createElement('div');
+  el.className = 'item';
+  const speed = spawnDelay < 900 ? 4.2 : spawnDelay < 1200 ? 3.5 : 2.8;
+  const dur = (aW() + 140) / (speed * 60) * 1000;
+  el.style.animationDuration = dur + 'ms';
+  const y = aH()*0.1 + Math.random()*(aH()*0.78);
+  el.style.top = y + 'px';
+  el.textContent = emoji;
+  arena.appendChild(el);
+  items.push({ el, isGood, y, done: false, startTime: performance.now(), dur });
+  spawnTimer = setTimeout(spawnItem, spawnDelay*(0.6+Math.random()*0.8));
+}
+
+function spawnSparkle(x, y, good) {
+  const set = good ? SPARKS_GOOD : SPARKS_BAD;
+  for (let i=0;i<3;i++) {
+    const sp = document.createElement('div');
+    sp.className='sparkle';
+    sp.textContent=set[Math.floor(Math.random()*set.length)];
+    sp.style.left=(x+(Math.random()-.5)*36)+'px';
+    sp.style.top =(y+(Math.random()-.5)*36)+'px';
+    arena.appendChild(sp);
+    setTimeout(()=>sp.remove(),700);
+  }
+  const pop=document.createElement('div');
+  pop.className='score-pop';
+  pop.style.color=good?'#f0c040':'#e94560';
+  pop.textContent=good?'+1':'💔';
+  pop.style.left=x+'px'; pop.style.top=(y-10)+'px';
+  arena.appendChild(pop);
+  setTimeout(()=>pop.remove(),900);
+}
+
+let levelTimer;
+function startLevelUp() {
+  levelTimer = setInterval(()=>{
+    if (!running) return;
+    spawnDelay = Math.max(550, spawnDelay-160);
+  }, 8000);
+}
+
+function startGame() {
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('over-screen').style.display='none';
+  score=0; lives=3; timeLeft=30; running=true;
+  spawnDelay=1600; invincible=false;
+  dogY=aH()/2; dogVY=0;
+  scoreEl.textContent=0;
+  livesEl.textContent='❤️❤️❤️';
+  timeEl.textContent=30;
+  timerBar.style.width='100%';
+  items.forEach(i=>i.el.remove()); items=[];
+  clearTimeout(spawnTimer); clearInterval(timerInterval); clearInterval(levelTimer);
+  spawnItem();
+  startLevelUp();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    timeEl.textContent=timeLeft;
+    timerBar.style.width=(timeLeft/30*100)+'%';
+    if(timeLeft<=0) endGame();
+  },1000);
+  animFrame=requestAnimationFrame(loop);
+}
+
+function endGame() {
+  running=false;
+  clearTimeout(spawnTimer); clearInterval(timerInterval); clearInterval(levelTimer);
+  cancelAnimationFrame(animFrame);
+  items.forEach(i=>i.el.remove()); items=[];
+  if(score>best){best=score; bestEl.textContent=best;}
+  document.getElementById('final-score').textContent=score;
+  document.getElementById('best-msg').textContent=score>=best?'🏆 Neuer Rekord!':'Rekord: '+best;
+  document.getElementById('over-screen').style.display='flex';
+}
+
+let lastT;
+function loop(ts) {
+  if (!running) return;
+  if (!lastT) lastT=ts;
+  const dt=Math.min(ts-lastT,50); lastT=ts;
+
+  // Dog movement
+  if (keys['ArrowUp']||keys['w']||keys['W']) dogVY=-3.5;
+  if (keys['ArrowDown']||keys['s']||keys['S']) dogVY=3.5;
+  dogY += dogVY*(dt/16);
+  dogVY *= 0.82; // friction
+  clampDog();
+  dogEl.style.top=dogY+'px';
+  dogEl.style.left='60px';
+  dogEl.style.transform=dogVY<-0.5?'rotate(-15deg)':dogVY>0.5?'rotate(15deg)':'rotate(0deg)';
+
+  // Dog hitbox
+  const dRect=dogEl.getBoundingClientRect();
+  const dx1=dRect.left+dRect.width*0.2, dx2=dRect.right-dRect.width*0.2;
+  const dy1=dRect.top+dRect.height*0.15, dy2=dRect.bottom-dRect.height*0.1;
+
+  items.forEach(item=>{
+    if(item.done) return;
+    const r=item.el.getBoundingClientRect();
+    if(r.right<0){item.done=true;item.el.remove();return;}
+    const hit=r.left<dx2&&r.right>dx1&&r.top<dy2&&r.bottom>dy1;
+    if(hit){
+      item.done=true;
+      const cx=r.left+r.width/2-arena.getBoundingClientRect().left;
+      const cy=r.top+r.height/2-arena.getBoundingClientRect().top;
+      item.el.remove();
+      spawnSparkle(cx,cy,item.isGood);
+      if(item.isGood){
+        score++;
+        scoreEl.textContent=score;
+      } else if(!invincible){
+        lives--;
+        livesEl.textContent='❤️'.repeat(Math.max(0,lives));
+        invincible=true;
+        dogEl.style.opacity='0.35';
+        setTimeout(()=>{invincible=false;dogEl.style.opacity='1';},1400);
+        if(lives<=0){endGame();return;}
+      }
+    }
+  });
+  items=items.filter(i=>!i.done);
+  animFrame=requestAnimationFrame(loop);
+}
+
+document.getElementById('play-btn').addEventListener('click',startGame);
+document.getElementById('replay-btn').addEventListener('click',startGame);
+</script>
+</body>
+</html>

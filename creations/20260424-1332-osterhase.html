@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Osterhase</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #90EE90 100%);
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: sans-serif;
+    position: relative;
+  }
+
+  /* Sun */
+  .sun {
+    position: absolute;
+    top: 30px;
+    right: 80px;
+    width: 80px;
+    height: 80px;
+    background: #FFD700;
+    border-radius: 50%;
+    box-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500; }
+    50% { box-shadow: 0 0 60px #FFD700, 0 0 120px #FFA500; }
+  }
+
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+    animation: float linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud1 { width: 120px; height: 40px; top: 60px; left: -150px; animation-duration: 20s; animation-delay: 0s; }
+  .cloud1::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+  .cloud1::after { width: 40px; height: 40px; top: -20px; left: 55px; }
+  .cloud2 { width: 90px; height: 30px; top: 100px; left: -120px; animation-duration: 28s; animation-delay: -10s; }
+  .cloud2::before { width: 45px; height: 45px; top: -22px; left: 10px; }
+  .cloud2::after { width: 30px; height: 30px; top: -15px; left: 42px; }
+  @keyframes float {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(110vw); }
+  }
+
+  /* Grass tufts */
+  .grass {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background: #5DBB63;
+  }
+
+  /* Flowers */
+  .flower {
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .flower:hover { transform: scale(1.3) rotate(10deg); }
+  .flower .stem {
+    width: 4px;
+    background: #228B22;
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+  .flower .petals {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+  }
+  .flower .petal {
+    position: absolute;
+    width: 14px;
+    height: 20px;
+    border-radius: 50%;
+    opacity: 0.9;
+  }
+  .flower .center {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #FFD700;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  /* Easter eggs */
+  .egg {
+    position: absolute;
+    width: 36px;
+    height: 46px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.2);
+  }
+  .egg:hover { transform: scale(1.2) rotate(-5deg); }
+  .egg-found {
+    animation: pop 0.4s ease-out forwards;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+
+  /* Bunny */
+  #bunny {
+    position: absolute;
+    left: 80px;
+    top: 300px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #bunny svg { display: block; }
+  #bunny:hover { filter: drop-shadow(0 0 8px #ff69b4); }
+
+  /* Wings */
+  .wing-left {
+    transform-box: fill-box;
+    transform-origin: right center;
+    animation: flapLeft 0.32s ease-in-out infinite alternate;
+  }
+  .wing-right {
+    transform-box: fill-box;
+    transform-origin: left center;
+    animation: flapRight 0.32s ease-in-out infinite alternate;
+  }
+  @keyframes flapLeft {
+    from { transform: rotate(-30deg); }
+    to   { transform: rotate(22deg);  }
+  }
+  @keyframes flapRight {
+    from { transform: rotate(30deg);  }
+    to   { transform: rotate(-22deg); }
+  }
+
+  /* Score */
+  #score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #5a2d0c;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Win message */
+  #winMsg {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.97);
+    border-radius: 24px;
+    padding: 40px 60px;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #5a2d0c;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    z-index: 100;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  #winMsg .emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+  #winMsg button {
+    margin-top: 20px;
+    padding: 10px 28px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 10px;
+    background: #ff6b6b;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #winMsg button:hover { background: #ff4757; }
+  @keyframes popIn {
+    from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  /* Instructions */
+  #hint {
+    position: absolute;
+    bottom: 70px;
+    right: 20px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    color: #444;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+    z-index: 99;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="grass"></div>
+
+<div id="score">🥚 0 / 8 Eier gefunden</div>
+<div id="hint">⬅️ ➡️ ⬆️ ⬇️ Pfeiltasten zum Fliegen &nbsp;|&nbsp; Flieg zu den Eiern!</div>
+
+<!-- Bunny SVG -->
+<div id="bunny">
+<svg width="100" height="110" viewBox="-10 0 100 110" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wings (behind body) -->
+  <ellipse class="wing-left"  cx="2"  cy="80" rx="26" ry="10" fill="#c8e4ff" stroke="#90b8e8" stroke-width="1.2" opacity="0.9"/>
+  <ellipse class="wing-right" cx="78" cy="80" rx="26" ry="10" fill="#c8e4ff" stroke="#90b8e8" stroke-width="1.2" opacity="0.9"/>
+  <!-- Ears -->
+  <ellipse cx="25" cy="28" rx="9" ry="26" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.5"/>
+  <ellipse cx="55" cy="28" rx="9" ry="26" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.5"/>
+  <ellipse cx="25" cy="28" rx="5" ry="20" fill="#ffb3c6"/>
+  <ellipse cx="55" cy="28" rx="5" ry="20" fill="#ffb3c6"/>
+  <!-- Body -->
+  <ellipse cx="40" cy="85" rx="26" ry="22" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.5"/>
+  <!-- Head -->
+  <circle cx="40" cy="58" r="22" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.5"/>
+  <!-- Eyes -->
+  <circle cx="32" cy="53" r="4" fill="white"/>
+  <circle cx="48" cy="53" r="4" fill="white"/>
+  <circle cx="33" cy="53" r="2.5" fill="#333"/>
+  <circle cx="49" cy="53" r="2.5" fill="#333"/>
+  <circle cx="33.8" cy="52.2" r="1" fill="white"/>
+  <circle cx="49.8" cy="52.2" r="1" fill="white"/>
+  <!-- Nose -->
+  <ellipse cx="40" cy="61" rx="4" ry="3" fill="#ffb3c6"/>
+  <!-- Mouth -->
+  <path d="M36 64 Q40 68 44 64" stroke="#d4b8a8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Whiskers -->
+  <line x1="20" y1="60" x2="35" y2="62" stroke="#bbb" stroke-width="1"/>
+  <line x1="20" y1="63" x2="35" y2="63" stroke="#bbb" stroke-width="1"/>
+  <line x1="45" y1="62" x2="60" y2="60" stroke="#bbb" stroke-width="1"/>
+  <line x1="45" y1="63" x2="60" y2="63" stroke="#bbb" stroke-width="1"/>
+  <!-- Tail -->
+  <circle cx="65" cy="90" r="8" fill="white"/>
+  <!-- Legs (tucked up for flying) -->
+  <ellipse cx="30" cy="102" rx="10" ry="6" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.2"/>
+  <ellipse cx="50" cy="102" rx="10" ry="6" fill="#f5e6dc" stroke="#d4b8a8" stroke-width="1.2"/>
+</svg>
+</div>
+
+<div id="winMsg">
+  <span class="emoji">🎉</span>
+  Alle Eier gefunden!<br>
+  <small style="font-size:1rem;font-weight:normal;">Der Osterhase ist stolz auf dich!</small>
+  <br>
+  <button onclick="resetGame()">Nochmal spielen</button>
+</div>
+
+<script>
+const eggColors = [
+  ['#FF6B6B','#FFD93D'], ['#6BCB77','#fff'], ['#4D96FF','#FFD93D'],
+  ['#FF922B','#fff'], ['#CC5DE8','#FFD93D'], ['#20C997','#fff'],
+  ['#F06595','#fff'], ['#74C0FC','#FF6B6B']
+];
+
+const eggStripes = [
+  'M0,23 Q18,18 36,23', 'M0,16 Q18,11 36,16',
+  'M3,30 Q18,25 33,30', 'M2,19 Q18,14 34,19',
+];
+
+let eggs = [];
+let foundCount = 0;
+const totalEggs = 8;
+
+function makeEgg(x, topPx, colorPair, stripeIdx) {
+  const el = document.createElement('div');
+  el.className = 'egg';
+  el.style.left = x + 'px';
+  el.style.top  = topPx + 'px';
+  el.style.background = colorPair[0];
+
+  el.innerHTML = `<svg width="36" height="46" viewBox="0 0 36 46" style="position:absolute;top:0;left:0;">
+    <path d="${eggStripes[stripeIdx % eggStripes.length]}" stroke="${colorPair[1]}" stroke-width="5" fill="none" opacity="0.7"/>
+    <path d="${eggStripes[(stripeIdx+1)%eggStripes.length].replace(/23/g,'33').replace(/16/g,'26')}" stroke="${colorPair[1]}" stroke-width="3" fill="none" opacity="0.5"/>
+  </svg>`;
+
+  el.dataset.found = '0';
+  document.body.appendChild(el);
+  return el;
+}
+
+function placeEggs() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  // Scatter eggs across the whole sky
+  const spots = [
+    { x: 0.12, y: 0.15 }, { x: 0.28, y: 0.55 }, { x: 0.42, y: 0.25 },
+    { x: 0.55, y: 0.65 }, { x: 0.65, y: 0.10 }, { x: 0.75, y: 0.42 },
+    { x: 0.85, y: 0.70 }, { x: 0.92, y: 0.28 }
+  ];
+
+  spots.forEach((s, i) => {
+    const ex = Math.min(Math.floor(s.x * w), w - 60);
+    const ey = Math.min(Math.floor(s.y * (h - 120)), h - 140);
+    const el = makeEgg(ex, ey, eggColors[i % eggColors.length], i);
+    eggs.push({ el, cx: ex + 18, cy: ey + 23, found: false });
+  });
+}
+
+// Bunny movement
+const bunny = document.getElementById('bunny');
+let bunnyX = 80;
+let bunnyY = 0; // set after DOM ready
+const bunnyW = 100;
+const bunnyH = 110;
+let keys = {};
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+function updateBunny() {
+  const speed = 6;
+  const maxX = window.innerWidth - bunnyW - 10;
+  const maxY = window.innerHeight - bunnyH - 60;
+  if (keys['ArrowLeft']  || keys['a'] || keys['A']) bunnyX = Math.max(0, bunnyX - speed);
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) bunnyX = Math.min(maxX, bunnyX + speed);
+  if (keys['ArrowUp']    || keys['w'] || keys['W']) bunnyY = Math.max(10, bunnyY - speed);
+  if (keys['ArrowDown']  || keys['s'] || keys['S']) bunnyY = Math.min(maxY, bunnyY + speed);
+  bunny.style.left = bunnyX + 'px';
+  bunny.style.top  = bunnyY + 'px';
+
+  // Check egg collisions (2D)
+  const bCX = bunnyX + bunnyW / 2;
+  const bCY = bunnyY + bunnyH / 2;
+  eggs.forEach(egg => {
+    if (egg.found) return;
+    if (Math.abs(bCX - egg.cx) < 50 && Math.abs(bCY - egg.cy) < 50) {
+      collectEgg(egg);
+    }
+  });
+
+  requestAnimationFrame(updateBunny);
+}
+
+function collectEgg(egg) {
+  egg.found = true;
+  egg.el.classList.add('egg-found');
+  foundCount++;
+  document.getElementById('score').textContent = `🥚 ${foundCount} / ${totalEggs} Eier gefunden`;
+  setTimeout(() => egg.el.remove(), 400);
+  if (foundCount === totalEggs) {
+    setTimeout(showWin, 600);
+  }
+}
+
+function showWin() {
+  document.getElementById('winMsg').style.display = 'block';
+  spawnConfetti();
+}
+
+function spawnConfetti() {
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#CC5DE8','#FF922B'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    c.style.animationDelay = (Math.random() * 1.5) + 's';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function resetGame() {
+  document.getElementById('winMsg').style.display = 'none';
+  eggs.forEach(e => { try { e.el.remove(); } catch(_){} });
+  eggs = [];
+  foundCount = 0;
+  bunnyX = 80;
+  bunnyY = window.innerHeight - bunnyH - 70;
+  document.getElementById('score').textContent = `🥚 0 / ${totalEggs} Eier gefunden`;
+  placeEggs();
+}
+
+// Flowers
+function makeFowers() {
+  const flowerColors = ['#FF6B6B','#CC5DE8','#FF922B','#FFD93D','#4D96FF','#F06595'];
+  const w = window.innerWidth;
+  for (let i = 0; i < 14; i++) {
+    const f = document.createElement('div');
+    f.className = 'flower';
+    const x = 30 + Math.random() * (w - 80);
+    f.style.left = x + 'px';
+    f.style.bottom = (55 + Math.random() * 30) + 'px';
+    const stemH = 20 + Math.random() * 15;
+    const col = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+    f.innerHTML = `
+      <div class="petals">
+        <div class="petal" style="background:${col};top:0;left:13px;transform:rotate(0deg);transform-origin:7px 20px;"></div>
+        <div class="petal" style="background:${col};top:13px;left:26px;transform:rotate(90deg);transform-origin:7px 20px;"></div>
+        <div class="petal" style="background:${col};top:26px;left:13px;transform:rotate(180deg);transform-origin:7px 20px;"></div>
+        <div class="petal" style="background:${col};top:13px;left:0;transform:rotate(270deg);transform-origin:7px 20px;"></div>
+        <div class="center"></div>
+      </div>
+      <div class="stem" style="height:${stemH}px;"></div>`;
+    document.body.appendChild(f);
+  }
+}
+
+bunnyY = window.innerHeight - bunnyH - 70;
+makeFowers();
+placeEggs();
+requestAnimationFrame(updateBunny);
+</script>
+</body>
+</html>

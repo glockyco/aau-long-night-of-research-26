@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Jump & Run – 2 Spieler</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif; }
+  h1 { color: #e94560; margin-bottom: 6px; font-size: 1.8em; letter-spacing: 2px; }
+  #info { color: #aaa; margin-bottom: 8px; font-size: 0.85em; text-align: center; line-height: 1.6; }
+  canvas { border: 3px solid #e94560; border-radius: 8px; background: #16213e; }
+  #score-display { color: #fff; margin-top: 8px; font-size: 1em; text-align: center; }
+</style>
+</head>
+<body>
+<h1>🏃 Jump & Run – 2 Spieler</h1>
+<div id="info">
+  🔴 Spieler 1: <b>LEERTASTE</b> springen &nbsp;|&nbsp; 🔵 Spieler 2: <b>Pfeiltaste HOCH</b> springen<br>
+  Doppelsprung möglich! Weiche Hindernissen aus &amp; sammle Münzen.
+</div>
+<canvas id="gameCanvas" width="820" height="370"></canvas>
+<div id="score-display">Spieler 1: 0 | Spieler 2: 0 | Rekord: 0</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreDisplay = document.getElementById('score-display');
+
+const GRAVITY = 0.6;
+const JUMP_FORCE = -13;
+const GROUND_Y = canvas.height - 60;
+const PLAYER_SIZE = 36;
+
+let score1 = 0, score2 = 0;
+let highScore = 0;
+let gameRunning = false;
+let gameOver = false;
+let winner = '';
+let frameCount = 0;
+let speed = 5;
+let coins = [];
+let obstacles = [];
+let particles = [];
+let clouds = [];
+
+function makePlayer(x, color, eyeOff) {
+  return {
+    x, y: GROUND_Y, vy: 0, jumps: 0, maxJumps: 2,
+    width: PLAYER_SIZE, height: PLAYER_SIZE,
+    color, eyeOff,
+    alive: true,
+    score: 0,
+    jump() {
+      if (!this.alive) return;
+      if (this.jumps < this.maxJumps) {
+        this.vy = JUMP_FORCE;
+        this.jumps++;
+        spawnJumpParticles(this.x + this.width/2, this.y + this.height, this.color);
+      }
+    },
+    update() {
+      if (!this.alive) return;
+      this.vy += GRAVITY;
+      this.y += this.vy;
+      if (this.y >= GROUND_Y) {
+        this.y = GROUND_Y; this.vy = 0; this.jumps = 0;
+      }
+    },
+    draw() {
+      const alpha = this.alive ? 1 : 0.25;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.roundRect(this.x, this.y, this.width, this.height, 6);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(this.x + 24, this.y + 10, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#1a1a2e';
+      ctx.beginPath();
+      ctx.arc(this.x + 26, this.y + 10, 3, 0, Math.PI*2);
+      ctx.fill();
+      if (!this.alive) {
+        // X eyes
+        ctx.strokeStyle = '#ff0';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(this.x+20, this.y+6); ctx.lineTo(this.x+28, this.y+14); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+28, this.y+6); ctx.lineTo(this.x+20, this.y+14); ctx.stroke();
+      }
+      const legAnim = this.alive ? Math.sin(frameCount * 0.3) * 8 : 0;
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(this.x + 10, this.y + this.height);
+      ctx.lineTo(this.x + 10, this.y + this.height + (this.y < GROUND_Y ? 0 : legAnim));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(this.x + 24, this.y + this.height);
+      ctx.lineTo(this.x + 24, this.y + this.height + (this.y < GROUND_Y ? 0 : -legAnim));
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  };
+}
+
+let p1 = makePlayer(80, '#e94560', 0);
+let p2 = makePlayer(140, '#3fa7ff', 0);
+
+function spawnJumpParticles(x, y, col) {
+  for (let i = 0; i < 8; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * -3,
+      life: 1,
+      color: col
+    });
+  }
+}
+
+function spawnCoinParticles(x, y) {
+  for (let i = 0; i < 10; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: Math.random() * -5 - 1,
+      life: 1,
+      color: `hsl(50, 100%, 60%)`
+    });
+  }
+}
+
+function initClouds() {
+  for (let i = 0; i < 5; i++) {
+    clouds.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * 80 + 20,
+      w: Math.random() * 80 + 60,
+      speed: Math.random() * 0.5 + 0.2
+    });
+  }
+}
+
+function spawnObstacle() {
+  const types = [
+    { w: 28, h: 50 }, { w: 20, h: 80 }, { w: 50, h: 35 },
+  ];
+  const t = types[Math.floor(Math.random() * types.length)];
+  obstacles.push({
+    x: canvas.width + 20,
+    y: GROUND_Y + PLAYER_SIZE - t.h,
+    width: t.w, height: t.h,
+    color: '#0f3460'
+  });
+}
+
+function spawnCoin() {
+  const heights = [GROUND_Y - 20, GROUND_Y - 60, GROUND_Y - 110];
+  coins.push({
+    x: canvas.width + 20,
+    y: heights[Math.floor(Math.random() * heights.length)],
+    radius: 10, angle: 0,
+    collected1: false, collected2: false
+  });
+}
+
+function drawGround() {
+  ctx.fillStyle = '#0f3460';
+  ctx.fillRect(0, GROUND_Y + PLAYER_SIZE, canvas.width, canvas.height - GROUND_Y - PLAYER_SIZE);
+  ctx.strokeStyle = '#e94560'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, GROUND_Y + PLAYER_SIZE);
+  ctx.lineTo(canvas.width, GROUND_Y + PLAYER_SIZE);
+  ctx.stroke();
+  ctx.strokeStyle = '#1a3a6e'; ctx.lineWidth = 2;
+  for (let i = 0; i < 12; i++) {
+    const gx = ((frameCount * speed * 0.5 + i * 70) % (canvas.width + 70)) - 10;
+    ctx.beginPath();
+    ctx.moveTo(gx, GROUND_Y + PLAYER_SIZE + 5);
+    ctx.lineTo(gx + 30, GROUND_Y + PLAYER_SIZE + 5);
+    ctx.stroke();
+  }
+}
+
+function drawClouds() {
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  clouds.forEach(c => {
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, c.w, 18, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(c.x - c.w*0.3, c.y+5, c.w*0.5, 14, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(c.x + c.w*0.3, c.y+5, c.w*0.5, 14, 0, 0, Math.PI*2); ctx.fill();
+  });
+}
+
+function updateClouds() {
+  clouds.forEach(c => {
+    c.x -= c.speed;
+    if (c.x < -c.w - 20) c.x = canvas.width + c.w + 20;
+  });
+}
+
+function checkCollision(a, b) {
+  const pad = 6;
+  return a.x + pad < b.x + b.width - pad &&
+         a.x + a.width - pad > b.x + pad &&
+         a.y + pad < b.y + b.height &&
+         a.y + a.height - pad > b.y;
+}
+
+function coinCollect(player, coin, key) {
+  const dx = player.x + player.width/2 - coin.x;
+  const dy = player.y + player.height/2 - coin.y;
+  return Math.sqrt(dx*dx + dy*dy) < coin.radius + 18;
+}
+
+function drawStartScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#e94560';
+  ctx.font = 'bold 44px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('JUMP & RUN – 2 SPIELER', canvas.width/2, canvas.height/2 - 50);
+  ctx.fillStyle = '#e94560'; ctx.font = '20px Arial';
+  ctx.fillText('🔴 Spieler 1: LEERTASTE', canvas.width/2 - 140, canvas.height/2 + 10);
+  ctx.fillStyle = '#3fa7ff';
+  ctx.fillText('🔵 Spieler 2: PFEIL HOCH', canvas.width/2 + 140, canvas.height/2 + 10);
+  ctx.fillStyle = '#fff'; ctx.font = '18px Arial';
+  ctx.fillText('Beide Spieler drücken ihre Taste zum Starten!', canvas.width/2, canvas.height/2 + 55);
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = 'bold 46px Arial'; ctx.textAlign = 'center';
+
+  if (!p1.alive && !p2.alive) {
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('UNENTSCHIEDEN!', canvas.width/2, canvas.height/2 - 55);
+  } else {
+    const wColor = winner === 'p1' ? '#e94560' : '#3fa7ff';
+    const wName = winner === 'p1' ? '🔴 Spieler 1' : '🔵 Spieler 2';
+    ctx.fillStyle = wColor;
+    ctx.fillText(`${wName} GEWINNT!`, canvas.width/2, canvas.height/2 - 55);
+  }
+
+  ctx.fillStyle = '#e94560'; ctx.font = '20px Arial';
+  ctx.fillText(`🔴 Sp.1: ${score1} Punkte`, canvas.width/2 - 130, canvas.height/2 + 5);
+  ctx.fillStyle = '#3fa7ff';
+  ctx.fillText(`🔵 Sp.2: ${score2} Punkte`, canvas.width/2 + 130, canvas.height/2 + 5);
+
+  const best = Math.max(score1, score2);
+  if (best >= highScore) {
+    ctx.fillStyle = '#ffd700'; ctx.font = 'bold 18px Arial';
+    ctx.fillText('🏆 Neuer Rekord!', canvas.width/2, canvas.height/2 + 45);
+  }
+  ctx.fillStyle = '#aaa'; ctx.font = '16px Arial';
+  ctx.fillText('Taste drücken = Neu starten', canvas.width/2, canvas.height/2 + 80);
+}
+
+function startGame() {
+  score1 = 0; score2 = 0;
+  frameCount = 0; speed = 5;
+  obstacles.length = 0; coins.length = 0; particles.length = 0;
+  p1 = makePlayer(80, '#e94560', 0);
+  p2 = makePlayer(140, '#3fa7ff', 0);
+  gameOver = false; gameRunning = true; winner = '';
+}
+
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawClouds(); updateClouds(); drawGround();
+
+  if (!gameRunning && !gameOver) {
+    p1.draw(); p2.draw();
+    drawStartScreen();
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  if (gameOver) {
+    p1.draw(); p2.draw();
+    obstacles.forEach(o => {
+      ctx.fillStyle = o.color;
+      ctx.beginPath(); ctx.roundRect(o.x, o.y, o.width, o.height, 4); ctx.fill();
+      ctx.strokeStyle = '#e94560'; ctx.lineWidth = 2; ctx.stroke();
+    });
+    drawGameOver();
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  frameCount++;
+  if (p1.alive) score1++;
+  if (p2.alive) score2++;
+  speed = 5 + Math.floor((score1 + score2) / 600) * 0.5;
+
+  const obstacleInterval = Math.max(60, 110 - Math.floor((score1+score2) / 400) * 5);
+  if (frameCount % obstacleInterval === 0) spawnObstacle();
+  if (frameCount % 80 === 40) spawnCoin();
+
+  // Obstacles
+  obstacles = obstacles.filter(o => o.x + o.width > -10);
+  obstacles.forEach(o => {
+    o.x -= speed;
+    ctx.fillStyle = o.color;
+    ctx.beginPath(); ctx.roundRect(o.x, o.y, o.width, o.height, 4); ctx.fill();
+    ctx.strokeStyle = '#e94560'; ctx.lineWidth = 2; ctx.stroke();
+    if (p1.alive && checkCollision(p1, o)) p1.alive = false;
+    if (p2.alive && checkCollision(p2, o)) p2.alive = false;
+  });
+
+  // Check game over
+  if (!p1.alive || !p2.alive) {
+    if (!p1.alive && !p2.alive) {
+      winner = score1 > score2 ? 'p1' : score2 > score1 ? 'p2' : 'draw';
+    } else {
+      winner = p1.alive ? 'p1' : 'p2';
+    }
+    // allow a short moment before showing game over
+    if (!p1.alive && !p2.alive) {
+      highScore = Math.max(highScore, score1, score2);
+      gameOver = true;
+    } else if (frameCount % 1 === 0) {
+      // one player still alive, keep going until they die too
+    }
+  }
+
+  // Coins
+  coins = coins.filter(c => c.x + c.radius > -10);
+  coins.forEach(c => {
+    c.x -= speed; c.angle += 0.05;
+    ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 12;
+    ctx.fillStyle = `hsl(${50 + Math.sin(c.angle)*10}, 100%, 60%)`;
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#fff8'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff8'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('★', c.x, c.y + 4);
+    if (p1.alive && !c.collected1 && coinCollect(p1, c)) {
+      c.collected1 = true; score1 += 50; spawnCoinParticles(c.x, c.y);
+    }
+    if (p2.alive && !c.collected2 && coinCollect(p2, c)) {
+      c.collected2 = true; score2 += 50; spawnCoinParticles(c.x, c.y);
+    }
+  });
+
+  // Particles
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.04;
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+
+  p1.update(); p2.update();
+  p2.draw(); p1.draw();
+
+  // HUD
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#e94560'; ctx.font = 'bold 18px Arial';
+  ctx.fillText(`🔴 ${score1}`, 12, 30);
+  ctx.fillStyle = '#3fa7ff';
+  ctx.fillText(`🔵 ${score2}`, 12, 55);
+  ctx.fillStyle = '#ffd700';
+  ctx.fillText(`🏆 ${highScore}`, 12, 80);
+
+  // Jump dots p1
+  for (let i = 0; i < p1.maxJumps; i++) {
+    ctx.beginPath();
+    ctx.arc(p1.x + 8 + i*16, p1.y - 12, 5, 0, Math.PI*2);
+    ctx.fillStyle = i < (p1.maxJumps - p1.jumps) ? '#e94560' : '#333';
+    ctx.fill();
+  }
+  // Jump dots p2
+  for (let i = 0; i < p2.maxJumps; i++) {
+    ctx.beginPath();
+    ctx.arc(p2.x + 8 + i*16, p2.y - 12, 5, 0, Math.PI*2);
+    ctx.fillStyle = i < (p2.maxJumps - p2.jumps) ? '#3fa7ff' : '#333';
+    ctx.fill();
+  }
+
+  scoreDisplay.textContent = `🔴 Spieler 1: ${score1}  |  🔵 Spieler 2: ${score2}  |  🏆 Rekord: ${highScore}`;
+  requestAnimationFrame(gameLoop);
+}
+
+const keys = {};
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') e.preventDefault();
+  if (!gameRunning || gameOver) {
+    if (e.code === 'Space' || e.code === 'ArrowUp') startGame();
+    return;
+  }
+  if (e.code === 'Space') p1.jump();
+  if (e.code === 'ArrowUp') p2.jump();
+});
+
+canvas.addEventListener('click', () => {
+  if (!gameRunning || gameOver) startGame();
+});
+
+initClouds();
+gameLoop();
+</script>
+</body>
+</html>

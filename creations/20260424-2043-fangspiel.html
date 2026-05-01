@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Fangspiel – 3 Spieler</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: white;
+    user-select: none;
+    overflow: hidden;
+  }
+  h1 { font-size: 1.6em; margin-bottom: 6px; }
+  #score-board {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 8px;
+    font-size: 1em;
+  }
+  .score-box { text-align: center; line-height: 1.4; }
+  .score-box .pts { font-size: 1.8em; font-weight: bold; }
+  #timer { font-size: 1.3em; margin-bottom: 8px; color: #f0c040; }
+  #arena {
+    position: relative;
+    width: 860px;
+    height: 500px;
+    background: #1b3a2a;
+    border: 3px solid #2d6a4f;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  /* Grass texture via repeating dots */
+  #arena::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #2d6a4f 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.4;
+  }
+
+  /* ── SVG child character ── */
+  .player {
+    position: absolute;
+    width: 48px;
+    height: 64px;
+    transform-origin: center bottom;
+  }
+  .player svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* leg animation */
+  @keyframes run-left  { 0%,100%{transform:rotate(25deg)}  50%{transform:rotate(-25deg)} }
+  @keyframes run-right { 0%,100%{transform:rotate(-25deg)} 50%{transform:rotate(25deg)}  }
+  @keyframes arm-left  { 0%,100%{transform:rotate(-30deg)} 50%{transform:rotate(30deg)}  }
+  @keyframes arm-right { 0%,100%{transform:rotate(30deg)}  50%{transform:rotate(-30deg)} }
+  @keyframes idle-bob  { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-2px)} }
+
+  .running .leg-l { animation: run-left  0.35s linear infinite; transform-origin: 24px 44px; }
+  .running .leg-r { animation: run-right 0.35s linear infinite; transform-origin: 24px 44px; }
+  .running .arm-l { animation: arm-left  0.35s linear infinite; transform-origin: 18px 26px; }
+  .running .arm-r { animation: arm-right 0.35s linear infinite; transform-origin: 30px 26px; }
+  .idle    .leg-l, .idle .leg-r { animation: none; }
+  .idle    .body-group { animation: idle-bob 1s ease-in-out infinite; }
+
+  /* caught flash */
+  @keyframes flash { 0%,100%{opacity:1} 50%{opacity:0.1} }
+  .caught-flash { animation: flash 0.15s linear 4; }
+
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    text-align: center;
+    gap: 14px;
+    z-index: 10;
+  }
+  #overlay button {
+    padding: 11px 30px;
+    font-size: 0.75em;
+    border: none;
+    border-radius: 8px;
+    background: #e94560;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #overlay button:hover { background: #c73652; }
+
+  #caught-msg {
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.2em;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0;
+    text-shadow: 0 2px 8px #000;
+    transition: opacity 0.3s;
+    z-index: 5;
+  }
+  .obstacle {
+    position: absolute;
+    border-radius: 8px;
+    background: #5d4037;
+    border: 3px solid #3e2723;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6em;
+    pointer-events: none;
+    z-index: 2;
+  }
+  #keys-info {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: #777;
+    text-align: center;
+  }
+  #keys-info b { color: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>🏃 Fangspiel – 3 Spieler</h1>
+
+<div id="score-board">
+  <div class="score-box" style="color:#ff6b6b">
+    😈 Fänger (Rot)<br><span class="pts" id="s1">0</span> Fänge
+  </div>
+  <div class="score-box" style="color:#74d7f7">
+    😊 Läufer 1 (Blau)<br><span class="pts" id="s2">0</span> Entk.
+  </div>
+  <div class="score-box" style="color:#ffd166">
+    😊 Läufer 2 (Gelb)<br><span class="pts" id="s3">0</span> Entk.
+  </div>
+</div>
+
+<div id="timer">⏱ 60s</div>
+
+<div id="arena">
+  <!-- Players injected by JS -->
+  <div id="caught-msg"></div>
+  <div id="overlay">
+    <div>🏃 Fangspiel – 3 Spieler</div>
+    <div style="font-size:0.5em;color:#aaa;line-height:1.8">
+      😈 Fänger (Rot): <b>W A S D</b><br>
+      😊 Läufer 1 (Blau): <b>↑ ← ↓ →</b><br>
+      😊 Läufer 2 (Gelb): <b>I J K L</b>
+    </div>
+    <button onclick="startGame()">Spiel starten!</button>
+  </div>
+</div>
+
+<div id="keys-info">
+  😈 Fänger: <b>W A S D</b> &nbsp;|&nbsp;
+  😊 Läufer 1: <b>↑ ← ↓ →</b> &nbsp;|&nbsp;
+  😊 Läufer 2: <b>I J K L</b>
+</div>
+
+<script>
+// ── child SVG builder ──────────────────────────────────────────
+function makeChild(skinColor, shirtColor, pantsColor, hairColor, name) {
+  const div = document.createElement('div');
+  div.className = 'player idle';
+  div.id = name;
+  div.innerHTML = `<svg viewBox="0 0 48 72" xmlns="http://www.w3.org/2000/svg">
+    <g class="body-group">
+      <!-- shadow -->
+      <ellipse cx="24" cy="70" rx="12" ry="3" fill="rgba(0,0,0,0.25)"/>
+
+      <!-- legs (drawn behind body) -->
+      <g class="leg-l">
+        <rect x="16" y="44" width="8" height="18" rx="4" fill="${pantsColor}"/>
+        <rect x="16" y="58" width="8" height="6" rx="3" fill="#333"/>
+      </g>
+      <g class="leg-r">
+        <rect x="24" y="44" width="8" height="18" rx="4" fill="${pantsColor}"/>
+        <rect x="24" y="58" width="8" height="6" rx="3" fill="#333"/>
+      </g>
+
+      <!-- body / shirt -->
+      <rect x="14" y="26" width="20" height="20" rx="5" fill="${shirtColor}"/>
+
+      <!-- arms -->
+      <g class="arm-l">
+        <rect x="7" y="26" width="7" height="14" rx="3.5" fill="${shirtColor}"/>
+        <rect x="7" y="37" width="7" height="5" rx="2.5" fill="${skinColor}"/>
+      </g>
+      <g class="arm-r">
+        <rect x="34" y="26" width="7" height="14" rx="3.5" fill="${shirtColor}"/>
+        <rect x="34" y="37" width="7" height="5" rx="2.5" fill="${skinColor}"/>
+      </g>
+
+      <!-- neck -->
+      <rect x="21" y="20" width="6" height="7" rx="2" fill="${skinColor}"/>
+
+      <!-- head -->
+      <ellipse cx="24" cy="15" rx="11" ry="12" fill="${skinColor}"/>
+
+      <!-- hair -->
+      <ellipse cx="24" cy="5" rx="11" ry="6" fill="${hairColor}"/>
+      <rect x="13" y="4" width="4" height="10" rx="2" fill="${hairColor}"/>
+      <rect x="31" y="4" width="4" height="10" rx="2" fill="${hairColor}"/>
+
+      <!-- eyes -->
+      <circle cx="20" cy="14" r="2" fill="white"/>
+      <circle cx="28" cy="14" r="2" fill="white"/>
+      <circle cx="20.6" cy="14.6" r="1.1" fill="#222"/>
+      <circle cx="28.6" cy="14.6" r="1.1" fill="#222"/>
+
+      <!-- mouth smile -->
+      <path d="M21 19 Q24 22 27 19" stroke="#a0522d" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+      <!-- rosy cheeks -->
+      <circle cx="16" cy="17" r="2.5" fill="rgba(255,100,100,0.25)"/>
+      <circle cx="32" cy="17" r="2.5" fill="rgba(255,100,100,0.25)"/>
+    </g>
+  </svg>`;
+  return div;
+}
+
+// ── Setup ──────────────────────────────────────────────────────
+const arena = document.getElementById('arena');
+const overlay = document.getElementById('overlay');
+const timerEl = document.getElementById('timer');
+const caughtMsg = document.getElementById('caught-msg');
+
+const W = 860, H = 500, PW = 48, PH = 64, SPEED = 4;
+const HALF_W = PW / 2, HALF_H = PH / 2;
+
+// Obstacles: {x, y, w, h} — center-based x/y
+const OBSTACLES = [
+  { x: 215, y: 130, w: 100, h: 30, emoji: '🌳' },
+  { x: 215, y: 370, w: 100, h: 30, emoji: '🌳' },
+  { x: 430, y: 250, w:  30, h: 140, emoji: '🧱' },
+  { x: 645, y: 130, w: 100, h: 30, emoji: '🌳' },
+  { x: 645, y: 370, w: 100, h: 30, emoji: '🌳' },
+  { x: 330, y: 420, w:  80, h: 25, emoji: '🌿' },
+  { x: 530, y:  80, w:  80, h: 25, emoji: '🌿' },
+];
+
+function buildObstacles() {
+  OBSTACLES.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'obstacle';
+    div.style.left   = (o.x - o.w / 2) + 'px';
+    div.style.top    = (o.y - o.h / 2) + 'px';
+    div.style.width  = o.w + 'px';
+    div.style.height = o.h + 'px';
+    div.style.fontSize = Math.min(o.w, o.h) * 0.7 + 'px';
+    div.textContent = o.emoji;
+    arena.appendChild(div);
+  });
+}
+
+function resolveObstacles(p, prevX, prevY) {
+  const hw = PW / 2, hh = PH / 2;
+  for (const o of OBSTACLES) {
+    const ox1 = o.x - o.w / 2, ox2 = o.x + o.w / 2;
+    const oy1 = o.y - o.h / 2, oy2 = o.y + o.h / 2;
+    const px1 = p.x - hw, px2 = p.x + hw;
+    const py1 = p.y - hh, py2 = p.y + hh;
+    if (px2 > ox1 && px1 < ox2 && py2 > oy1 && py1 < oy2) {
+      // try sliding: restore axis that causes overlap
+      const testX = prevX;
+      const tx1 = testX - hw, tx2 = testX + hw;
+      if (!(tx2 > ox1 && tx1 < ox2)) { p.x = prevX; continue; }
+      const testY = prevY;
+      const ty1 = testY - hh, ty2 = testY + hh;
+      if (!(ty2 > oy1 && ty1 < oy2)) { p.y = prevY; continue; }
+      p.x = prevX; p.y = prevY;
+    }
+  }
+}
+
+// Create player elements
+const players = [
+  { el: makeChild('#f4a57a','#e94560','#2c3e50','#3d2b1f','p1'), // red shirt – catcher
+    x:100, y:250, dx:0, dy:0, score:0, scoreEl: document.getElementById('s1'),
+    keys:{ up:'w', down:'s', left:'a', right:'d' },
+    isCatcher: true, alive: true,
+    color:'#ff6b6b', label:'😈 Fänger (Rot)' },
+  { el: makeChild('#ffe0bd','#74d7f7','#1a6bb5','#4a3728','p2'), // blue shirt
+    x:730, y:150, dx:0, dy:0, score:0, scoreEl: document.getElementById('s2'),
+    keys:{ up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight' },
+    isCatcher: false, alive: true,
+    color:'#74d7f7', label:'😊 Läufer 1 (Blau)' },
+  { el: makeChild('#c68642','#ffd166','#5d4037','#1a1a1a','p3'), // yellow shirt
+    x:730, y:350, dx:0, dy:0, score:0, scoreEl: document.getElementById('s3'),
+    keys:{ up:'i', down:'k', left:'j', right:'l' },
+    isCatcher: false, alive: true,
+    color:'#ffd166', label:'😊 Läufer 2 (Gelb)' },
+];
+
+buildObstacles();
+players.forEach(p => arena.appendChild(p.el));
+
+// position labels above heads
+players.forEach(p => {
+  const lbl = document.createElement('div');
+  lbl.id = 'lbl_' + p.el.id;
+  lbl.style.cssText = `position:absolute;font-size:11px;color:${p.color};font-weight:bold;
+    text-shadow:0 1px 3px #000;white-space:nowrap;pointer-events:none;`;
+  arena.appendChild(lbl);
+  p.lblEl = lbl;
+});
+
+function placePlayer(p) {
+  p.el.style.left = (p.x - HALF_W) + 'px';
+  p.el.style.top  = (p.y - HALF_H) + 'px';
+  if (p.lblEl) {
+    p.lblEl.style.left = (p.x - 30) + 'px';
+    p.lblEl.style.top  = (p.y - HALF_H - 16) + 'px';
+    p.lblEl.textContent = p.isCatcher ? '😈' : '😊';
+  }
+}
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+let keys = {}, running = false, animId, timerId, timeLeft = 60;
+let catchCount = 0, escapeCount = 0;
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  keys[e.key.toLowerCase()] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e => {
+  keys[e.key] = false;
+  keys[e.key.toLowerCase()] = false;
+});
+
+function resetPositions() {
+  players[0].x = 100; players[0].y = 250;
+  players[1].x = 730; players[1].y = 150;
+  players[2].x = 730; players[2].y = 350;
+  players.forEach(p => { p.alive = true; placePlayer(p); });
+}
+
+function showMsg(text, color) {
+  caughtMsg.textContent = text;
+  caughtMsg.style.color = color;
+  caughtMsg.style.opacity = '1';
+  setTimeout(() => { caughtMsg.style.opacity = '0'; }, 1000);
+}
+
+function flashPlayer(p) {
+  p.el.classList.add('caught-flash');
+  setTimeout(() => p.el.classList.remove('caught-flash'), 700);
+}
+
+function setRunAnim(p, moving) {
+  p.el.classList.toggle('running', moving);
+  p.el.classList.toggle('idle', !moving);
+}
+
+function flipPlayer(p) {
+  if (p.dx < 0) p.el.style.transform = 'scaleX(-1)';
+  else if (p.dx > 0) p.el.style.transform = 'scaleX(1)';
+}
+
+function gameLoop() {
+  if (!running) return;
+
+  players.forEach(p => {
+    p.dx = 0; p.dy = 0;
+    if (keys[p.keys.up])    p.dy = -SPEED;
+    if (keys[p.keys.down])  p.dy =  SPEED;
+    if (keys[p.keys.left])  p.dx = -SPEED;
+    if (keys[p.keys.right]) p.dx =  SPEED;
+
+    // diagonal normalise
+    if (p.dx !== 0 && p.dy !== 0) { p.dx *= 0.707; p.dy *= 0.707; }
+
+    const prevX = p.x, prevY = p.y;
+    p.x = clamp(p.x + p.dx, HALF_W, W - HALF_W);
+    p.y = clamp(p.y + p.dy, HALF_H, H - HALF_H);
+    resolveObstacles(p, prevX, prevY);
+
+    const moving = p.dx !== 0 || p.dy !== 0;
+    setRunAnim(p, moving);
+    flipPlayer(p);
+    placePlayer(p);
+  });
+
+  // Collision: catcher vs each runner
+  const catcher = players[0];
+  players.slice(1).forEach(runner => {
+    if (!runner.alive) return;
+    if (dist(catcher, runner) < 38) {
+      catchCount++;
+      catcher.score++;
+      catcher.scoreEl.textContent = catcher.score;
+      flashPlayer(runner);
+      showMsg('Gefangen! 🎉', runner.color);
+      // send runner back to start
+      runner.x = runner === players[1] ? 730 : 430;
+      runner.y = runner === players[1] ? 150  : 350;
+    }
+  });
+
+  animId = requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  players.forEach(p => { p.score = 0; p.scoreEl.textContent = 0; });
+  timeLeft = 60;
+  timerEl.textContent = '⏱ 60s';
+  resetPositions();
+  overlay.style.display = 'none';
+  running = true;
+
+  timerId = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = '⏱ ' + timeLeft + 's';
+    if (timeLeft <= 5) timerEl.style.color = '#e94560';
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+
+  animId = requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+  running = false;
+  clearInterval(timerId);
+  cancelAnimationFrame(animId);
+  timerEl.style.color = '#f0c040';
+
+  const total = players[0].score;
+  const escaped = (60 - total); // rough
+  let winner;
+  if (total >= 5) winner = '😈 Fänger dominiert!';
+  else if (total === 0) winner = '😊 Läufer entkommen – Fänger verliert!';
+  else winner = total >= 3 ? '😈 Fänger gewinnt!' : '😊 Läufer gewinnen!';
+
+  overlay.innerHTML = `
+    <div style="font-size:1.1em">${winner}</div>
+    <div style="font-size:0.5em;color:#aaa;line-height:2">
+      😈 Fänger: <b>${players[0].score}</b> Fänge<br>
+      😊 Läufer 1: <b>${players[1].score}</b> Pts &nbsp;|&nbsp;
+      😊 Läufer 2: <b>${players[2].score}</b> Pts
+    </div>
+    <button onclick="startGame()">Nochmal spielen!</button>
+  `;
+  overlay.style.display = 'flex';
+}
+
+// initial placement
+resetPositions();
+</script>
+</body>
+</html>

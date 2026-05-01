@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Lamborghini Racer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif; overflow: hidden; }
+  h1 { color: #f5c400; font-size: 2em; margin-bottom: 10px; letter-spacing: 3px; text-shadow: 0 0 20px #f5c400; }
+  #gameWrapper { position: relative; }
+  #road { width: 400px; height: 600px; background: #333; border: 4px solid #555; position: relative; overflow: hidden; border-radius: 8px; }
+  .lane-line { position: absolute; width: 8px; height: 60px; background: #f5c400; border-radius: 4px; animation: moveLine 0.6s linear infinite; }
+  #lane1 { left: 132px; }
+  #lane2 { left: 264px; }
+  @keyframes moveLine { from { top: -60px; } to { top: 600px; } }
+  #player { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); width: 50px; height: 90px; transition: left 0.1s; }
+  .car { position: absolute; width: 50px; height: 90px; }
+  .enemy { position: absolute; width: 50px; height: 90px; animation: driveDown linear forwards; }
+  @keyframes driveDown { from { top: -90px; } to { top: 600px; } }
+  #score-panel { color: white; font-size: 1.2em; margin-bottom: 10px; display: flex; gap: 40px; }
+  #score-panel span { color: #f5c400; font-weight: bold; }
+  #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; border-radius: 6px; }
+  #overlay h2 { font-size: 2.5em; color: #f5c400; margin-bottom: 10px; }
+  #overlay p { font-size: 1.2em; margin-bottom: 20px; color: #ccc; }
+  #startBtn { background: #f5c400; color: #111; border: none; padding: 14px 40px; font-size: 1.3em; font-weight: bold; border-radius: 8px; cursor: pointer; letter-spacing: 2px; }
+  #startBtn:hover { background: #ffd700; transform: scale(1.05); }
+  #controls { color: #888; font-size: 0.9em; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>🏎️ LAMBORGHINI RACER</h1>
+<div id="score-panel">
+  Punkte: <span id="score">0</span> &nbsp; Highscore: <span id="hi">0</span> &nbsp; Level: <span id="lvl">1</span>
+</div>
+<div id="gameWrapper">
+  <canvas id="road" width="400" height="600"></canvas>
+  <div id="overlay">
+    <h2>LAMBORGHINI</h2>
+    <p>Weiche den Autos aus!</p>
+    <button id="startBtn">STARTEN</button>
+    <div id="controls">← → Pfeiltasten oder A / D</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('road');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const startBtn = document.getElementById('startBtn');
+const scoreEl = document.getElementById('score');
+const hiEl = document.getElementById('hi');
+const lvlEl = document.getElementById('lvl');
+
+let gameRunning = false;
+let score = 0;
+let highscore = 0;
+let level = 1;
+let frame = 0;
+let speed = 4;
+let playerX = 175;
+let keys = {};
+let enemies = [];
+let roadOffset = 0;
+let particles = [];
+
+// Colors
+const LAMBORGHINI_YELLOW = '#f5c400';
+const ROAD_COLOR = '#2a2a2a';
+const LANE_COLOR = '#444';
+const STRIPE_COLOR = '#f5c400';
+
+function drawRoad() {
+  // Road background
+  ctx.fillStyle = ROAD_COLOR;
+  ctx.fillRect(0, 0, 400, 600);
+
+  // Side edges
+  ctx.fillStyle = '#1a6b1a';
+  ctx.fillRect(0, 0, 20, 600);
+  ctx.fillRect(380, 0, 20, 600);
+
+  // Road border
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(20, 0, 6, 600);
+  ctx.fillRect(374, 0, 6, 600);
+
+  // Lane stripes
+  ctx.fillStyle = '#555';
+  ctx.fillRect(132, 0, 4, 600);
+  ctx.fillRect(264, 0, 4, 600);
+
+  // Animated dashes
+  ctx.fillStyle = STRIPE_COLOR;
+  for (let y = (roadOffset % 80) - 80; y < 600; y += 80) {
+    ctx.fillRect(130, y, 8, 40);
+    ctx.fillRect(262, y, 8, 40);
+  }
+}
+
+function drawLamborghini(x, y, color, flipped) {
+  ctx.save();
+  if (flipped) {
+    ctx.translate(x + 25, y + 45);
+    ctx.scale(1, -1);
+    ctx.translate(-(x + 25), -(y + 45));
+  }
+
+  // Body
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x + 5, y + 10, 40, 65, 6);
+  ctx.fill();
+
+  // Roof
+  ctx.fillStyle = color === LAMBORGHINI_YELLOW ? '#c9a000' : '#c0392b';
+  ctx.beginPath();
+  ctx.roundRect(x + 10, y + 20, 30, 30, 5);
+  ctx.fill();
+
+  // Windshield
+  ctx.fillStyle = '#7ecfff';
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  ctx.roundRect(x + 12, y + 22, 26, 16, 3);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Rear window
+  ctx.fillStyle = '#7ecfff';
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  ctx.roundRect(x + 12, y + 42, 26, 10, 3);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Headlights
+  ctx.fillStyle = '#fffaaa';
+  ctx.fillRect(x + 7, y + 10, 10, 6);
+  ctx.fillRect(x + 33, y + 10, 10, 6);
+
+  // Taillights
+  ctx.fillStyle = '#ff2200';
+  ctx.fillRect(x + 7, y + 68, 10, 5);
+  ctx.fillRect(x + 33, y + 68, 10, 5);
+
+  // Wheels
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(x + 8, y + 25, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 42, y + 25, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 8, y + 62, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 42, y + 62, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Wheel rims
+  ctx.fillStyle = '#ccc';
+  ctx.beginPath(); ctx.ellipse(x + 8, y + 25, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 42, y + 25, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 8, y + 62, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 42, y + 62, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Lamborghini badge
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 8px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('🐂', x + 25, y + 38);
+
+  ctx.restore();
+}
+
+function spawnEnemy() {
+  const lanes = [35, 175, 315];
+  const lane = lanes[Math.floor(Math.random() * 3)];
+  const colors = ['#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22'];
+  enemies.push({
+    x: lane,
+    y: -90,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    speed: speed + Math.random() * 2
+  });
+}
+
+function drawParticles() {
+  particles = particles.filter(p => p.life > 0);
+  for (let p of particles) {
+    ctx.globalAlpha = p.life / 30;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    p.r *= 0.95;
+  }
+  ctx.globalAlpha = 1;
+}
+
+function explode(x, y) {
+  const colors = ['#ff4400', '#ffaa00', '#ff0000', '#ffff00', '#fff'];
+  for (let i = 0; i < 40; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const spd = Math.random() * 5 + 1;
+    particles.push({
+      x: x + 25, y: y + 45,
+      vx: Math.cos(angle) * spd,
+      vy: Math.sin(angle) * spd,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      r: Math.random() * 8 + 2,
+      life: 30
+    });
+  }
+}
+
+function checkCollision(ex, ey) {
+  const py = 510;
+  return !(ex + 48 < playerX || ex > playerX + 48 || ey + 88 < py || ey > py + 88);
+}
+
+function gameLoop() {
+  if (!gameRunning) return;
+
+  frame++;
+  roadOffset += speed;
+
+  // Move player
+  if ((keys['ArrowLeft'] || keys['a'] || keys['A']) && playerX > 26) playerX -= 5;
+  if ((keys['ArrowRight'] || keys['d'] || keys['D']) && playerX < 324) playerX += 5;
+
+  // Spawn enemies
+  const spawnRate = Math.max(50 - level * 5, 20);
+  if (frame % spawnRate === 0) spawnEnemy();
+
+  // Score & level
+  score += 1;
+  level = Math.floor(score / 300) + 1;
+  speed = 4 + level * 0.8;
+  scoreEl.textContent = score;
+  lvlEl.textContent = level;
+  if (score > highscore) { highscore = score; hiEl.textContent = highscore; }
+
+  // Draw
+  drawRoad();
+
+  // Exhaust particles from player car
+  if (frame % 3 === 0) {
+    particles.push({
+      x: playerX + 18, y: 595,
+      vx: (Math.random() - 0.5) * 1.5,
+      vy: Math.random() * 2 + 1,
+      color: '#aaa', r: Math.random() * 4 + 2, life: 20
+    });
+    particles.push({
+      x: playerX + 32, y: 595,
+      vx: (Math.random() - 0.5) * 1.5,
+      vy: Math.random() * 2 + 1,
+      color: '#aaa', r: Math.random() * 4 + 2, life: 20
+    });
+  }
+
+  drawParticles();
+
+  // Draw enemies
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const e = enemies[i];
+    e.y += e.speed;
+    drawLamborghini(e.x, e.y, e.color, true);
+
+    if (checkCollision(e.x, e.y)) {
+      explode(playerX, 510);
+      gameOver();
+      return;
+    }
+    if (e.y > 600) enemies.splice(i, 1);
+  }
+
+  // Draw player
+  drawLamborghini(playerX, 510, LAMBORGHINI_YELLOW, false);
+
+  // Speed lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const lx = Math.random() * 400;
+    ctx.beginPath();
+    ctx.moveTo(lx, 0);
+    ctx.lineTo(lx, 600);
+    ctx.stroke();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+  gameRunning = false;
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
+    <h2>CRASH! 💥</h2>
+    <p>Punkte: <strong style="color:#f5c400">${score}</strong></p>
+    <p style="margin-bottom:15px">Highscore: <strong style="color:#f5c400">${highscore}</strong></p>
+    <button id="startBtn" onclick="startGame()" style="background:#f5c400;color:#111;border:none;padding:14px 40px;font-size:1.3em;font-weight:bold;border-radius:8px;cursor:pointer;letter-spacing:2px;">NOCHMAL!</button>
+  `;
+}
+
+function startGame() {
+  score = 0;
+  level = 1;
+  speed = 4;
+  frame = 0;
+  playerX = 175;
+  enemies = [];
+  particles = [];
+  overlay.style.display = 'none';
+  gameRunning = true;
+  gameLoop();
+}
+
+startBtn.addEventListener('click', startGame);
+
+document.addEventListener('keydown', e => { keys[e.key] = true; e.preventDefault(); });
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Touch support
+let touchStartX = null;
+canvas.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+canvas.addEventListener('touchmove', e => {
+  if (touchStartX === null) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  playerX = Math.max(26, Math.min(324, playerX + dx * 0.5));
+  touchStartX = e.touches[0].clientX;
+  e.preventDefault();
+}, { passive: false });
+</script>
+</body>
+</html>

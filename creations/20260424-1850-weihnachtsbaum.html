@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Frohe Weihnachten!</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: Georgia, serif;
+    overflow-y: auto;
+  }
+
+  canvas#snow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .scene {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── FARBWAHL-LEISTE ── */
+  #palette {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+    align-items: center;
+  }
+  #palette span {
+    color: #ccc;
+    font-size: 0.95rem;
+    margin-right: 4px;
+  }
+  .swatch {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .swatch:hover    { transform: scale(1.15); }
+  .swatch.selected { border-color: white; transform: scale(1.2); }
+
+  /* ── STERN ── */
+  .star {
+    font-size: 52px;
+    color: #ffe066;
+    text-shadow: 0 0 18px #ffe066, 0 0 40px #ffaa00;
+    animation: starPulse 1.2s ease-in-out infinite;
+    line-height: 1;
+    margin-bottom: -6px;
+  }
+  @keyframes starPulse {
+    0%,100% { transform: scale(1);   text-shadow: 0 0 18px #ffe066, 0 0 40px #ffaa00; }
+    50%      { transform: scale(1.2); text-shadow: 0 0 30px #fff,   0 0 60px #ffe066; }
+  }
+
+  /* ── BAUM ── */
+  .tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .layer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: crosshair;
+  }
+
+  .layer div.green {
+    background: linear-gradient(160deg, #2d7a2d, #1a4d1a);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    pointer-events: none;
+  }
+
+  .layer:nth-child(1) div.green { width: 140px; height: 90px; }
+  .layer:nth-child(2) div.green { width: 210px; height: 110px; margin-top: -30px; }
+  .layer:nth-child(3) div.green { width: 280px; height: 130px; margin-top: -40px; }
+  .layer:nth-child(4) div.green { width: 340px; height: 150px; margin-top: -50px; }
+
+  /* Kugeln */
+  .ball {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), 0 0 8px currentColor;
+    animation: blink 1s ease-in-out infinite;
+    pointer-events: none;
+    transition: transform 0.15s;
+  }
+  .ball.placed {
+    animation: ballDrop 0.35s ease-out forwards, blink 1s ease-in-out 0.35s infinite;
+  }
+  @keyframes ballDrop {
+    0%   { transform: translateY(-30px) scale(0.4); opacity: 0; }
+    70%  { transform: translateY(4px)   scale(1.1); opacity: 1; }
+    100% { transform: translateY(0)     scale(1);   opacity: 1; }
+  }
+  @keyframes blink {
+    0%,100% { filter: brightness(1); }
+    50%      { filter: brightness(2); }
+  }
+
+  /* Lichterkette-Punkte */
+  .light {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    animation: blink 0.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Stamm */
+  .trunk {
+    width: 44px; height: 60px;
+    background: linear-gradient(90deg, #5c3317, #8b4513, #5c3317);
+    border-radius: 4px;
+    margin-top: -2px;
+  }
+
+  /* Schnee-Boden */
+  .ground {
+    width: 400px; height: 28px;
+    background: radial-gradient(ellipse 80% 100% at 50% 0%, #e8f4ff 0%, #c5dff0 100%);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    margin-top: -2px;
+  }
+
+  /* ── NACHRICHT ── */
+  .message {
+    margin-top: 22px;
+    font-size: 2.2rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    color: #ffe066;
+    text-shadow: 0 0 12px #ffe066, 0 0 30px #ff6600;
+    animation: msgGlow 2s ease-in-out infinite;
+  }
+  @keyframes msgGlow {
+    0%,100% { text-shadow: 0 0 12px #ffe066, 0 0 30px #ff6600; }
+    50%      { text-shadow: 0 0 24px #fff,   0 0 50px #ffe066, 0 0 80px #ff6600; }
+  }
+
+  .submessage {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    color: #e0e0ff;
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 8px #aaaaff;
+  }
+
+  /* Cursor-Vorschau-Kugel folgt der Maus */
+  #cursor-ball {
+    position: fixed;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    display: none;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), 0 0 10px currentColor;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="snow"></canvas>
+<div id="cursor-ball"></div>
+
+<div class="scene">
+
+  <!-- Farbwahl -->
+  <div id="palette">
+    <span>Farbe:</span>
+  </div>
+
+  <div class="star">★</div>
+
+  <div class="tree" id="tree">
+    <div class="layer" id="l1"><div class="green"></div></div>
+    <div class="layer" id="l2"><div class="green"></div></div>
+    <div class="layer" id="l3"><div class="green"></div></div>
+    <div class="layer" id="l4"><div class="green"></div></div>
+  </div>
+
+  <div class="trunk"></div>
+  <div class="ground"></div>
+  <div class="message">🎄 Merry Christmas! 🎄</div>
+  <div class="submessage">Schön, dass du heute hier bist — viel Freude beim Schmücken! ✨</div>
+</div>
+
+<script>
+// ── Farbpalette ──
+const colors = ['#ff3333','#3399ff','#ff9900','#cc33ff','#33cc33','#ffcc00','#ff6699','#66ffcc','#ffffff'];
+let selectedColor = colors[0];
+
+const palette = document.getElementById('palette');
+const cursorBall = document.getElementById('cursor-ball');
+
+colors.forEach(c => {
+  const sw = document.createElement('div');
+  sw.className = 'swatch' + (c === selectedColor ? ' selected' : '');
+  sw.style.background = c;
+  sw.style.boxShadow = `0 0 8px ${c}`;
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+    sw.classList.add('selected');
+    selectedColor = c;
+    cursorBall.style.background = `radial-gradient(circle at 35% 30%, white 8%, ${c} 50%)`;
+    cursorBall.style.color = c;
+  });
+  palette.appendChild(sw);
+});
+
+// Cursor-Vorschau
+cursorBall.style.background = `radial-gradient(circle at 35% 30%, white 8%, ${selectedColor} 50%)`;
+cursorBall.style.color = selectedColor;
+
+// ── Layer-Definitionen (nur für Lichter) ──
+const layerDefs = [
+  { id: 'l1', lights: [{x:70,y:55,c:'#ffe066'}] },
+  { id: 'l2', lights: [{x:65,y:68,c:'#ff6699'},{x:105,y:60,c:'#66ffcc'},{x:148,y:70,c:'#ffe066'}] },
+  { id: 'l3', lights: [{x:80,y:85,c:'#ff3333'},{x:140,y:78,c:'#3399ff'},{x:198,y:86,c:'#ff9900'}] },
+  { id: 'l4', lights: [{x:85,y:100,c:'#66ffcc'},{x:135,y:92,c:'#ff6699'},{x:170,y:88,c:'#ffe066'},{x:205,y:94,c:'#ff3333'},{x:256,y:102,c:'#3399ff'}] },
+];
+
+// Lichter platzieren
+layerDefs.forEach(layer => {
+  const el = document.getElementById(layer.id);
+  layer.lights.forEach(l => {
+    const light = document.createElement('div');
+    light.className = 'light';
+    light.style.cssText = `left:${l.x-4}px;top:${l.y-4}px;background:${l.c};box-shadow:0 0 6px 3px ${l.c};animation-delay:${(Math.random()*1.5).toFixed(2)}s;`;
+    el.appendChild(light);
+  });
+});
+
+// ── Kugel per Klick aufhängen ──
+// Für jeden Layer: Klick auf den grünen Bereich erkennen (Dreieck-Test)
+const layerSizes = [
+  { id:'l1', w:140, h:90  },
+  { id:'l2', w:210, h:110 },
+  { id:'l3', w:280, h:130 },
+  { id:'l4', w:340, h:150 },
+];
+
+function isInsideTriangle(px, py, w, h) {
+  // Dreieck: Spitze oben-mitte, Basis unten
+  // Linke Flanke: y = (h/w*2) * x  →  x >= (py * w) / (2*h)
+  // Rechte Flanke: x <= w - (py * w) / (2*h)
+  if (py < 0 || py > h) return false;
+  const left  = (py / h) * (w / 2);
+  const right = w - left;
+  return px >= left && px <= right;
+}
+
+layerSizes.forEach(def => {
+  const el = document.getElementById(def.id);
+  el.addEventListener('click', e => {
+    const rect = el.getBoundingClientRect();
+    // Position relativ zum Layer-Element
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+
+    // Offset: green div ist zentriert im layer
+    const offsetX = (rect.width - def.w) / 2;
+    const lx = px - offsetX; // relativ zum grünen Dreieck
+    const ly = py;
+
+    if (!isInsideTriangle(lx, ly, def.w, def.h)) return;
+
+    const r = 11;
+    const ball = document.createElement('div');
+    ball.className = 'ball placed';
+    ball.style.cssText = `
+      width:${r*2}px; height:${r*2}px;
+      left:${px - r}px; top:${ly - r}px;
+      background: radial-gradient(circle at 35% 30%, white 8%, ${selectedColor} 50%);
+      color:${selectedColor};
+      animation-delay: 0s;
+    `;
+    el.appendChild(ball);
+  });
+});
+
+// ── Maus-Tracking für Vorschau-Kugel ──
+const treeEl = document.getElementById('tree');
+
+document.addEventListener('mousemove', e => {
+  cursorBall.style.left = e.clientX + 'px';
+  cursorBall.style.top  = e.clientY + 'px';
+});
+
+treeEl.addEventListener('mouseenter', () => { cursorBall.style.display = 'block'; });
+treeEl.addEventListener('mouseleave', () => { cursorBall.style.display = 'none'; });
+
+// ── Schnee ──
+const canvas = document.getElementById('snow');
+const ctx = canvas.getContext('2d');
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+const flakes = Array.from({length: 160}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  r: Math.random() * 3 + 1,
+  speed: Math.random() * 1.2 + 0.4,
+  drift: (Math.random() - 0.5) * 0.5,
+  opacity: Math.random() * 0.6 + 0.4,
+}));
+
+function animateSnow() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'white';
+  flakes.forEach(f => {
+    ctx.globalAlpha = f.opacity;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    ctx.fill();
+    f.y += f.speed;
+    f.x += f.drift;
+    if (f.y > canvas.height + 5) { f.y = -5; f.x = Math.random() * canvas.width; }
+    if (f.x > canvas.width + 5)  f.x = -5;
+    if (f.x < -5)                 f.x = canvas.width + 5;
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animateSnow);
+}
+animateSnow();
+</script>
+</body>
+</html>

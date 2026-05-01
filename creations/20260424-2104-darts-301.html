@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Darts 301 – Harpunen Edition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0d0d1a;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+  h1 { font-size: 2em; color: #e94560; margin-bottom: 4px; text-shadow: 0 0 20px #e9456088; }
+  .subtitle { color: #aaa; margin-bottom: 14px; font-size: 0.9em; }
+
+  .scoreboard { display: flex; gap: 24px; margin-bottom: 14px; width: 100%; max-width: 780px; }
+  .player-card {
+    flex: 1; background: #16213e; border-radius: 14px; padding: 14px;
+    text-align: center; border: 3px solid transparent; transition: border-color 0.3s; position: relative;
+  }
+  .player-card.active { border-color: #e94560; box-shadow: 0 0 24px #e9456055; }
+  .player-name { font-size: 1.1em; font-weight: bold; margin-bottom: 2px; }
+  .player-score { font-size: 3.2em; font-weight: bold; color: #e94560; line-height: 1; margin: 6px 0; }
+  .player-turns { font-size: 0.82em; color: #aaa; }
+  .turn-indicator {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: #e94560; color: white; padding: 2px 12px;
+    border-radius: 20px; font-size: 0.78em; font-weight: bold; display: none;
+  }
+  .player-card.active .turn-indicator { display: block; }
+
+  .power-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; width: 100%; max-width: 780px; }
+  .power-label { font-size: 0.88em; color: #aaa; width: 80px; text-align: right; }
+  .power-track { flex: 1; height: 20px; background: #0f3460; border-radius: 10px; overflow: hidden; }
+  #powerBar { height: 100%; width: 0%; border-radius: 10px; background: linear-gradient(90deg,#0a0 0%,#ffd700 60%,#e94560 100%); }
+  .power-val { width: 40px; font-weight: bold; color: #ffd700; font-size: 0.88em; }
+
+  .throw-info { font-size: 0.95em; margin-bottom: 8px; min-height: 1.3em; color: #ffd700; text-align: center; }
+
+  .main-area { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 12px; }
+
+  /* The single canvas that shows the dancing board */
+  #stage {
+    width: 420px; height: 520px;
+    position: relative; flex-shrink: 0;
+    cursor: none;
+  }
+  #stageCanvas { position: absolute; top: 0; left: 0; }
+  #sparkCanvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+
+  .score-popup {
+    position: absolute; font-size: 1.7em; font-weight: bold;
+    color: #fff; text-shadow: 0 0 10px #e94560;
+    pointer-events: none; white-space: nowrap;
+    animation: popup 1.2s ease-out forwards; z-index: 20;
+    transform: translateX(-50%);
+  }
+  @keyframes popup {
+    0%   { opacity: 1; top: var(--py); }
+    100% { opacity: 0; top: calc(var(--py) - 80px); }
+  }
+
+  .side-panel { display: flex; flex-direction: column; gap: 12px; padding-top: 10px; }
+  .instructions {
+    background: #16213e; border-radius: 12px; padding: 12px 14px;
+    font-size: 0.85em; color: #ccc; line-height: 1.7; width: 210px;
+  }
+  .instructions b { color: #ffd700; }
+  .key { display: inline-block; background: #0f3460; color: #eee; border-radius: 5px; padding: 1px 7px; font-weight: bold; }
+
+  #btnThrow {
+    padding: 16px 0; font-size: 1.3em; border: none; border-radius: 12px;
+    cursor: pointer; font-weight: bold;
+    background: linear-gradient(135deg, #e94560, #c73050);
+    color: white; box-shadow: 0 0 28px #e9456088;
+    transition: transform 0.1s; width: 100%;
+  }
+  #btnThrow:active { transform: scale(0.95); }
+
+  .controls { display: flex; gap: 10px; margin-bottom: 10px; }
+  .ctrl { padding: 9px 20px; font-size: 0.92em; border: none; border-radius: 9px; cursor: pointer; font-weight: bold; }
+  #btnUndo { background: #0f3460; color: #eee; }
+  #btnReset { background: #333; color: #eee; }
+
+  .log { width: 100%; max-width: 780px; background: #16213e; border-radius: 10px; padding: 10px 14px; font-size: 0.84em; color: #aaa; max-height: 110px; overflow-y: auto; }
+  .log-entry { margin-bottom: 3px; }
+  .log-entry span { color: #e94560; font-weight: bold; }
+
+  #winScreen {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+    z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 22px;
+  }
+  #winScreen.show { display: flex; }
+  #winScreen h2 { font-size: 2.8em; color: #ffd700; text-shadow: 0 0 40px #ffd700; animation: pulse 1s infinite alternate; }
+  @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.06)} }
+  #winScreen button {
+    background: #e94560; color: white; font-size: 1.1em;
+    padding: 13px 32px; border: none; border-radius: 11px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎯 Harpunen-Darts</h1>
+<p class="subtitle">301 Down · Maus zielen · Leertaste halten & loslassen</p>
+
+<div class="scoreboard">
+  <div class="player-card active" id="card0">
+    <div class="turn-indicator">⚓ AM ZUG</div>
+    <div class="player-name">🏴‍☠️ Spieler 1</div>
+    <div class="player-score" id="score0">301</div>
+    <div class="player-turns" id="turns0">Runden: 0</div>
+  </div>
+  <div class="player-card" id="card1">
+    <div class="turn-indicator">⚓ AM ZUG</div>
+    <div class="player-name">⚓ Spieler 2</div>
+    <div class="player-score" id="score1">301</div>
+    <div class="player-turns" id="turns1">Runden: 0</div>
+  </div>
+</div>
+
+<div class="power-row">
+  <div class="power-label">💪 Kraft:</div>
+  <div class="power-track"><div id="powerBar"></div></div>
+  <div class="power-val" id="powerVal">0%</div>
+</div>
+
+<div class="throw-info" id="throwInfo">Spieler 1 ist dran!</div>
+
+<div class="main-area">
+  <div id="stage">
+    <canvas id="stageCanvas" width="420" height="520"></canvas>
+    <canvas id="sparkCanvas" width="420" height="520"></canvas>
+  </div>
+
+  <div class="side-panel">
+    <div class="instructions">
+      <b>So wirfst du:</b><br>
+      🖱️ <b>Maus</b> auf die Scheibe<br>
+      1️⃣ <span class="key">Leertaste</span> <b>halten</b><br>
+      2️⃣ <span class="key">Leertaste</span> <b>loslassen</b><br><br>
+      ⚠️ Mehr Kraft = mehr Zittern<br>
+      🎯 Die Scheibe tanzt — Timing!<br><br>
+      <b>Tipp:</b> Kurz halten ✔️
+    </div>
+    <button id="btnThrow">🔱 WERFEN!</button>
+    <small style="color:#555;text-align:center">oder Leertaste</small>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="ctrl" id="btnUndo">↩ Rückgängig</button>
+  <button class="ctrl" id="btnReset">🔄 Neustart</button>
+</div>
+<div class="log" id="log"></div>
+
+<div id="winScreen">
+  <div style="font-size:4em">🏆</div>
+  <h2 id="winMsg">Spieler 1 gewinnt!</h2>
+  <button onclick="resetGame()">Nochmal spielen</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// Constants
+// ═══════════════════════════════════════════════════════════════════════════
+const SECTORS = [20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
+const BOARD_R = 150;   // dartboard radius in canvas coords
+const BCX = 210, BCY = 210; // board centre in canvas
+
+const stageC  = document.getElementById('stageCanvas');
+const sparkC  = document.getElementById('sparkCanvas');
+const ctx     = stageC.getContext('2d');
+const sCtx    = sparkC.getContext('2d');
+const stage   = document.getElementById('stage');
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Dancer state
+// ═══════════════════════════════════════════════════════════════════════════
+let danceT = 0;
+let moonX  = 0;
+let appearanceCount = 0;   // increments each time the figure wraps around
+let prevWrapX = 0;         // previous frame's wrapX, to detect wrap jump
+
+// ── Colour palettes for the dartboard (alternating per appearance) ──
+const BOARD_PALETTES = [
+  { single:'#e8d8b0', dark:'#222',   ring1:'#0c0', ring2:'#c00'  },
+  { single:'#d0f0ff', dark:'#1a2a4a',ring1:'#00a',ring2:'#fa0'  },
+  { single:'#ffe0f0', dark:'#2a0022',ring1:'#c0c',ring2:'#0cc'  },
+  { single:'#f0ffe0', dark:'#1a2a00',ring1:'#080',ring2:'#f80'  },
+  { single:'#fff0d0', dark:'#2a1800',ring1:'#c60',ring2:'#06c'  },
+  { single:'#e0e0ff', dark:'#0a0020',ring1:'#44f',ring2:'#f44'  },
+  { single:'#ffe8e8', dark:'#200010',ring1:'#d00',ring2:'#0d8'  },
+];
+
+// ── Shoe styles per appearance ──
+const SHOE_STYLES = [
+  { col:'#111', accent:'#e94560', label:'👟 Sneaker'   },
+  { col:'#8B4513', accent:'#ffd700', label:'👢 Cowboystiefel' },
+  { col:'#ff69b4', accent:'#fff',    label:'👠 Pumps'        },
+  { col:'#1a1aff', accent:'#00cfff', label:'⛸️ Schlittschuh' },
+  { col:'#ffd700', accent:'#ff8c00', label:'🥿 Flip-Flops'   },
+  { col:'#4a0080', accent:'#c080ff', label:'🥾 Wanderschuh'  },
+  { col:'#00aa44', accent:'#aaff44', label:'🩴 Badelatschen' },
+];
+
+// ── Hand items per appearance ──
+const HAND_ITEMS = [
+  (x,y,r,t) => { // 🎸 Guitar
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*2)*0.15);
+    const g=ctx.createLinearGradient(-r,-r*1.2,r,r*1.2);
+    g.addColorStop(0,'#c8601a'); g.addColorStop(1,'#7a3008');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.ellipse(0,0,r*0.55,r*0.75,0,0,2*Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,r*0.5,r*0.38,r*0.5,0,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(0,r*0.5,r*0.1,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5;
+    for(let s=0;s<6;s++){ const sy=r*0.15+s*r*0.12; ctx.beginPath(); ctx.moveTo(-r*0.4,sy); ctx.lineTo(r*0.4,sy); ctx.stroke(); }
+    ctx.fillStyle='#8B4513'; ctx.beginPath(); ctx.rect(-r*0.08,-r*1.35,r*0.16,r*0.65); ctx.fill();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // 🧁 Cupcake
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*3)*0.1);
+    ctx.fillStyle='#c8440a';
+    ctx.beginPath(); ctx.moveTo(-r*0.45,0); ctx.lineTo(-r*0.35,r*0.5); ctx.lineTo(r*0.35,r*0.5); ctx.lineTo(r*0.45,0); ctx.closePath(); ctx.fill();
+    const ic=ctx.createRadialGradient(0,-r*0.2,r*0.05,0,-r*0.1,r*0.5);
+    ic.addColorStop(0,'#ffb0d0'); ic.addColorStop(1,'#e94560');
+    ctx.fillStyle=ic;
+    ctx.beginPath(); ctx.ellipse(0,-r*0.15,r*0.5,r*0.38,0,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-r*0.15,-r*0.32,r*0.06,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#ffd700'; ctx.beginPath(); ctx.arc(0,-r*0.55,r*0.06,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // ☂️ Umbrella
+    ctx.save(); ctx.translate(x,y); ctx.rotate(-0.2+Math.sin(t*1.5)*0.12);
+    ctx.strokeStyle='#555'; ctx.lineWidth=r*0.12; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(0,r*0.1); ctx.lineTo(0,-r*0.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,r*0.1); ctx.quadraticCurveTo(r*0.25,r*0.45,r*0.0,r*0.1); ctx.stroke();
+    const uc=ctx.createLinearGradient(-r*0.7,-r*0.9,r*0.7,-r*0.9);
+    uc.addColorStop(0,'#e94560'); uc.addColorStop(0.5,'#ffd700'); uc.addColorStop(1,'#0af');
+    ctx.fillStyle=uc;
+    ctx.beginPath(); ctx.arc(0,-r*0.9,r*0.7,Math.PI,0); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // 🏆 Trophy
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*2.5)*0.1);
+    const tg=ctx.createLinearGradient(-r*0.4,-r,r*0.4,r*0.2);
+    tg.addColorStop(0,'#ffe066'); tg.addColorStop(0.5,'#ffd700'); tg.addColorStop(1,'#c8a000');
+    ctx.fillStyle=tg;
+    ctx.beginPath(); ctx.ellipse(0,-r*0.55,r*0.42,r*0.52,0,0,2*Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-r*0.18,-r*0.1); ctx.lineTo(-r*0.12,r*0.1); ctx.lineTo(r*0.12,r*0.1); ctx.lineTo(r*0.18,-r*0.1); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.rect(-r*0.28,r*0.1,r*0.56,r*0.14); ctx.fill();
+    ctx.fillStyle='#fff8'; ctx.beginPath(); ctx.ellipse(-r*0.1,-r*0.7,r*0.1,r*0.18,-0.4,0,2*Math.PI); ctx.fill();
+    // handles
+    ctx.strokeStyle=tg; ctx.lineWidth=r*0.1;
+    ctx.beginPath(); ctx.arc(-r*0.52,-r*0.55,r*0.2,-Math.PI*0.7,Math.PI*0.1); ctx.stroke();
+    ctx.beginPath(); ctx.arc(r*0.52,-r*0.55,r*0.2,Math.PI*0.9,Math.PI*1.7); ctx.stroke();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // 🐠 Fish
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*3)*0.18);
+    ctx.fillStyle='#ff6a00';
+    ctx.beginPath(); ctx.ellipse(0,0,r*0.6,r*0.35,0,0,2*Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-r*0.55,0); ctx.lineTo(-r*0.9,-r*0.3); ctx.lineTo(-r*0.9,r*0.3); ctx.closePath();
+    ctx.fillStyle='#ff9944'; ctx.fill();
+    ctx.strokeStyle='#fff3'; ctx.lineWidth=1;
+    for(let i=0;i<4;i++){ const fx=-r*0.1+i*r*0.15; ctx.beginPath(); ctx.arc(fx,0,r*0.08,0,2*Math.PI); ctx.stroke(); }
+    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(r*0.5,-r*0.05,r*0.06,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(r*0.52,-r*0.07,r*0.02,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // 🎺 Trumpet
+    ctx.save(); ctx.translate(x,y); ctx.rotate(0.3+Math.sin(t*2)*0.08);
+    const tg=ctx.createLinearGradient(-r,-r*0.2,r,r*0.2);
+    tg.addColorStop(0,'#ffd700'); tg.addColorStop(0.5,'#c8a000'); tg.addColorStop(1,'#ffd700');
+    ctx.strokeStyle=tg; ctx.lineWidth=r*0.18; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(-r*0.6,0); ctx.lineTo(r*0.3,0); ctx.stroke();
+    ctx.fillStyle=tg;
+    ctx.beginPath(); ctx.ellipse(r*0.65,0,r*0.35,r*0.55,0,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle='#c8a000'; ctx.lineWidth=r*0.12;
+    ctx.beginPath(); ctx.arc(-r*0.2,-r*0.25,r*0.28,Math.PI,0); ctx.stroke();
+    ctx.fillStyle='#888'; ctx.beginPath(); ctx.rect(-r*0.1,-r*0.05,r*0.08,r*0.35); ctx.fill();
+    ctx.beginPath(); ctx.rect(r*0.0,-r*0.05,r*0.08,r*0.35); ctx.fill();
+    ctx.beginPath(); ctx.rect(r*0.1,-r*0.05,r*0.08,r*0.35); ctx.fill();
+    ctx.restore();
+  },
+  (x,y,r,t) => { // 🍕 Pizza slice
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(t*2)*0.15-0.3);
+    ctx.fillStyle='#f5c842';
+    ctx.beginPath(); ctx.moveTo(0,r*0.6); ctx.lineTo(-r*0.55,-r*0.4); ctx.lineTo(r*0.55,-r*0.4); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#e84a0a';
+    ctx.beginPath(); ctx.moveTo(-r*0.52,-r*0.4); ctx.lineTo(r*0.52,-r*0.4); ctx.quadraticCurveTo(0,-r*0.55,-0,-r*0.42); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#c00'; ctx.beginPath(); ctx.arc(-r*0.1,r*0.1,r*0.1,0,2*Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(r*0.2,-r*0.1,r*0.09,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#080'; ctx.beginPath(); ctx.arc(r*0.0,r*0.3,r*0.05,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Draw the dartboard (centred at ox,oy with radius r, rotated by rot rad)
+// ═══════════════════════════════════════════════════════════════════════════
+function drawDartboard(ox, oy, r, rot) {
+  const pal  = BOARD_PALETTES[appearanceCount % BOARD_PALETTES.length];
+  const seg  = (2*Math.PI)/20;
+  const off  = rot - Math.PI/2 - seg/2;
+
+  // shadow / 3-D rim
+  ctx.save();
+  ctx.shadowColor = '#000';
+  ctx.shadowBlur  = 18;
+  ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 8;
+  ctx.beginPath(); ctx.arc(ox, oy, r, 0, 2*Math.PI);
+  ctx.fillStyle = '#111'; ctx.fill();
+  ctx.restore();
+
+  // radial gradient for 3-D look
+  const grad = ctx.createRadialGradient(ox-r*0.28, oy-r*0.22, r*0.05, ox, oy, r*1.1);
+  grad.addColorStop(0,   'rgba(255,255,255,0.18)');
+  grad.addColorStop(0.5, 'rgba(255,255,255,0.04)');
+  grad.addColorStop(1,   'rgba(0,0,0,0.55)');
+
+  for (let i = 0; i < 20; i++) {
+    const a1 = off + i*seg, a2 = a1+seg;
+    const ev = i%2===0;
+
+    // outer single
+    ctx.beginPath(); ctx.moveTo(ox,oy);
+    ctx.arc(ox,oy,r*0.95,a1,a2); ctx.closePath();
+    ctx.fillStyle = ev?pal.single:pal.dark; ctx.fill();
+
+    // double ring
+    ctx.beginPath();
+    ctx.arc(ox,oy,r*0.695,a1,a2); ctx.arc(ox,oy,r*0.64,a2,a1,true); ctx.closePath();
+    ctx.fillStyle = ev?pal.ring1:pal.ring2; ctx.fill();
+
+    // inner single
+    ctx.beginPath();
+    ctx.arc(ox,oy,r*0.415,a1,a2); ctx.arc(ox,oy,r*0.36,a2,a1,true); ctx.closePath();
+    ctx.fillStyle = ev?pal.single:pal.dark; ctx.fill();
+
+    // triple ring
+    ctx.beginPath();
+    ctx.arc(ox,oy,r*0.36,a1,a2); ctx.arc(ox,oy,r*0.305,a2,a1,true); ctx.closePath();
+    ctx.fillStyle = ev?pal.ring1:pal.ring2; ctx.fill();
+
+    // number
+    const mid = a1+seg/2, nr = r*0.83;
+    ctx.save();
+    ctx.translate(ox+Math.cos(mid)*nr, oy+Math.sin(mid)*nr);
+    ctx.rotate(mid+Math.PI/2);
+    ctx.fillStyle = ev?'#222':'#eee';
+    ctx.font = `bold ${Math.round(r*0.115)}px Segoe UI`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(SECTORS[i], 0, 0);
+    ctx.restore();
+  }
+
+  // bull outer
+  ctx.beginPath(); ctx.arc(ox,oy,r*0.095,0,2*Math.PI); ctx.fillStyle='#0c0'; ctx.fill();
+  // bull
+  ctx.beginPath(); ctx.arc(ox,oy,r*0.045,0,2*Math.PI); ctx.fillStyle='#c00'; ctx.fill();
+  // wire rim
+  ctx.beginPath(); ctx.arc(ox,oy,r*0.95,0,2*Math.PI);
+  ctx.strokeStyle='#666'; ctx.lineWidth=3; ctx.stroke();
+  // sector lines
+  for(let i=0;i<20;i++){
+    const a=off+i*seg;
+    ctx.beginPath();
+    ctx.moveTo(ox+Math.cos(a)*r*0.095, oy+Math.sin(a)*r*0.095);
+    ctx.lineTo(ox+Math.cos(a)*r*0.95,  oy+Math.sin(a)*r*0.95);
+    ctx.strokeStyle='#444'; ctx.lineWidth=1; ctx.stroke();
+  }
+  // 3-D gloss overlay
+  ctx.beginPath(); ctx.arc(ox,oy,r*0.95,0,2*Math.PI);
+  ctx.fillStyle = grad; ctx.fill();
+
+  // outer metal ring
+  ctx.beginPath(); ctx.arc(ox,oy,r,0,2*Math.PI);
+  ctx.strokeStyle='#888'; ctx.lineWidth=8; ctx.stroke();
+  const ringGrad = ctx.createLinearGradient(ox-r,oy-r,ox+r,oy+r);
+  ringGrad.addColorStop(0,'#ccc'); ringGrad.addColorStop(0.5,'#555'); ringGrad.addColorStop(1,'#999');
+  ctx.strokeStyle=ringGrad; ctx.lineWidth=6; ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Draw limbs (arms & legs) given current dance phase
+// ═══════════════════════════════════════════════════════════════════════════
+function drawLimbs(ox, oy, r, phase, bobY, t) {
+  const limbW = r*0.18, handR = r*0.12, footW = r*0.28, footH = r*0.1;
+  const shoulderY = oy + r*0.7, hipY = oy + r*0.95;
+
+  const shoe  = SHOE_STYLES[appearanceCount % SHOE_STYLES.length];
+  const item  = HAND_ITEMS[appearanceCount  % HAND_ITEMS.length];
+
+  const armCol  = '#8a6a4a';
+  const handCol = '#c8966a';
+  const legCol  = '#5a4a3a';
+
+  // ── arms ──
+  // left arm: swings forward on moonwalk
+  const laAngle = -0.6 + Math.sin(phase)*0.7;
+  const laLen   = r*0.65;
+  const laSx=ox-r*0.88, laSy=shoulderY;
+  const laEx=laSx+Math.cos(laAngle+Math.PI)*laLen, laEy=laSy+Math.sin(laAngle+Math.PI)*laLen;
+  // left arm + hand item
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.strokeStyle=armCol; ctx.lineWidth=limbW;
+  ctx.beginPath(); ctx.moveTo(laSx,laSy); ctx.lineTo(laEx,laEy); ctx.stroke();
+  ctx.beginPath(); ctx.arc(laEx,laEy,handR,0,2*Math.PI);
+  ctx.fillStyle=handCol; ctx.fill();
+  for(let f=0;f<4;f++){
+    const fa=laAngle+Math.PI-0.3+f*0.2;
+    ctx.beginPath(); ctx.moveTo(laEx,laEy);
+    ctx.lineTo(laEx+Math.cos(fa)*handR*1.5, laEy+Math.sin(fa)*handR*1.5);
+    ctx.strokeStyle=handCol; ctx.lineWidth=limbW*0.35; ctx.stroke();
+  }
+  ctx.restore();
+  // draw item in left hand
+  item(laEx, laEy - r*0.45, r*0.28, t);
+
+  // right arm: plain hand
+  const raAngle = 0.4 - Math.sin(phase)*0.7;
+  const raLen   = r*0.65;
+  const raSx=ox+r*0.88, raSy=shoulderY;
+  const raEx=raSx+Math.cos(raAngle)*raLen, raEy=raSy+Math.sin(raAngle)*raLen;
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.strokeStyle=armCol; ctx.lineWidth=limbW;
+  ctx.beginPath(); ctx.moveTo(raSx,raSy); ctx.lineTo(raEx,raEy); ctx.stroke();
+  ctx.beginPath(); ctx.arc(raEx,raEy,handR,0,2*Math.PI);
+  ctx.fillStyle=handCol; ctx.fill();
+  for(let f=0;f<4;f++){
+    const fa=raAngle-0.3+f*0.2;
+    ctx.beginPath(); ctx.moveTo(raEx,raEy);
+    ctx.lineTo(raEx+Math.cos(fa)*handR*1.5, raEy+Math.sin(fa)*handR*1.5);
+    ctx.strokeStyle=handCol; ctx.lineWidth=limbW*0.35; ctx.stroke();
+  }
+  ctx.restore();
+
+  // ── legs ──
+  // Moonwalk: left foot glides backward (to the right) when it's planted,
+  // right foot lifts and moves forward.
+  const walkCycle = phase % (2*Math.PI);
+  const lLift  = Math.max(0, -Math.sin(walkCycle)) * r*0.25;
+  const lSlide = Math.sin(walkCycle) * r*0.3;
+  const rLift  = Math.max(0,  Math.sin(walkCycle)) * r*0.25;
+  const rSlide = -Math.sin(walkCycle) * r*0.3;
+
+  function drawShoe(bx, by, slideAmt) {
+    ctx.save(); ctx.translate(bx,by); ctx.rotate(slideAmt*0.015);
+    // sole
+    ctx.fillStyle=shoe.col;
+    ctx.beginPath(); ctx.ellipse(footW*0.3,footH*0.5,footW,footH,0,0,2*Math.PI); ctx.fill();
+    // accent stripe
+    ctx.fillStyle=shoe.accent;
+    ctx.beginPath(); ctx.ellipse(footW*0.1,footH*0.15,footW*0.55,footH*0.42,0,0,2*Math.PI); ctx.fill();
+    // gloss
+    ctx.fillStyle='rgba(255,255,255,0.22)';
+    ctx.beginPath(); ctx.ellipse(footW*0.0,-footH*0.05,footW*0.38,footH*0.32,0,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+  }
+
+  // left leg
+  const llTopX=ox-r*0.38, llTopY=hipY;
+  const llBotX=llTopX+lSlide, llBotY=hipY+r*0.72-lLift;
+  ctx.save(); ctx.lineCap='round';
+  ctx.strokeStyle=legCol; ctx.lineWidth=limbW*1.1;
+  ctx.beginPath(); ctx.moveTo(llTopX,llTopY); ctx.lineTo(llBotX,llBotY); ctx.stroke();
+  ctx.restore();
+  drawShoe(llBotX, llBotY, lSlide);
+
+  // right leg
+  const rlTopX=ox+r*0.38, rlTopY=hipY;
+  const rlBotX=rlTopX+rSlide, rlBotY=hipY+r*0.72-rLift;
+  ctx.save(); ctx.lineCap='round';
+  ctx.strokeStyle=legCol; ctx.lineWidth=limbW*1.1;
+  ctx.beginPath(); ctx.moveTo(rlTopX,rlTopY); ctx.lineTo(rlBotX,rlBotY); ctx.stroke();
+  ctx.restore();
+  drawShoe(rlBotX, rlBotY, rSlide);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Magic hat (drawn above the board centre, tilted with board)
+// ═══════════════════════════════════════════════════════════════════════════
+// hatStars: {angle, dist, size, twinkleOffset}  – orbit stars on the hat
+const hatStars = Array.from({length:9}, (_,i) => ({
+  angle: i*(2*Math.PI/9),
+  dist:  0.28 + Math.random()*0.18,   // relative to hat height
+  size:  3 + Math.random()*4,
+  twinkleOffset: Math.random()*2*Math.PI
+}));
+// floatingStars: stars that fly out of the hat tip
+let floatingStars = [];
+let lastStarSpawn = 0;
+
+function spawnFloatingStar(hatTipX, hatTipY) {
+  const colors = ['#ffd700','#fff','#ffe066','#aef','#ff9'];
+  floatingStars.push({
+    x: hatTipX + (Math.random()-0.5)*8,
+    y: hatTipY,
+    vx: (Math.random()-0.5)*1.4,
+    vy: -1.5 - Math.random()*2,
+    life: 0,
+    maxLife: 0.9 + Math.random()*0.7,
+    size: 4 + Math.random()*5,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    rot: Math.random()*Math.PI*2,
+    rotV: (Math.random()-0.5)*4
+  });
+}
+
+function drawStar5(cx, cy, r, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.shadowColor = color; ctx.shadowBlur = 8;
+  ctx.beginPath();
+  for(let i=0;i<10;i++){
+    const a = (i*Math.PI/5) - Math.PI/2;
+    const rr = i%2===0 ? r : r*0.42;
+    i===0 ? ctx.moveTo(cx+Math.cos(a)*rr, cy+Math.sin(a)*rr)
+           : ctx.lineTo(cx+Math.cos(a)*rr, cy+Math.sin(a)*rr);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawHat(ox, oy, r, tilt, t) {
+  // Hat sits on top of the board.
+  // ox,oy = board centre in canvas; r = board radius; tilt = board rotation
+  const hatH   = r * 0.9;    // height of the cone
+  const brimW  = r * 0.72;   // half-width of brim
+  const brimH  = r * 0.13;   // brim ellipse vertical radius
+  const topX   = ox;
+  const topY   = oy - r * 0.95 - hatH;  // tip of hat
+
+  ctx.save();
+  ctx.translate(ox, oy);
+  ctx.rotate(tilt);
+  ctx.translate(-ox, -oy);
+
+  // ── hat shadow ──
+  ctx.save();
+  ctx.globalAlpha=0.22;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.ellipse(ox+5, oy-r*0.92+6, brimW*0.9, brimH*0.7, 0, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.restore();
+
+  // ── brim ──
+  const brimGrad = ctx.createLinearGradient(ox-brimW, oy-r*0.95, ox+brimW, oy-r*0.95+brimH*2);
+  brimGrad.addColorStop(0,'#3a006f');
+  brimGrad.addColorStop(0.5,'#1a003a');
+  brimGrad.addColorStop(1,'#2a005a');
+  ctx.fillStyle=brimGrad;
+  ctx.beginPath();
+  ctx.ellipse(ox, oy-r*0.95, brimW, brimH, 0, 0, 2*Math.PI);
+  ctx.fill();
+  // brim rim highlight
+  ctx.strokeStyle='#7a20cf'; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.ellipse(ox, oy-r*0.95-1, brimW*0.95, brimH*0.7, 0, Math.PI, 2*Math.PI);
+  ctx.stroke();
+
+  // ── cone body ──
+  const coneGrad = ctx.createLinearGradient(ox-brimW*0.55, oy-r*0.95, ox+brimW*0.3, topY);
+  coneGrad.addColorStop(0,'#4a00a0');
+  coneGrad.addColorStop(0.5,'#2d0070');
+  coneGrad.addColorStop(1,'#1a0050');
+  ctx.fillStyle=coneGrad;
+  ctx.beginPath();
+  ctx.moveTo(topX, topY);
+  ctx.lineTo(ox - brimW*0.55, oy-r*0.95);
+  ctx.lineTo(ox + brimW*0.55, oy-r*0.95);
+  ctx.closePath(); ctx.fill();
+
+  // cone left edge highlight
+  ctx.strokeStyle='rgba(160,80,255,0.5)'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(topX, topY); ctx.lineTo(ox-brimW*0.55, oy-r*0.95); ctx.stroke();
+
+  // ── hat band ──
+  ctx.fillStyle='#ffd700';
+  const bandY = oy - r*0.95 - hatH*0.18;
+  ctx.beginPath();
+  ctx.moveTo(ox - brimW*0.45, bandY + hatH*0.07);
+  ctx.lineTo(ox + brimW*0.45, bandY + hatH*0.07);
+  ctx.lineTo(ox + brimW*0.42, bandY - hatH*0.01);
+  ctx.lineTo(ox - brimW*0.42, bandY - hatH*0.01);
+  ctx.closePath(); ctx.fill();
+
+  // ── orbiting stars on cone ──
+  const coneH = hatH;
+  for(const s of hatStars){
+    const tw = 0.5 + 0.5*Math.sin(t*3 + s.twinkleOffset);
+    // position along the cone surface
+    const yFrac = s.dist;  // 0=base,1=tip
+    const coneW = brimW*0.55*(1-yFrac);
+    const sy = oy - r*0.95 - coneH*yFrac;
+    const sx = ox + Math.cos(s.angle + t*0.8) * coneW;
+    drawStar5(sx, sy, s.size*tw, '#ffd700', 0.6+0.4*tw);
+  }
+
+  // ── floating stars from tip ──
+  for(const s of floatingStars){
+    const alpha = (1 - s.life/s.maxLife);
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(s.rot);
+    drawStar5(0, 0, s.size*alpha, s.color, alpha);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function updateFloatingStars(dt, hatTipX, hatTipY) {
+  lastStarSpawn += dt;
+  if(lastStarSpawn > 0.12){ lastStarSpawn=0; spawnFloatingStar(hatTipX, hatTipY); }
+  floatingStars = floatingStars.filter(s=>s.life<s.maxLife);
+  for(const s of floatingStars){
+    s.x += s.vx; s.y += s.vy; s.vy += 0.04;
+    s.rot += s.rotV * dt;
+    s.life += dt;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Crosshair (canvas coords relative to stageCanvas)
+// ═══════════════════════════════════════════════════════════════════════════
+let mouseStageX = 210, mouseStageY = 210;
+let shakeAmp = 0, shakeT = 0;
+let chX = 210, chY = 210;  // actual crosshair pos with wobble
+
+stage.addEventListener('mousemove', e => {
+  const r = stage.getBoundingClientRect();
+  mouseStageX = (e.clientX - r.left) * (420/r.width);
+  mouseStageY = (e.clientY - r.top)  * (520/r.height);
+});
+
+function drawCrosshair(x, y) {
+  const s = 22;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = '#e94560';
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = '#e94560'; ctx.shadowBlur = 8;
+  // outer circle
+  ctx.beginPath(); ctx.arc(0,0,s*0.55,0,2*Math.PI); ctx.stroke();
+  // crosshairs
+  ctx.beginPath();
+  ctx.moveTo(-s,0); ctx.lineTo(-s*0.7,0);
+  ctx.moveTo(s*0.7,0); ctx.lineTo(s,0);
+  ctx.moveTo(0,-s); ctx.lineTo(0,-s*0.7);
+  ctx.moveTo(0,s*0.7); ctx.lineTo(0,s);
+  ctx.stroke();
+  // dot
+  ctx.beginPath(); ctx.arc(0,0,3,0,2*Math.PI);
+  ctx.fillStyle='#e94560'; ctx.fill();
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Amor's Arrow 3-D + flying hearts
+// ═══════════════════════════════════════════════════════════════════════════
+let arrows = [];   // {x,y,angle,age}
+let hearts = [];   // {x,y,vx,vy,life,maxLife,size,hue,targetX,targetY}
+
+// Player card screen positions (updated each frame)
+let playerCardPos = [{x:105,y:80},{x:315,y:80}];
+
+function updatePlayerCardPos(){
+  const c0=document.getElementById('card0').getBoundingClientRect();
+  const c1=document.getElementById('card1').getBoundingClientRect();
+  const sr=stage.getBoundingClientRect();
+  // convert to stageCanvas coords
+  playerCardPos[0]={x:(c0.left+c0.width/2-sr.left)*(420/sr.width), y:(c0.top+c0.height/2-sr.top)*(520/sr.height)};
+  playerCardPos[1]={x:(c1.left+c1.width/2-sr.left)*(420/sr.width), y:(c1.top+c1.height/2-sr.top)*(520/sr.height)};
+}
+
+function spawnArrow(x, y) {
+  arrows = arrows.filter(a => a.age < 5);
+  arrows.push({ x, y, angle: -Math.PI*0.28 - Math.random()*0.2, age: 0 });
+}
+
+function spawnHearts(x, y, playerIdx) {
+  const target = playerCardPos[playerIdx];
+  for(let i=0;i<14;i++){
+    const spread = (Math.random()-0.5)*60;
+    const delay  = i*0.04;
+    hearts.push({
+      x, y,
+      targetX: target.x + (Math.random()-0.5)*40,
+      targetY: target.y + (Math.random()-0.5)*20,
+      vx: (Math.random()-0.5)*2,
+      vy: -2 - Math.random()*2,
+      life: -delay,
+      maxLife: 1.1 + Math.random()*0.5,
+      size: 10 + Math.random()*14,
+      hue: 340 + Math.random()*30
+    });
+  }
+}
+
+function drawHeart(cx, cy, size, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = Math.max(0,alpha);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.beginPath();
+  // heart via bezier, centred at 0,0
+  const s = size/18;
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s);
+  ctx.moveTo(0, 5);
+  ctx.bezierCurveTo(-18,-10,-18,10,0,22);
+  ctx.bezierCurveTo(18,10,18,-10,0,5);
+  ctx.restore();
+  ctx.fill();
+  // gloss
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s);
+  ctx.globalAlpha = Math.max(0,alpha*0.35);
+  ctx.fillStyle='#fff';
+  ctx.beginPath();
+  ctx.ellipse(-5,-2,4,3,Math.PI/6,0,2*Math.PI);
+  ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawArrow3D(cx, cy, angle) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  const len=62, shaftW=5;
+
+  // drop shadow
+  ctx.save();
+  ctx.translate(5,7); ctx.globalAlpha=0.3;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.moveTo(22,0); ctx.lineTo(-len,-shaftW*0.3); ctx.lineTo(-len,shaftW*0.3); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // ── shaft (wood, cylindrical gradient) ──
+  const woodG = ctx.createLinearGradient(0,-shaftW,0,shaftW);
+  woodG.addColorStop(0,'#f5dfa0');
+  woodG.addColorStop(0.25,'#c8a040');
+  woodG.addColorStop(0.6,'#8b5e10');
+  woodG.addColorStop(1,'#5a3a05');
+  ctx.fillStyle=woodG;
+  ctx.beginPath(); ctx.roundRect(-len+14,-shaftW/2,len-14,shaftW,2); ctx.fill();
+  // wood grain lines
+  ctx.strokeStyle='rgba(100,60,0,0.25)'; ctx.lineWidth=0.8;
+  for(let g=0;g<4;g++){
+    const gx=-len+18+g*12;
+    ctx.beginPath(); ctx.moveTo(gx,-shaftW/2+1); ctx.lineTo(gx+4,shaftW/2-1); ctx.stroke();
+  }
+  // shaft highlight
+  ctx.fillStyle='rgba(255,240,180,0.35)';
+  ctx.beginPath(); ctx.roundRect(-len+15,-shaftW/2+1,len-16,shaftW*0.28,1); ctx.fill();
+
+  // ── heart-shaped arrowhead ──
+  ctx.save();
+  ctx.translate(10, 0);
+  // metallic gradient
+  const tipG = ctx.createLinearGradient(0,-13,0,13);
+  tipG.addColorStop(0,'#ff9ab0');
+  tipG.addColorStop(0.3,'#ff3068');
+  tipG.addColorStop(0.7,'#c00040');
+  tipG.addColorStop(1,'#7a0020');
+  ctx.fillStyle=tipG;
+  ctx.shadowColor='#ff3068'; ctx.shadowBlur=10;
+
+  // heart path (pointing right)
+  ctx.save(); ctx.rotate(Math.PI/2);
+  const hs=0.75;
+  ctx.scale(hs,hs);
+  ctx.beginPath();
+  ctx.moveTo(0,5);
+  ctx.bezierCurveTo(-18,-10,-18,10,0,22);
+  ctx.bezierCurveTo(18,10,18,-10,0,5);
+  ctx.fill();
+  // gloss
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.beginPath(); ctx.ellipse(-4,0,4,3,Math.PI/6,0,2*Math.PI); ctx.fill();
+  ctx.restore();
+
+  // metal edge highlight
+  ctx.strokeStyle='rgba(255,180,200,0.7)'; ctx.lineWidth=1.2; ctx.shadowBlur=0;
+  ctx.save(); ctx.rotate(Math.PI/2); ctx.scale(hs,hs);
+  ctx.beginPath();
+  ctx.moveTo(0,5);
+  ctx.bezierCurveTo(-18,-10,-18,10,0,22);
+  ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+
+  // ── fletching (feathers at tail) ──
+  const featherColors = ['#ff3068','#ff6090','#fff'];
+  // upper feather
+  ctx.save();
+  const fg1=ctx.createLinearGradient(-len,-12,-len+18,0);
+  fg1.addColorStop(0,'#ff9ab0'); fg1.addColorStop(1,'#e94560');
+  ctx.fillStyle=fg1;
+  ctx.beginPath();
+  ctx.moveTo(-len+14,0); ctx.lineTo(-len,-13); ctx.lineTo(-len+2,0); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-len+14,0); ctx.lineTo(-len,-8);  ctx.lineTo(-len+4,0); ctx.closePath();
+  ctx.fillStyle='#ffb0c8'; ctx.fill();
+  ctx.restore();
+  // lower feather
+  ctx.save();
+  const fg2=ctx.createLinearGradient(-len,12,-len+18,0);
+  fg2.addColorStop(0,'#ff9ab0'); fg2.addColorStop(1,'#e94560');
+  ctx.fillStyle=fg2;
+  ctx.beginPath();
+  ctx.moveTo(-len+14,0); ctx.lineTo(-len,13); ctx.lineTo(-len+2,0); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-len+14,0); ctx.lineTo(-len,8);  ctx.lineTo(-len+4,0); ctx.closePath();
+  ctx.fillStyle='#ffb0c8'; ctx.fill();
+  ctx.restore();
+  // small side feathers
+  ctx.fillStyle='#fff8fa';
+  ctx.beginPath(); ctx.moveTo(-len+10,0); ctx.lineTo(-len-4,-7); ctx.lineTo(-len+2,0); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-len+10,0); ctx.lineTo(-len-4, 7); ctx.lineTo(-len+2,0); ctx.closePath(); ctx.fill();
+
+  // ── nock & string groove ──
+  const nockG=ctx.createLinearGradient(0,-shaftW,0,shaftW);
+  nockG.addColorStop(0,'#ccc'); nockG.addColorStop(0.5,'#888'); nockG.addColorStop(1,'#444');
+  ctx.fillStyle=nockG;
+  ctx.beginPath(); ctx.roundRect(-len,-shaftW*0.7,5,shaftW*1.4,1); ctx.fill();
+
+  ctx.restore();
+}
+
+function updateHearts(dt) {
+  hearts = hearts.filter(h => h.life < h.maxLife);
+  for(const h of hearts){
+    h.life += dt;
+    if(h.life < 0) continue;  // delay not expired yet
+    const prog = h.life/h.maxLife;  // 0→1
+    // fly toward target with easing
+    const ease = 1 - Math.pow(1-prog,2);
+    h.x += (h.targetX - h.x)*0.035 + h.vx;
+    h.y += (h.targetY - h.y)*0.035 + h.vy;
+    h.vx *= 0.92; h.vy *= 0.92;
+    // bob
+    const wobble = Math.sin(h.life*8)*3*(1-prog);
+    const alpha  = prog<0.15 ? prog/0.15 : prog>0.75 ? (1-prog)/0.25 : 1;
+    const scale  = 0.4 + 0.6*(prog<0.2?prog/0.2:1);
+    drawHeart(h.x+wobble, h.y, h.size*scale, `hsl(${h.hue},100%,60%)`, alpha);
+  }
+}
+
+function updateSparkCanvas(dt) {
+  sCtx.clearRect(0,0,420,520);
+  // nothing — hearts and arrows drawn on main canvas
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Hit detection — in stageCanvas coords, relative to the board's actual position
+// ═══════════════════════════════════════════════════════════════════════════
+function getHit(x, y, boardX, boardY, boardRot) {
+  // un-rotate point around board centre
+  const dx0 = x - boardX, dy0 = y - boardY;
+  const cos  = Math.cos(-boardRot), sin = Math.sin(-boardRot);
+  const dx   = dx0*cos - dy0*sin;
+  const dy   = dx0*sin + dy0*cos;
+  const dist = Math.sqrt(dx*dx+dy*dy) / BOARD_R;
+
+  if(dist > 0.95)          return {score:0,  label:'Daneben! 💦'};
+  if(dist <= 0.045)        return {score:50, label:"Bull's Eye! 🎯"};
+  if(dist <= 0.095)        return {score:25, label:'Bull! 🟢'};
+
+  const seg=(2*Math.PI)/20, off=-Math.PI/2-seg/2;
+  let rel=Math.atan2(dy,dx)-off; if(rel<0)rel+=2*Math.PI;
+  const si=Math.floor(rel/seg)%20, val=SECTORS[si];
+  if(dist>=0.64&&dist<=0.695) return {score:val*2,label:`Double ${val}! 🔴`};
+  if(dist>=0.305&&dist<=0.36) return {score:val*3,label:`Triple ${val}! 🟢`};
+  return {score:val, label:`${val}`};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Power bar
+// ═══════════════════════════════════════════════════════════════════════════
+let power=0, powerDir=1, powerHeld=false;
+const powerBarEl = document.getElementById('powerBar');
+const powerValEl = document.getElementById('powerVal');
+
+function updatePowerBar(){
+  const p=Math.round(power*100);
+  powerBarEl.style.width=p+'%';
+  powerValEl.textContent=p+'%';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Game state
+// ═══════════════════════════════════════════════════════════════════════════
+let state={scores:[301,301],rounds:[0,0],current:0,history:[]};
+let gameOver=false;
+
+function updateUI(){
+  for(let p=0;p<2;p++){
+    document.getElementById('score'+p).textContent=state.scores[p];
+    document.getElementById('turns'+p).textContent='Runden: '+state.rounds[p];
+    document.getElementById('card'+p).classList.toggle('active',p===state.current);
+  }
+  const names=['Spieler 1','Spieler 2'];
+  document.getElementById('throwInfo').textContent=
+    `${names[state.current]} ist dran — Maus zielen, Leertaste halten & loslassen!`;
+}
+
+function resetGame(){
+  state={scores:[301,301],rounds:[0,0],current:0,history:[]};
+  gameOver=false; power=0; powerDir=1; powerHeld=false; shakeAmp=0;
+  arrows=[]; hearts=[];
+  document.getElementById('winScreen').classList.remove('show');
+  document.querySelectorAll('.score-popup').forEach(e=>e.remove());
+  updateUI(); updatePlayerCardPos();
+  document.getElementById('log').innerHTML='';
+}
+
+function doThrow(curBoardX, curBoardY, curBoardRot){
+  if(gameOver) return;
+  const err = power*50;
+  const ang = Math.random()*2*Math.PI;
+  const lx  = chX + Math.cos(ang)*Math.random()*err;
+  const ly  = chY + Math.sin(ang)*Math.random()*err;
+
+  const hit=getHit(lx,ly,curBoardX,curBoardY,curBoardRot);
+  const p=state.current;
+  const prev=state.scores[p];
+  let scored=hit.score, label=hit.label, valid=true;
+  const next=prev-scored;
+  if(next<0){scored=0;label=`Bust! — ${prev} bleibt`;valid=false;}
+
+  state.history.push({player:p,scored,scoresBefore:[...state.scores],valid});
+  if(valid) state.scores[p]=next;
+  state.rounds[p]++;
+
+  spawnArrow(lx,ly);
+  if(valid && scored>0) spawnHearts(lx, ly, p);
+  showPopup(lx,ly,label,scored);
+  addLog(p,label,valid?scored:0,state.scores[p]);
+
+  if(state.scores[p]===0){
+    gameOver=true;
+    setTimeout(()=>{
+      document.getElementById('winMsg').textContent=
+        `${p===0?'Spieler 1':'Spieler 2'} gewinnt! 🏴‍☠️`;
+      document.getElementById('winScreen').classList.add('show');
+    },700); return;
+  }
+  state.current=1-p; updateUI();
+}
+
+function showPopup(sx,sy,label,scored){
+  document.querySelectorAll('.score-popup').forEach(e=>e.remove());
+  const pop=document.createElement('div'); pop.className='score-popup';
+  pop.textContent=scored>0?`−${scored}  ${label}`:label;
+  const r=stage.getBoundingClientRect();
+  const scx=r.width/420, scy=r.height/520;
+  pop.style.left=(sx*scx+r.left - window.scrollX)+'px';
+  pop.style.setProperty('--py',(sy*scy+r.top - window.scrollY)+'px');
+  pop.style.top='var(--py)';
+  pop.style.position='fixed';
+  document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(),1300);
+}
+
+function addLog(player,label,scored,newScore){
+  const names=['Spieler 1','Spieler 2'];
+  const log=document.getElementById('log');
+  const div=document.createElement('div'); div.className='log-entry';
+  div.innerHTML=`<span>${names[player]}:</span> ${label} → −${scored} → verbleibend: ${newScore}`;
+  log.prepend(div);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Input
+// ═══════════════════════════════════════════════════════════════════════════
+// We store latest board position for throw calculation
+let lastBoardX=BCX, lastBoardY=BCY, lastBoardRot=0;
+
+function startCharge(){ if(!gameOver) { powerHeld=true; powerDir=1; } }
+function releaseThrow(){
+  if(!powerHeld||gameOver) return;
+  powerHeld=false;
+  doThrow(lastBoardX, lastBoardY, lastBoardRot);
+}
+
+document.addEventListener('keydown',e=>{ if(e.code==='Space'&&!e.repeat){e.preventDefault();startCharge();} });
+document.addEventListener('keyup',  e=>{ if(e.code==='Space'){e.preventDefault();releaseThrow();} });
+document.getElementById('btnThrow').addEventListener('mousedown', startCharge);
+document.addEventListener('mouseup', ()=>{ if(powerHeld) releaseThrow(); });
+document.getElementById('btnThrow').addEventListener('touchstart',e=>{e.preventDefault();startCharge();});
+document.addEventListener('touchend', releaseThrow);
+
+document.getElementById('btnUndo').addEventListener('click',()=>{
+  if(!state.history.length) return;
+  const last=state.history.pop();
+  state.scores=[...last.scoresBefore];
+  state.rounds[last.player]=Math.max(0,state.rounds[last.player]-1);
+  state.current=last.player; gameOver=false;
+  arrows.pop(); hearts=[];
+  const log=document.getElementById('log');
+  if(log.firstChild) log.removeChild(log.firstChild);
+  updateUI();
+});
+document.getElementById('btnReset').addEventListener('click',resetGame);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Main loop
+// ═══════════════════════════════════════════════════════════════════════════
+let lastTs=0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  const dt=Math.min((ts-lastTs)/1000,0.05); lastTs=ts;
+
+  // ── power ──
+  if(powerHeld){
+    power+=powerDir*dt*1.1;
+    if(power>=1){power=1;powerDir=-1;}
+    if(power<=0){power=0;powerDir=1;}
+    shakeAmp=power;
+  } else {
+    power=Math.max(0,power-dt*2);
+    shakeAmp=power;
+  }
+  updatePowerBar();
+
+  // ── dance ──
+  danceT+=dt;
+  moonX = -((danceT*35)%600);  // drifts left, wraps
+
+  const bob    = Math.abs(Math.sin(danceT*2.8))*14;
+  const tilt   = Math.sin(danceT*2.8)*0.07;  // radians
+  const phase  = danceT*2.8;
+
+  // board centre follows moonwalk drift (wraps back from right)
+  const boardX = BCX + moonX + 300;  // offset so it starts visible; wraps via moonX
+  const wrapX  = ((boardX - 0) % 600 + 600) % 600 - 90;  // keep in -90..510
+  const boardY = BCY - bob;
+  const boardRot = tilt;
+  lastBoardX=wrapX; lastBoardY=boardY; lastBoardRot=boardRot;
+
+  // ── wobble crosshair ──
+  shakeT+=dt;
+  const wobX=shakeAmp*(50*Math.sin(shakeT*7.3)+15*Math.sin(shakeT*14.1));
+  const wobY=shakeAmp*(45*Math.sin(shakeT*5.9+1)+14*Math.cos(shakeT*12.7));
+  chX=mouseStageX+wobX; chY=mouseStageY+wobY;
+
+  // ── arrow age ──
+  for(const a of arrows) a.age+=dt;
+
+  // ── draw ──
+  ctx.clearRect(0,0,420,520);
+
+  // floor shadow under character
+  ctx.save();
+  ctx.globalAlpha=0.25;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.ellipse(wrapX, BCY+BOARD_R*1.08, BOARD_R*0.85, BOARD_R*0.12, 0, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.restore();
+
+  // detect wrap-around: wrapX jumps from ~510 back to ~-90 (big negative jump)
+  if(prevWrapX - wrapX > 300){ appearanceCount++; }
+  prevWrapX = wrapX;
+
+  // draw limbs BEHIND board
+  drawLimbs(wrapX, boardY, BOARD_R, phase, bob, danceT);
+
+  // draw board on top of limbs
+  ctx.save();
+  ctx.translate(wrapX, boardY);
+  ctx.rotate(boardRot);
+  drawDartboard(0, 0, BOARD_R, 0);
+  ctx.restore();
+
+  // hat tip position (for spawning stars) — tilted same as board
+  const hatH    = BOARD_R*0.9;
+  updateFloatingStars(dt, wrapX, boardY - BOARD_R*0.95 - hatH);
+  drawHat(wrapX, boardY, BOARD_R, boardRot, danceT);
+
+  // draw embedded Amor arrows
+  for(const a of arrows){
+    if(a.age>5) continue;
+    drawArrow3D(a.x, a.y, a.angle);
+  }
+
+  // flying hearts toward active player card
+  updatePlayerCardPos();
+  updateHearts(dt);
+
+  // draw crosshair on top
+  drawCrosshair(chX, chY);
+
+  // clear spark canvas (no longer used for sparks)
+  updateSparkCanvas(dt);
+}
+
+updateUI();
+updatePlayerCardPos();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

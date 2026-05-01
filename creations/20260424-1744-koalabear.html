@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Koalabär</title>
+<style>
+  body {
+    background: #e8f5e9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  canvas {
+    background: #c8e6c9;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+</style>
+</head>
+<body>
+<canvas id="c" width="600" height="600"></canvas>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+// koalaY goes from 580 (bottom) up to 120 (top), then back down, looping
+let koalaY = 580;
+let direction = -1; // -1 = climbing up, +1 = sliding down
+let armPhase = 0;
+
+function drawTree() {
+  // Ground
+  ctx.fillStyle = '#a5d6a7';
+  ctx.fillRect(0, 555, 600, 45);
+
+  // Trunk
+  ctx.fillStyle = '#6d4c41';
+  ctx.beginPath();
+  ctx.rect(270, 60, 60, 500);
+  ctx.fill();
+  // Trunk texture lines
+  ctx.strokeStyle = '#5d4037';
+  ctx.lineWidth = 1.5;
+  for (let y = 80; y < 540; y += 40) {
+    ctx.beginPath();
+    ctx.moveTo(275, y);
+    ctx.quadraticCurveTo(300, y + 10, 325, y);
+    ctx.stroke();
+  }
+
+  // Branches
+  ctx.strokeStyle = '#6d4c41';
+  ctx.lineWidth = 18;
+  ctx.beginPath(); ctx.moveTo(300, 160); ctx.lineTo(420, 80); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(300, 220); ctx.lineTo(160, 130); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(300, 300); ctx.lineTo(440, 250); ctx.stroke();
+
+  // Leaves clusters
+  const leafClusters = [
+    {x: 430, y: 65, r: 55}, {x: 155, y: 115, r: 55}, {x: 450, y: 235, r: 50},
+    {x: 300, y: 50, r: 45}, {x: 200, y: 80, r: 40}, {x: 460, y: 160, r: 38},
+  ];
+  for (const l of leafClusters) {
+    ctx.fillStyle = '#388e3c';
+    ctx.beginPath();
+    ctx.ellipse(l.x, l.y, l.r, l.r * 0.85, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#4caf50';
+    ctx.beginPath();
+    ctx.ellipse(l.x - 8, l.y - 8, l.r * 0.7, l.r * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#66bb6a';
+    ctx.beginPath();
+    ctx.ellipse(l.x + 5, l.y - 15, l.r * 0.4, l.r * 0.35, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawKoala(cx, cy, phase) {
+  // Climbing pose: arms reach up alternately, legs grip trunk
+  const armSwing = Math.sin(phase) * 0.4;
+  const legSwing = Math.cos(phase) * 0.3;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Left arm (gripping tree, reaching up/down with phase)
+  ctx.fillStyle = '#7a8c7a';
+  ctx.save();
+  ctx.translate(-42, -30);
+  ctx.rotate(-0.9 + armSwing);
+  ctx.beginPath();
+  ctx.ellipse(0, -28, 14, 34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Right arm
+  ctx.fillStyle = '#7a8c7a';
+  ctx.save();
+  ctx.translate(42, -30);
+  ctx.rotate(0.9 - armSwing);
+  ctx.beginPath();
+  ctx.ellipse(0, -28, 14, 34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Body
+  ctx.fillStyle = '#7a8c7a';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 48, 60, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Belly
+  ctx.fillStyle = '#b0c4b0';
+  ctx.beginPath();
+  ctx.ellipse(0, 10, 30, 42, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Left leg
+  ctx.fillStyle = '#6e806e';
+  ctx.save();
+  ctx.translate(-28, 52);
+  ctx.rotate(-0.3 + legSwing);
+  ctx.beginPath();
+  ctx.ellipse(0, 18, 16, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Right leg
+  ctx.save();
+  ctx.translate(28, 52);
+  ctx.rotate(0.3 - legSwing);
+  ctx.beginPath();
+  ctx.ellipse(0, 18, 16, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Left ear
+  ctx.fillStyle = '#7a8c7a';
+  ctx.beginPath();
+  ctx.ellipse(-42, -88, 26, 26, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#c9b8c9';
+  ctx.beginPath();
+  ctx.ellipse(-42, -88, 15, 15, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Right ear
+  ctx.fillStyle = '#7a8c7a';
+  ctx.beginPath();
+  ctx.ellipse(42, -88, 26, 26, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#c9b8c9';
+  ctx.beginPath();
+  ctx.ellipse(42, -88, 15, 15, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = '#8a9e8a';
+  ctx.beginPath();
+  ctx.ellipse(0, -70, 44, 42, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eyes
+  ctx.fillStyle = 'white';
+  ctx.beginPath(); ctx.ellipse(-15, -76, 9, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(15, -76, 9, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1a1a2e';
+  ctx.beginPath(); ctx.ellipse(-13, -75, 5, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(17, -75, 5, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.beginPath(); ctx.ellipse(-11, -77, 2, 2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(19, -77, 2, 2, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Nose
+  ctx.fillStyle = '#2a1a2a';
+  ctx.beginPath();
+  ctx.ellipse(0, -57, 13, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#5a3a5a';
+  ctx.beginPath();
+  ctx.ellipse(-4, -60, 4, 3, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mouth
+  ctx.strokeStyle = '#3a2a3a';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-8, -48);
+  ctx.quadraticCurveTo(0, -43, 8, -48);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawLabel(y) {
+  const pct = Math.round((580 - y) / (580 - 120) * 100);
+  ctx.fillStyle = '#2e4a2e';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`🐨 Koalabär klettert... ${pct}%`, 300, 590);
+}
+
+function animate() {
+  ctx.clearRect(0, 0, 600, 600);
+  drawTree();
+  drawKoala(300, koalaY, armPhase);
+  drawLabel(koalaY);
+
+  koalaY += direction * 1.5;
+  armPhase += 0.12;
+
+  if (koalaY <= 120) direction = 1;
+  if (koalaY >= 580) direction = -1;
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
