@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Node
+node_modules/
+
+# SvelteKit / Vite
+.svelte-kit/
+build/
+.wrangler/
+
+# Env
+.env
+.env.local
+.env.*.local

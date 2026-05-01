@@ -1,0 +1,9 @@
+.svelte-kit/
+build/
+node_modules/
+pnpm-lock.yaml
+creations/
+static/raw/
+static/creations/
+static/tasks/screenshots/
+src/lib/content/system-prompt.md
