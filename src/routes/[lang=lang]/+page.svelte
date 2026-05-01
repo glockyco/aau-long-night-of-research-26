@@ -1,12 +1,19 @@
 <script lang="ts">
+  import { page } from '$app/state';
+  import Seo from '$lib/components/Seo.svelte';
+
   let { data } = $props();
+
+  const title = $derived('LNF 2026 — Station U27');
+  const description = $derived(
+    data.lang === 'de'
+      ? 'Was Besucher:innen am 24. April 2026 an Station U27 mit Claude Code gebaut haben.'
+      : 'What visitors built with Claude Code at Station U27 on 24 April 2026.'
+  );
 </script>
 
-<svelte:head>
-  <title>LNF 2026 — Station U27 ({data.lang.toUpperCase()})</title>
-</svelte:head>
+<Seo {title} {description} path={page.url.pathname} lang={data.lang} />
 
 <main style="padding: 2rem; max-width: 800px; margin: 0 auto;">
-  <p>Lang: {data.lang}</p>
-  <p>Hero line 1: {data.dict.hero.line1}</p>
+  <p>{data.dict.hero.line1}</p>
 </main>
