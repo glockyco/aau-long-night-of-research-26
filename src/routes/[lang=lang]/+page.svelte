@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import Seo from '$lib/components/Seo.svelte';
+  import { websiteJsonLd } from '$lib/seo/jsonld';
 
   let { data } = $props();
 
@@ -12,7 +13,13 @@
   );
 </script>
 
-<Seo {title} {description} path={page.url.pathname} lang={data.lang} />
+<Seo
+  {title}
+  {description}
+  path={page.url.pathname}
+  lang={data.lang}
+  jsonLd={websiteJsonLd(data.lang)}
+/>
 
 <main style="padding: 2rem; max-width: 800px; margin: 0 auto;">
   <p>{data.dict.hero.line1}</p>
