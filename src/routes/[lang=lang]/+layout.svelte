@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Footer from '$lib/components/Footer.svelte';
   import { page } from '$app/state';
 
   let { data, children } = $props();
@@ -18,6 +19,7 @@
 </header>
 
 {@render children()}
+<Footer dict={data.dict} />
 
 <style>
   .site-nav {
