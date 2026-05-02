@@ -142,8 +142,8 @@ export const en: Dict = {
     acrossLabel: 'Across',
     downLabel: 'Down',
     resetLabel: 'Reset',
-    revealLabel: 'Reveal',
-    hideAnswersLabel: 'Hide answers',
+    revealWordLabel: 'Reveal word',
+    revealAllLabel: 'Reveal all',
     successLabel: 'Solved. Nicely done.',
     cellAriaLabel: 'Letter'
   },

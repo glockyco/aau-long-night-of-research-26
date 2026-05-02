@@ -6,7 +6,7 @@
     type CrosswordEntry
   } from '$lib/data/crossword';
   import type { Dict, Lang } from '$lib/i18n';
-  import { SvelteMap } from 'svelte/reactivity';
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import SectionKicker from './SectionKicker.svelte';
 
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
@@ -46,13 +46,13 @@
   let inputs = $state<Record<string, string>>({});
   let activeNum = $state<number>(1);
   let activeDir = $state<'across' | 'down'>('across');
-  let revealed = $state(false);
+  let revealedCells = new SvelteSet<string>();
   let pointerOnFocused = false;
 
   $effect(() => {
     void data;
     inputs = {};
-    revealed = false;
+    revealedCells.clear();
     const first = data.entries[0];
     if (first) {
       activeNum = first.num;
@@ -236,15 +236,28 @@
   }
 
   function reveal() {
-    const next: Record<string, string> = {};
-    for (const [key, info] of cellInfo) next[key] = info.expected;
-    inputs = next;
-    revealed = true;
+    for (const [key, info] of cellInfo) {
+      inputs[key] = info.expected;
+      revealedCells.add(key);
+    }
+  }
+
+  function revealWord() {
+    if (!activeEntry) return;
+    for (let i = 0; i < activeEntry.len; i++) {
+      const r = activeEntry.dir === 'across' ? activeEntry.row : activeEntry.row + i;
+      const c = activeEntry.dir === 'across' ? activeEntry.col + i : activeEntry.col;
+      const key = `${r},${c}`;
+      const info = cellInfo.get(key);
+      if (!info) continue;
+      inputs[key] = info.expected;
+      revealedCells.add(key);
+    }
   }
 
   function reset() {
     inputs = {};
-    revealed = false;
+    revealedCells.clear();
   }
 
   const acrossClues = $derived(
@@ -253,6 +266,17 @@
   const downClues = $derived(
     data.entries.filter((e) => e.dir === 'down').sort((a, b) => a.num - b.num)
   );
+
+  const clueColumns = $derived.by(() => {
+    const across = {
+      dir: 'across' as const,
+      label: dict.crossword.acrossLabel,
+      clues: acrossClues
+    };
+    const down = { dir: 'down' as const, label: dict.crossword.downLabel, clues: downClues };
+    const acrossFirst = (across.clues[0]?.num ?? Infinity) <= (down.clues[0]?.num ?? Infinity);
+    return acrossFirst ? [across, down] : [down, across];
+  });
 
   const rowsArray = $derived(Array.from({ length: data.rows }, (_, i) => i));
   const colsArray = $derived(Array.from({ length: data.cols }, (_, i) => i));
@@ -291,7 +315,7 @@
                   <input
                     id={cellId(r, c)}
                     class="cw-input"
-                    class:cw-revealed={revealed}
+                    class:cw-revealed={revealedCells.has(`${r},${c}`)}
                     type="text"
                     inputmode="text"
                     autocomplete="off"
@@ -316,53 +340,36 @@
       </div>
 
       <div class="cw-clues">
-        <div class="cw-clue-col">
-          <h3>{dict.crossword.acrossLabel}</h3>
-          <ol>
-            {#each acrossClues as entry (entry.num)}
-              <li>
-                <button
-                  type="button"
-                  class="cw-clue-btn"
-                  class:cw-clue-active={activeNum === entry.num && activeDir === 'across'}
-                  onclick={() => focusEntry(entry)}
-                >
-                  <span class="cw-clue-num">{entry.num}.</span>
-                  <span class="cw-clue-text">{entry.clue}</span>
-                </button>
-              </li>
-            {/each}
-          </ol>
-        </div>
-        <div class="cw-clue-col">
-          <h3>{dict.crossword.downLabel}</h3>
-          <ol>
-            {#each downClues as entry (entry.num)}
-              <li>
-                <button
-                  type="button"
-                  class="cw-clue-btn"
-                  class:cw-clue-active={activeNum === entry.num && activeDir === 'down'}
-                  onclick={() => focusEntry(entry)}
-                >
-                  <span class="cw-clue-num">{entry.num}.</span>
-                  <span class="cw-clue-text">{entry.clue}</span>
-                </button>
-              </li>
-            {/each}
-          </ol>
-        </div>
+        {#each clueColumns as col (col.dir)}
+          <div class="cw-clue-col">
+            <h3>{col.label}</h3>
+            <ol>
+              {#each col.clues as entry (entry.num)}
+                <li>
+                  <button
+                    type="button"
+                    class="cw-clue-btn"
+                    class:cw-clue-active={activeNum === entry.num && activeDir === col.dir}
+                    onclick={() => focusEntry(entry)}
+                  >
+                    <span class="cw-clue-num">{entry.num}.</span>
+                    <span class="cw-clue-text">{entry.clue}</span>
+                  </button>
+                </li>
+              {/each}
+            </ol>
+          </div>
+        {/each}
       </div>
     </div>
 
     <div class="cw-toolbar">
-      {#if revealed}
-        <button type="button" class="cw-btn" onclick={reset}
-          >{dict.crossword.hideAnswersLabel}</button
-        >
-      {:else}
-        <button type="button" class="cw-btn" onclick={reveal}>{dict.crossword.revealLabel}</button>
-      {/if}
+      <button type="button" class="cw-btn cw-btn-ghost" onclick={revealWord}
+        >{dict.crossword.revealWordLabel}</button
+      >
+      <button type="button" class="cw-btn cw-btn-ghost" onclick={reveal}
+        >{dict.crossword.revealAllLabel}</button
+      >
       <button type="button" class="cw-btn cw-btn-ghost" onclick={reset}
         >{dict.crossword.resetLabel}</button
       >

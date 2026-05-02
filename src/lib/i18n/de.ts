@@ -143,8 +143,8 @@ export const de: Dict = {
     acrossLabel: 'Waagrecht',
     downLabel: 'Senkrecht',
     resetLabel: 'Zurücksetzen',
-    revealLabel: 'Lösung zeigen',
-    hideAnswersLabel: 'Lösung verbergen',
+    revealWordLabel: 'Wort zeigen',
+    revealAllLabel: 'Alles zeigen',
     successLabel: 'Vollständig gelöst.',
     cellAriaLabel: 'Buchstabe'
   },

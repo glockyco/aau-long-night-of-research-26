@@ -116,8 +116,8 @@ export interface Dict {
     acrossLabel: string;
     downLabel: string;
     resetLabel: string;
-    revealLabel: string;
-    hideAnswersLabel: string;
+    revealWordLabel: string;
+    revealAllLabel: string;
     successLabel: string;
     cellAriaLabel: string;
   };
