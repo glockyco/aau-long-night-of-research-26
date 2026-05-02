@@ -38,7 +38,9 @@ export const de: Dict = {
       { label: 'Aufgabenkarten', page: 'S. 6' },
       { label: 'Hinter den Kulissen', page: 'S. 7' },
       { label: 'Team und Impressum', page: 'S. 8' }
-    ]
+    ],
+    rhythmLabel: 'Verlauf des Abends',
+    rhythmAxisLabel: 'Webseiten pro Stunde'
   },
   context: {
     sectionLabel: 'Aus Raum S.2.42',

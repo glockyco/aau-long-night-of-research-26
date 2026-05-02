@@ -4,6 +4,16 @@
   let { dict }: { dict: Dict } = $props();
 
   const sectionAnchors = ['#station', '#creations', '#tasks', '#how', '#team'];
+
+  const rhythmHours = [
+    { hour: 17, saves: 22 },
+    { hour: 18, saves: 19 },
+    { hour: 19, saves: 15 },
+    { hour: 20, saves: 17 },
+    { hour: 21, saves: 9 },
+    { hour: 22, saves: 9 }
+  ];
+  const rhythmMax = Math.max(...rhythmHours.map((r) => r.saves));
 </script>
 
 <section class="hero">
@@ -24,19 +34,38 @@
       </div>
     </article>
 
-    <aside class="contents" aria-labelledby="contents-title">
-      <h2 id="contents-title">{dict.hero.contentsLabel}</h2>
-      <ol>
-        {#each dict.hero.contents as item, index (item.label)}
-          <li>
-            <a class="contents-row" href={sectionAnchors[index] ?? '#'}>
-              <span class="contents-no">{String(index + 1).padStart(2, '0')}</span>
-              <span class="contents-title">{item.label}</span>
-              <span class="page-no">{item.page}</span>
-            </a>
-          </li>
-        {/each}
-      </ol>
+    <aside class="rail">
+      <section class="rail-block contents" aria-labelledby="contents-title">
+        <h2 id="contents-title">{dict.hero.contentsLabel}</h2>
+        <ol>
+          {#each dict.hero.contents as item, index (item.label)}
+            <li>
+              <a class="contents-row" href={sectionAnchors[index] ?? '#'}>
+                <span class="contents-no">{String(index + 1).padStart(2, '0')}</span>
+                <span class="contents-title">{item.label}</span>
+                <span class="page-no">{item.page}</span>
+              </a>
+            </li>
+          {/each}
+        </ol>
+      </section>
+
+      <section class="rail-block rhythm" aria-labelledby="rhythm-title">
+        <h2 id="rhythm-title">{dict.hero.rhythmLabel}</h2>
+        <ol class="rhythm-rows" aria-label={dict.hero.rhythmAxisLabel}>
+          {#each rhythmHours as row (row.hour)}
+            <li>
+              <span class="rhythm-hour">{row.hour}h</span>
+              <span
+                class="rhythm-bar"
+                style="--w: {(row.saves / rhythmMax) * 100}%"
+                aria-hidden="true"
+              ></span>
+              <span class="rhythm-count">{row.saves}</span>
+            </li>
+          {/each}
+        </ol>
+      </section>
     </aside>
   </div>
 </section>
@@ -113,15 +142,20 @@
     text-transform: uppercase;
   }
 
-  .contents {
+  .rail {
     grid-column: 9 / -1;
-    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .rail-block {
     padding: 0.82rem 0 0.35rem;
     border-top: 1px solid var(--fg);
     border-bottom: 1px solid var(--fg);
   }
 
-  .contents h2 {
+  .rail-block h2 {
     margin-bottom: 0.75rem;
     color: var(--accent);
     font-family: var(--font-sans);
@@ -130,6 +164,49 @@
     letter-spacing: 0.16em;
     line-height: 1.35;
     text-transform: uppercase;
+  }
+
+  .rhythm-rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rhythm-rows li {
+    display: grid;
+    grid-template-columns: 2.4em minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.32rem 0;
+    border-bottom: 1px dotted var(--border);
+  }
+
+  .rhythm-rows li:last-child {
+    border-bottom: 0;
+  }
+
+  .rhythm-hour {
+    color: var(--accent);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .rhythm-bar {
+    display: block;
+    width: var(--w);
+    min-width: 2px;
+    height: 0.5em;
+    background: var(--accent);
+  }
+
+  .rhythm-count {
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
   }
 
   .contents ol {
@@ -194,7 +271,7 @@
     }
 
     .lede,
-    .contents {
+    .rail {
       grid-column: auto;
     }
   }

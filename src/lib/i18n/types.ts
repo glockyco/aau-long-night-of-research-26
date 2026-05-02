@@ -48,6 +48,8 @@ export interface Dict {
     facts: HeroFact[];
     contentsLabel: string;
     contents: IssueEntry[];
+    rhythmLabel: string;
+    rhythmAxisLabel: string;
   };
   context: {
     sectionLabel: string;

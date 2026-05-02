@@ -38,7 +38,9 @@ export const en: Dict = {
       { label: 'Task cards', page: 'p. 6' },
       { label: 'Behind the scenes', page: 'p. 7' },
       { label: 'Team and credits', page: 'p. 8' }
-    ]
+    ],
+    rhythmLabel: 'Course of the evening',
+    rhythmAxisLabel: 'webpages per hour'
   },
   context: {
     sectionLabel: 'From room S.2.42',
