@@ -57,7 +57,7 @@
         src="/images/station-development-setup.webp"
         alt={dict.how.processPhoto.alt}
         width="2400"
-        height="1560"
+        height="1505"
         loading="lazy"
       />
       <figcaption>{dict.how.processPhoto.caption}</figcaption>
@@ -286,8 +286,7 @@
 
   .setup-photo img {
     width: 100%;
-    border: 1px solid var(--fg);
-    background: #141414;
+    border-radius: 12px;
     filter: grayscale(0.05) contrast(1.03) sepia(0.04);
   }
 
