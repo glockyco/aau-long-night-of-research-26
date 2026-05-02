@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { creations, findCreation } from '$lib/data/creations';
+import { creations } from '$lib/data/creations';
 import { LANGS } from '$lib/i18n';
 import type { EntryGenerator, PageLoad } from './$types';
 
@@ -18,9 +18,16 @@ export const entries: EntryGenerator = () => {
 };
 
 export const load: PageLoad = ({ params }) => {
-  const creation = findCreation(params.slug);
-  if (!creation) {
+  const creationIndex = creations.findIndex((creation) => creation.slug === params.slug);
+  if (creationIndex === -1) {
     error(404, `Creation not found: ${params.slug}`);
   }
-  return { creation };
+
+  return {
+    creation: creations[creationIndex],
+    creationIndex,
+    totalCreations: creations.length,
+    previousCreation: creations[creationIndex - 1] ?? null,
+    nextCreation: creations[creationIndex + 1] ?? null
+  };
 };

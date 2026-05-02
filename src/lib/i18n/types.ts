@@ -95,7 +95,12 @@ export interface Dict {
     builtWith: string;
   };
   creationPage: {
-    back: string;
+    backToIndex: string;
+    previous: string;
+    next: string;
+    firstEntry: string;
+    lastEntry: string;
+    entryLabel: string;
     openStandalone: string;
   };
 }

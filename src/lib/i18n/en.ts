@@ -106,7 +106,12 @@ export const en: Dict = {
     builtWith: 'Built with Claude Code'
   },
   creationPage: {
-    back: '← back',
+    backToIndex: '← Back to creation index',
+    previous: '← Previous',
+    next: 'Next →',
+    firstEntry: 'First entry',
+    lastEntry: 'Last entry',
+    entryLabel: 'No.',
     openStandalone: 'Open in new tab'
   }
 };
