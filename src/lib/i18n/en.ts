@@ -82,19 +82,19 @@ export const en: Dict = {
     footnotes: [
       {
         term: 'WebStorm',
-        body: 'JetBrains’ editor for web development.',
+        body: 'The program on every station computer where the code was written and saved.',
         href: 'https://www.jetbrains.com/webstorm/',
         hrefLabel: 'jetbrains.com/webstorm'
       },
       {
         term: 'Claude Code plugin',
-        body: 'Anthropic’s plugin for JetBrains IDEs.',
+        body: 'An add-on that brings the conversation with the AI right into WebStorm.',
         href: 'https://plugins.jetbrains.com/plugin/27310-claude-code',
         hrefLabel: 'plugins.jetbrains.com/plugin/27310-claude-code'
       },
       {
         term: 'Claude',
-        body: 'Anthropic’s Claude Code — the AI tool inside the plugin.',
+        body: 'The AI behind the answers — writes HTML, CSS, and JavaScript on request.',
         href: 'https://www.anthropic.com/claude-code',
         hrefLabel: 'anthropic.com/claude-code'
       }
