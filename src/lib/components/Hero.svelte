@@ -24,6 +24,7 @@
         {#each dict.hero.headlineLines as line (line)}<span>{line}</span>{/each}
       </h1>
       <p class="deck">{dict.hero.deck}</p>
+      <div class="lede-spacer" aria-hidden="true"></div>
       <div class="facts" aria-label={dict.hero.metaWhen}>
         {#each dict.hero.facts as fact (fact.label)}
           <div class="fact">
@@ -57,6 +58,8 @@
           {/each}
         </ol>
       </section>
+
+      <div class="rail-spacer" aria-hidden="true"></div>
 
       <section class="rail-block rhythm" aria-labelledby="rhythm-title">
         <h2 id="rhythm-title">{dict.hero.rhythmLabel}</h2>
@@ -92,8 +95,14 @@
   }
 
   .lede {
+    display: flex;
+    flex-direction: column;
     grid-column: span 8;
     min-width: 0;
+  }
+
+  .lede-spacer {
+    flex: 1 0 1.45rem;
   }
 
   .section-label {
@@ -124,7 +133,6 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.75rem;
-    margin-top: 1.45rem;
     padding: 0.95rem 0 0.78rem;
     border-top: 1px solid var(--hair);
     border-bottom: 1px solid var(--hair);
@@ -177,10 +185,13 @@
   }
 
   .rail {
-    grid-column: 9 / -1;
     display: flex;
     flex-direction: column;
-    gap: 1.4rem;
+    grid-column: 9 / -1;
+  }
+
+  .rail-spacer {
+    flex: 1 0 1.4rem;
   }
 
   .rail-block {
