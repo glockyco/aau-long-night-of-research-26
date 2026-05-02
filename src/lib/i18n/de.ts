@@ -107,8 +107,8 @@ export const de: Dict = {
       'Wir gehören zur Software Engineering Research Group (SERG) an der Universität Klagenfurt.'
   },
   footer: {
-    officialPage: 'Offizielle Stations-Seite',
-    repo: 'Repository'
+    officialPage: 'Offizielle Stationsseite',
+    repo: 'Quellcode'
   },
   creationPage: {
     backToIndex: '← Zurück zum Index',

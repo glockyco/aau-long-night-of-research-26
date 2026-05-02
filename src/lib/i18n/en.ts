@@ -108,7 +108,7 @@ export const en: Dict = {
   },
   footer: {
     officialPage: 'Official station page',
-    repo: 'Repository'
+    repo: 'Source code'
   },
   creationPage: {
     backToIndex: '← Back to creation index',
