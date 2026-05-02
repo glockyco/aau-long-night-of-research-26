@@ -18,7 +18,7 @@ export const de: Dict = {
       '17 bis 23 Uhr'
     ],
     pressBannerLead: 'Besucher:innen hatten die Ideen. Die KI half beim Bauen.',
-    pressBannerTrail: 'Heft 39 · Bogen I · Druckschluss 22:22'
+    pressBannerTrail: 'Heft 39 · Bogen I · Druckschluss 23:45'
   },
   hero: {
     metaWhen: 'Lange Nacht der Forschung 2026 · Station U27',

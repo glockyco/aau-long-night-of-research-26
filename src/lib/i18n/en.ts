@@ -18,7 +18,7 @@ export const en: Dict = {
       '17:00 to 23:00'
     ],
     pressBannerLead: 'Visitors brought the ideas. The AI helped build them.',
-    pressBannerTrail: 'Issue 39 · Sheet I · press time 22:22'
+    pressBannerTrail: 'Issue 39 · Sheet I · press time 23:45'
   },
   hero: {
     metaWhen: 'Long Night of Research 2026 · Station U27',
