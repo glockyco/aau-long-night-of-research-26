@@ -14,8 +14,8 @@
   const title = $derived(`${data.dict.hero.metaWhen} — Showcase`);
   const description = $derived(
     data.lang === 'de'
-      ? 'Was Besucher:innen am 24. April 2026 an Station U27 mit Claude Code gebaut haben.'
-      : 'What visitors built with Claude Code at Station U27 on 24 April 2026.'
+      ? 'Was Besucher:innen am 24. April 2026 an Station U27 mit KI gebaut haben.'
+      : 'What visitors built with AI at Station U27 on 24 April 2026.'
   );
 </script>
 
