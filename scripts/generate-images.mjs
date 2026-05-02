@@ -5,8 +5,8 @@
  * Sources `static/favicon.svg` and the Gazette palette. Produces:
  *   - static/favicon-32x32.png       (32x32, browser tab)
  *   - static/apple-touch-icon.png    (180x180, iOS home screen)
- *   - static/og-default.png          (1200x630, German social card)
- *   - static/og-default-en.png       (1200x630, English social card)
+ *   - static/og-card.png             (1200x630, German social card)
+ *   - static/og-card-en.png          (1200x630, English social card)
  *
  * Outputs are committed so deploys do not depend on this step running.
  *
@@ -148,7 +148,7 @@ function ogCardSvg({ kicker, mastheadHead, mastheadTail, deck, stats, footerLeft
 
 const cards = [
   {
-    out: 'static/og-default.png',
+    out: 'static/og-card.png',
     svg: ogCardSvg({
       kicker: 'Klagenfurt · 24. April 2026 · Nachtausgabe',
       mastheadHead: 'Die U27',
@@ -160,7 +160,7 @@ const cards = [
     })
   },
   {
-    out: 'static/og-default-en.png',
+    out: 'static/og-card-en.png',
     svg: ogCardSvg({
       kicker: 'Klagenfurt · 24 April 2026 · Night edition',
       mastheadHead: 'The U27',
@@ -178,5 +178,5 @@ for (const card of cards) {
 }
 
 console.log(
-  'Generated favicon-32x32.png (32×32), apple-touch-icon.png (180×180), og-default.png (1200×630), og-default-en.png (1200×630)'
+  'Generated favicon-32x32.png (32×32), apple-touch-icon.png (180×180), og-card.png (1200×630), og-card-en.png (1200×630)'
 );
