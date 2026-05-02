@@ -27,12 +27,12 @@ export const de: Dict = {
     deck: 'Sechs Stunden Mitmach-Station — herausgekommen sind Würfelspiele, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetterseiten, Quizze und mehr.',
     facts: [
       { value: '4', label: 'KI-Werkbänke' },
+      { value: '9', label: 'Aufgabenkarten' },
       { value: '39', label: 'archivierte Kreationen' },
       { value: '37 889', label: 'Zeilen Quellcode' },
       { value: '64', label: 'meistgenutzte Farbe', swatch: '#1a1a2e' },
       { value: '43 ⭐', label: 'meistgenutztes Emoji' },
       { value: '21', label: 'meistgebundene Taste', keycap: 'Leer' },
-      { value: '7 🎄', label: 'Weihnachtsbäume im April' },
       { value: '∞', label: 'kreative Ideen' }
     ],
     contentsLabel: 'In dieser Ausgabe',

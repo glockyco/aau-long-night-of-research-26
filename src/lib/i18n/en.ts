@@ -27,12 +27,12 @@ export const en: Dict = {
     deck: 'Six hours of hands-on station — what came out were dice rollers, platform games, racing games, drawing tools, weather dashboards, quizzes, and more.',
     facts: [
       { value: '4', label: 'AI workbenches' },
+      { value: '9', label: 'task cards' },
       { value: '39', label: 'creations archived' },
       { value: '37 889', label: 'lines of source' },
       { value: '64', label: 'most-used color', swatch: '#1a1a2e' },
       { value: '43 ⭐', label: 'most-used emoji' },
       { value: '21', label: 'most-bound key', keycap: 'Space' },
-      { value: '7 🎄', label: 'Christmas trees in April' },
       { value: '∞', label: 'creative ideas' }
     ],
     contentsLabel: 'In this issue',
