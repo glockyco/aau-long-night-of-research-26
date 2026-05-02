@@ -42,8 +42,8 @@ export const de: Dict = {
       { label: 'Aus Raum S.2.42', page: 'S. 1' },
       { label: 'Index der Arbeiten', page: 'S. 2' },
       { label: 'Aufgabenkarten', page: 'S. 6' },
-      { label: 'Ablauf', page: 'S. 7' },
-      { label: 'Team und Links', page: 'S. 8' }
+      { label: 'Hinter den Kulissen', page: 'S. 7' },
+      { label: 'Team und Impressum', page: 'S. 8' }
     ]
   },
   context: {

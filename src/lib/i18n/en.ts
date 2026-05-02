@@ -39,11 +39,11 @@ export const en: Dict = {
     ],
     contentsLabel: 'In this issue',
     contents: [
-      { label: 'Station report', page: 'p. 1' },
+      { label: 'From room S.2.42', page: 'p. 1' },
       { label: 'Creation index', page: 'p. 2' },
       { label: 'Task cards', page: 'p. 6' },
-      { label: 'How it worked', page: 'p. 7' },
-      { label: 'Team and links', page: 'p. 8' }
+      { label: 'Behind the scenes', page: 'p. 7' },
+      { label: 'Team and credits', page: 'p. 8' }
     ]
   },
   context: {
