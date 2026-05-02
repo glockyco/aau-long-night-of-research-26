@@ -7,7 +7,7 @@ export const de: Dict = {
     nameplatePrefix: 'Die U27',
     nameplateMiddle: '',
     nameplateTitle: 'Gazette',
-    runningHead: '¶ Die U27 Gazette · Nachtdruck · Bogen I',
+    runningHead: '¶ Die U27 Gazette · Nachtausgabe · Bogen I',
     archiveLine: 'Seite 1 · 24.IV.MMXXVI · Archiv-Nr. 7459',
     dateline: ['Klagenfurt, Freitag', '24. April 2026'],
     editionLines: ['Ausgabe 1 · № I', 'Nachtausgabe · Gratis'],

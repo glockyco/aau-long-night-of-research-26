@@ -7,7 +7,7 @@ export const en: Dict = {
     nameplatePrefix: 'The U27',
     nameplateMiddle: '',
     nameplateTitle: 'Gazette',
-    runningHead: '¶ The U27 Gazette · Station U27 · Sheet I',
+    runningHead: '¶ The U27 Gazette · Night edition · Sheet I',
     archiveLine: 'Page 1 · 24.IV.MMXXVI · Archive No. 7459',
     dateline: ['Klagenfurt, Friday', '24 April 2026'],
     editionLines: ['Issue 1 · № I', 'Special issue · free'],
@@ -18,7 +18,7 @@ export const en: Dict = {
       '17:00 to 23:00'
     ],
     pressBannerLead: 'Webpages built by visitors, written by an AI.',
-    pressBannerTrail: 'Issue 39 · Sheet I · final save 22:22'
+    pressBannerTrail: 'Issue 39 · Sheet I · press time 22:22'
   },
   hero: {
     metaWhen: 'Long Night of Research 2026 · Station U27',
