@@ -2,6 +2,8 @@
   import type { Dict } from '$lib/i18n';
 
   let { dict }: { dict: Dict } = $props();
+
+  const sectionAnchors = ['#station', '#creations', '#tasks', '#how', '#team'];
 </script>
 
 <section class="hero">
@@ -27,9 +29,11 @@
       <ol>
         {#each dict.hero.contents as item, index (item.label)}
           <li>
-            <span class="contents-no">{String(index + 1).padStart(2, '0')}</span>
-            <span class="contents-title">{item.label}</span>
-            <span class="page-no">{item.page}</span>
+            <a class="contents-row" href={sectionAnchors[index] ?? '#'}>
+              <span class="contents-no">{String(index + 1).padStart(2, '0')}</span>
+              <span class="contents-title">{item.label}</span>
+              <span class="page-no">{item.page}</span>
+            </a>
           </li>
         {/each}
       </ol>
@@ -135,17 +139,28 @@
   }
 
   .contents li {
-    display: grid;
-    grid-template-columns: 2.4em minmax(0, 1fr) auto;
-    gap: 0.7rem;
-    align-items: baseline;
-    padding: 0.32rem 0;
+    padding: 0;
     border-bottom: 1px dotted var(--border);
     line-height: 1.3;
   }
 
   .contents li:last-child {
     border-bottom: 0;
+  }
+
+  .contents-row {
+    display: grid;
+    grid-template-columns: 2.4em minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    align-items: baseline;
+    padding: 0.32rem 0;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .contents-row:hover .contents-title,
+  .contents-row:focus-visible .contents-title {
+    color: var(--accent);
   }
 
   .contents-title {
