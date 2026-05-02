@@ -53,7 +53,7 @@ export const de: Dict = {
     sectionLabel: 'Was entstanden ist',
     sectionTitle: 'Der Index der Kreationen',
     intro:
-      'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 kuratierte Arbeiten: spielbar, unterscheidbar und für die Präsentation geeignet. Enge Duplikate, problematische Themen und Versuche, die nicht zuverlässig liefen, bleiben draußen.',
+      'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 ausgewählte Kreationen: spielbar, gut unterscheidbar und geeignet für den öffentlichen Blick ins Archiv. Enge Duplikate, heikle Themen und Versuche, die nicht zuverlässig liefen, wurden nicht aufgenommen.',
     sectionMeta: '39 Kreationen · 13:23–22:22',
     trialLabel: 'Probeläufe vor Beginn',
     trialMeta: '4 Checks · vor 17:00',

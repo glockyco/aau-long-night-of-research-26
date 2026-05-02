@@ -53,7 +53,7 @@ export const en: Dict = {
     sectionLabel: 'What got built',
     sectionTitle: 'The creation index',
     intro:
-      'More than 100 webpages were created over the evening. This index shows 39 curated works: playable, distinct, and suitable for presentation. Close duplicates, problematic topics, and attempts that did not run reliably are left out.',
+      'More than 100 webpages were created over the evening. This index gathers 39 creations that open well, feel distinct, and tell the story of the night. Very similar drafts, problematic topics, and shaky attempts stayed off the page.',
     sectionMeta: '39 creations · 13:23–22:22',
     trialLabel: 'Trial runs before doors opened',
     trialMeta: '4 checks · before 17:00',
