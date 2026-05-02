@@ -11,7 +11,7 @@
   <div class="container">
     <SectionKicker
       section="§ 1"
-      label={`${dict.context.sectionLabel} — Klagenfurt`}
+      label={`${dict.context.sectionLabel} — Klagenfurt, AAU`}
       page={pageNo}
     />
 
