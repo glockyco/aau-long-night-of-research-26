@@ -85,12 +85,26 @@ export const en: Dict = {
     heading: 'Plain language in, webpage out.',
     intro:
       'No programming knowledge. No typing code. Each computer ran WebStorm with the Claude Code plugin. Visitors typed what they wanted in plain language. Claude wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
+    processPhoto: {
+      alt: 'A development setup showing WebStorm with Claude Code on the left and a live browser preview of a weather page on the right.',
+      caption:
+        'The table setup in miniature: source code, Claude Code conversation, and live browser preview side by side.'
+    },
     process: [
       { label: '1 · Describe', text: 'A person describes their idea.' },
       { label: '2 · Generate', text: 'Claude creates a webpage.' },
       { label: '3 · Open', text: 'The result opens in the browser.' },
       { label: '4 · Revise', text: 'Changes get discussed.' }
     ],
+    promptIntro:
+      'Before visitors arrived, Claude got a little instruction sheet: what kind of event this was, how to name files, what not to use, and how to keep the experience friendly for people without programming experience. In developer terms this was a CLAUDE.md file; at the station it was simply the house rules for the assistant.',
+    promptDocument: {
+      label: 'Document — house rules, handed to the assistant',
+      stamp: 'Confidential · internal',
+      footerLeft: '¶ Page 1 of 1 · House rules, unabridged',
+      footerMiddle: 'Countersigned JG ✓',
+      footerRight: 'Print clearance · 24. IV. MMXXVI · 12:55'
+    },
     promptLabel: 'House rules given to Claude before visitors arrived'
   },
   team: {

@@ -27,13 +27,31 @@
       {/each}
     </div>
 
-    <div class="prompt-source">
-      <div class="prompt-bar">
-        <span>Source material</span>
-        <strong>{dict.how.promptLabel}</strong>
-      </div>
+    <figure class="setup-photo">
+      <img
+        src="/images/station-development-setup.webp"
+        alt={dict.how.processPhoto.alt}
+        width="2400"
+        height="1560"
+        loading="lazy"
+      />
+      <figcaption>{dict.how.processPhoto.caption}</figcaption>
+    </figure>
+
+    <p class="prompt-intro">{dict.how.promptIntro}</p>
+
+    <figure class="prompt-source">
+      <figcaption class="prompt-bar">
+        <span>{dict.how.promptDocument.label}</span>
+        <strong>{dict.how.promptDocument.stamp}</strong>
+      </figcaption>
       <pre class="claude-md"><code>{systemPrompt}</code></pre>
-    </div>
+      <div class="prompt-foot">
+        <span>{dict.how.promptDocument.footerLeft}</span>
+        <span>{dict.how.promptDocument.footerMiddle}</span>
+        <span>{dict.how.promptDocument.footerRight}</span>
+      </div>
+    </figure>
 
     <p class="how-tools">
       <a href="https://www.jetbrains.com/webstorm/">WebStorm</a>
@@ -57,7 +75,8 @@
     letter-spacing: -0.015em;
   }
 
-  .how-intro {
+  .how-intro,
+  .prompt-intro {
     max-width: 82ch;
     margin-top: 0.9rem;
     font-size: 1.05rem;
@@ -98,7 +117,33 @@
     line-height: 1.38;
   }
 
+  .setup-photo {
+    margin: 1.15rem 0 1.25rem;
+  }
+
+  .setup-photo img {
+    width: 100%;
+    border: 1px solid var(--fg);
+    background: #141414;
+    filter: grayscale(0.05) contrast(1.03) sepia(0.04);
+  }
+
+  .setup-photo figcaption {
+    margin-top: 0.45rem;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .prompt-intro {
+    margin-top: 1.35rem;
+  }
+
   .prompt-source {
+    margin: 1.25rem 0 0;
     border: 1px solid var(--fg);
     background:
       repeating-linear-gradient(135deg, transparent 0 14px, rgba(122, 29, 29, 0.035) 14px 16px),
@@ -109,28 +154,34 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 0.6rem;
-    padding: 0.52rem 0.75rem;
-    border-bottom: 1px solid var(--fg);
-    background: var(--surface-2);
-    color: var(--fg-muted);
+    gap: 0.6rem 1rem;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--accent-deep);
+    border-bottom: 1px solid var(--accent-deep);
+    background: var(--accent);
+    color: var(--surface);
     font-family: var(--font-sans);
     font-size: 0.68rem;
+    font-weight: 600;
     letter-spacing: 0.14em;
     line-height: 1.35;
     text-transform: uppercase;
   }
 
   .prompt-bar strong {
-    color: var(--accent);
-    font-weight: 600;
+    color: var(--surface);
+    font-family: var(--font-masthead);
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
   }
 
   .claude-md {
     overflow: auto;
     max-height: 430px;
     margin: 0;
-    padding: 1rem 1.1rem;
+    padding: 1.2rem 1.25rem 1.35rem;
     color: var(--fg);
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -141,6 +192,26 @@
   .claude-md code {
     color: inherit;
     font-family: inherit;
+  }
+
+  .prompt-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.6rem 1rem;
+    padding: 0.48rem 0.85rem 0.52rem;
+    border-top: 1px solid var(--fg);
+    background: var(--fg);
+    color: var(--surface);
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .prompt-foot span:first-child::first-letter {
+    color: var(--accent);
   }
 
   .how-tools {

@@ -80,7 +80,19 @@ export interface Dict {
     sectionLabel: string;
     heading: string;
     intro: string;
+    processPhoto: {
+      alt: string;
+      caption: string;
+    };
     process: ProcessStep[];
+    promptIntro: string;
+    promptDocument: {
+      label: string;
+      stamp: string;
+      footerLeft: string;
+      footerMiddle: string;
+      footerRight: string;
+    };
     promptLabel: string;
   };
   team: {

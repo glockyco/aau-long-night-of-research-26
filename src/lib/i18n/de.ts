@@ -85,12 +85,26 @@ export const de: Dict = {
     heading: 'Alltagssprache rein, Webseite raus.',
     intro:
       'Kein Programmierwissen. Kein Code tippen. Auf jedem Rechner lief WebStorm mit dem Claude-Code-Plugin. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Source Code gewagt.',
+    processPhoto: {
+      alt: 'Eine Entwicklungsumgebung mit WebStorm und Claude Code links und einer Live-Vorschau einer Wetter-Webseite rechts.',
+      caption:
+        'Der Stationsaufbau im Kleinen: Source Code, Claude-Code-Gespräch und Browser-Vorschau nebeneinander.'
+    },
     process: [
       { label: '1 · Beschreiben', text: 'Eine Person beschreibt ihre Idee.' },
       { label: '2 · Generieren', text: 'Claude erstellt eine Webseite.' },
       { label: '3 · Öffnen', text: 'Das Ergebnis gibt’s im Browser.' },
       { label: '4 · Ändern', text: 'Änderungen werden diskutiert.' }
     ],
+    promptIntro:
+      'Bevor Besucher:innen kamen, bekam Claude einen kleinen Spickzettel: Was für eine Veranstaltung das war, wie Dateien heißen sollten, was nicht verwendet werden durfte und wie die Arbeit für Menschen ohne Programmiererfahrung angenehm bleibt. Technisch war das eine CLAUDE.md-Datei; an der Station waren es einfach die Hausregeln für den Assistenten.',
+    promptDocument: {
+      label: 'Dokument — Hausregeln, an den Assistenten ausgehändigt',
+      stamp: 'Vertraulich · Intern',
+      footerLeft: '¶ Seite 1 von 1 · Hausregeln, ungekürzt',
+      footerMiddle: 'Gegenzeichnung JG ✓',
+      footerRight: 'Druckfreigabe · 24. IV. MMXXVI · 12:55 Uhr'
+    },
     promptLabel: 'Hausregeln für Claude vor Beginn der Veranstaltung'
   },
   team: {
