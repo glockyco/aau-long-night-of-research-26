@@ -41,7 +41,8 @@ export const de: Dict = {
       { label: 'Index der Kreationen', page: 'S. 2' },
       { label: 'Aufgabenkarten', page: 'S. 6' },
       { label: 'Hinter den Kulissen', page: 'S. 7' },
-      { label: 'Team und Impressum', page: 'S. 8' }
+      { label: 'Team und Impressum', page: 'S. 8' },
+      { label: 'Kreuzworträtsel', page: 'S. 9' }
     ],
     rhythmLabel: 'Webseiten pro Stunde · 91 gesamt',
     rhythmAxisLabel: 'Webseiten pro Stunde'
@@ -133,6 +134,19 @@ export const de: Dict = {
     heading: 'Das Team an der Station',
     colophon:
       'Diese Gazette sammelt, was an Station U27 zwischen 17 und 23 Uhr ausprobiert, verworfen, repariert und gespeichert wurde.'
+  },
+  crossword: {
+    sectionLabel: 'Kreuzworträtsel',
+    heading: 'Eine Pause auf der letzten Seite',
+    intro:
+      'Zehn Wörter, inspiriert von Klagenfurt und der Langen Nacht der Forschung. Umlaute werden als AE, OE, UE geschrieben.',
+    acrossLabel: 'Waagrecht',
+    downLabel: 'Senkrecht',
+    resetLabel: 'Zurücksetzen',
+    revealLabel: 'Lösung zeigen',
+    hideAnswersLabel: 'Lösung verbergen',
+    successLabel: 'Vollständig gelöst.',
+    cellAriaLabel: 'Buchstabe'
   },
   footer: {
     officialPage: 'Offizielle Stationsseite',

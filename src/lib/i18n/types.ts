@@ -109,6 +109,18 @@ export interface Dict {
     heading: string;
     colophon: string;
   };
+  crossword: {
+    sectionLabel: string;
+    heading: string;
+    intro: string;
+    acrossLabel: string;
+    downLabel: string;
+    resetLabel: string;
+    revealLabel: string;
+    hideAnswersLabel: string;
+    successLabel: string;
+    cellAriaLabel: string;
+  };
   footer: {
     officialPage: string;
     repo: string;
