@@ -28,12 +28,12 @@ export const de: Dict = {
     facts: [
       { value: '4', label: 'KI-Werkbänke' },
       { value: '39', label: 'archivierte Kreationen' },
-      { value: '8', label: 'Mehrspielerspiele' },
       { value: '37 889', label: 'Zeilen Quellcode' },
       { value: '64', label: 'meistgenutzte Farbe', swatch: '#1a1a2e' },
       { value: '43 ⭐', label: 'meistgenutztes Emoji' },
       { value: '21', label: 'meistgebundene Taste', keycap: 'Leer' },
-      { value: '7 🎄', label: 'Weihnachtsbäume im April' }
+      { value: '7 🎄', label: 'Weihnachtsbäume im April' },
+      { value: '∞', label: 'kreative Ideen' }
     ],
     contentsLabel: 'In dieser Ausgabe',
     contents: [
