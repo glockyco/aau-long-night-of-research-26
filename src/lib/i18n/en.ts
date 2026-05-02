@@ -23,7 +23,7 @@ export const en: Dict = {
   hero: {
     metaWhen: 'Long Night of Research 2026 · Station U27',
     kicker: 'Filed from the lab floor',
-    headlineLines: ['One evening.', 'Almost 100 webpages.'],
+    headlineLines: ['One evening.', 'Over 90 webpages.'],
     deck: 'Six hours of hands-on station — what came out were dice rollers, platform games, racing games, drawing tools, weather dashboards, quizzes, and more.',
     facts: [
       { value: '4', label: 'AI workbenches' },
@@ -52,7 +52,7 @@ export const en: Dict = {
     paragraphs: [
       'At the Long Night of Research 2026, the Software Engineering Research Group hosted Station U27 in room S.2.42 at the University of Klagenfurt. Clemens Bauer, Johann Glock, and Martin Pinzger were on hand — answering questions, untangling ideas, and helping visitors turn what they had in mind into webpages they could open, play with, and refine.',
       'The goal: make today’s AI programming tools tangible. Every computer ran the same simple loop. Visitors described what they wanted in plain language. The AI wrote the HTML, CSS, and JavaScript, saved it as one file, and opened it in the browser. If something was off, the visitor just said so — and the conversation kept going, like any other.',
-      'Some things worked impressively fast. Others showed the limits just as plainly. The room stayed active and curious, especially when kids realised that a passing idea — a dice game, a quiz, a small tool of their own — could become a working webpage within minutes. By the end of the evening almost a hundred such pages had been built.'
+      'Some things worked impressively fast. Others showed the limits just as plainly. The room stayed active and curious, especially when kids realised that a passing idea — a dice game, a quiz, a small tool of their own — could become a working webpage within minutes. By the end of the evening over ninety such pages had been built.'
     ]
   },
   creations: {
