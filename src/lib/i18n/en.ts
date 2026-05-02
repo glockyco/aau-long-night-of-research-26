@@ -26,10 +26,14 @@ export const en: Dict = {
     headlineLines: ['One evening.', 'Almost 100 webpages.'],
     deck: 'Six hours of hands-on station — what came out were dice rollers, platform games, racing games, drawing tools, weather dashboards, quizzes, and more.',
     facts: [
+      { value: '91', label: 'webpages over the evening' },
       { value: '39', label: 'creations archived' },
-      { value: '13:23', label: 'first saved page' },
-      { value: '22:22', label: 'last saved page' },
-      { value: '1', label: 'HTML file each' }
+      { value: '8', label: 'multiplayer creations' },
+      { value: '37 889', label: 'lines of source' },
+      { value: '64 / 91', label: 'in the same midnight blue' },
+      { value: '43 ⭐', label: 'most-used emoji' },
+      { value: '27 ↑', label: 'most-bound key' },
+      { value: '7', label: 'Christmas trees in April' }
     ],
     contentsLabel: 'In this issue',
     contents: [
