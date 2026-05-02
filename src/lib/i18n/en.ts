@@ -54,7 +54,7 @@ export const en: Dict = {
     sectionTitle: 'The creation index',
     intro:
       'More than 100 webpages were created over the evening. This index shows 39 curated works: playable, distinct, and suitable for presentation. Close duplicates, problematic topics, and attempts that did not run reliably are left out.',
-    sectionMeta: '39 entries · 13:23–22:22',
+    sectionMeta: '39 creations · 13:23–22:22',
     trialLabel: 'Trial runs before doors opened',
     trialMeta: '4 checks · before 17:00',
     eventLabel: 'Built during the event',
@@ -112,10 +112,10 @@ export const en: Dict = {
   },
   creationPage: {
     backToIndex: '← Back to creation index',
-    previous: '← Previous',
-    next: 'Next →',
-    firstEntry: 'First entry',
-    lastEntry: 'Last entry',
+    previous: '← Previous creation',
+    next: 'Next creation →',
+    firstEntry: 'First creation',
+    lastEntry: 'Last creation',
     entryLabel: 'No.',
     openStandalone: 'Open in new tab'
   }

@@ -26,15 +26,15 @@ export const de: Dict = {
     headlineLines: ['Ein Abend.', '100+ Webseiten.'],
     deck: 'Besucher:innen beschrieben in Alltagssprache, was sie bauen wollten. Claude Code machte daraus vollständige Webseiten: Würfel, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetter, Quizze und mehr.',
     facts: [
-      { value: '39', label: 'archivierte Arbeiten' },
+      { value: '39', label: 'archivierte Kreationen' },
       { value: '13:23', label: 'erste gespeicherte Seite' },
       { value: '22:22', label: 'letzte gespeicherte Seite' },
-      { value: '1', label: 'HTML-Datei pro Arbeit' }
+      { value: '1', label: 'HTML-Datei pro Kreation' }
     ],
     contentsLabel: 'In dieser Ausgabe',
     contents: [
       { label: 'Aus Raum S.2.42', page: 'S. 1' },
-      { label: 'Index der Arbeiten', page: 'S. 2' },
+      { label: 'Index der Kreationen', page: 'S. 2' },
       { label: 'Aufgabenkarten', page: 'S. 6' },
       { label: 'Hinter den Kulissen', page: 'S. 7' },
       { label: 'Team und Impressum', page: 'S. 8' }
@@ -51,14 +51,14 @@ export const de: Dict = {
   },
   creations: {
     sectionLabel: 'Was entstanden ist',
-    sectionTitle: 'Der Index der Arbeiten',
+    sectionTitle: 'Der Index der Kreationen',
     intro:
       'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 kuratierte Arbeiten: spielbar, unterscheidbar und für die Präsentation geeignet. Enge Duplikate, problematische Themen und Versuche, die nicht zuverlässig liefen, bleiben draußen.',
-    sectionMeta: '39 Einträge · 13:23–22:22',
+    sectionMeta: '39 Kreationen · 13:23–22:22',
     trialLabel: 'Probeläufe vor Beginn',
     trialMeta: '4 Checks · vor 17:00',
     eventLabel: 'Während der Veranstaltung gebaut',
-    eventMeta: '35 Arbeiten · ab 17:06',
+    eventMeta: '35 Kreationen · ab 17:06',
     builtAt: 'gebaut um'
   },
   tasks: {
@@ -112,10 +112,10 @@ export const de: Dict = {
   },
   creationPage: {
     backToIndex: '← Zurück zum Index',
-    previous: '← Vorherige',
-    next: 'Nächste →',
-    firstEntry: 'Erster Eintrag',
-    lastEntry: 'Letzter Eintrag',
+    previous: '← Vorige Kreation',
+    next: 'Nächste Kreation →',
+    firstEntry: 'Erste Kreation',
+    lastEntry: 'Letzte Kreation',
     entryLabel: 'Nr.',
     openStandalone: 'Im neuen Tab öffnen'
   }
