@@ -43,32 +43,6 @@
           >{/if}{/each}
     </p>
 
-    {#if dict.how.footnotes.length}
-      <aside class="how-footnotes" aria-labelledby="how-footnotes-label">
-        <h3 id="how-footnotes-label">{dict.how.footnotesLabel}</h3>
-        <ol>
-          {#each dict.how.footnotes as fn, i (i)}
-            <li id={`fn-${i + 1}`}>
-              <span class="fn-num" aria-hidden="true">{i + 1}</span>
-              <div class="fn-body">
-                <p class="fn-text"><strong>{fn.term}</strong> — {fn.body}</p>
-                <p class="fn-meta">
-                  <a class="fn-href" href={fn.href} target="_blank" rel="noopener noreferrer"
-                    >{fn.hrefLabel}</a
-                  >
-                  <a
-                    class="fn-back"
-                    href={`#fnref-${i + 1}`}
-                    aria-label={dict.how.footnoteBackLabel}>↩</a
-                  >
-                </p>
-              </div>
-            </li>
-          {/each}
-        </ol>
-      </aside>
-    {/if}
-
     <div class="process" aria-label={dict.how.sectionLabel}>
       {#each dict.how.process as step (step.label)}
         <div>
@@ -103,6 +77,32 @@
         <span>{dict.how.promptDocument.footerRight}</span>
       </div>
     </figure>
+
+    {#if dict.how.footnotes.length}
+      <aside class="how-footnotes" aria-labelledby="how-footnotes-label">
+        <h3 id="how-footnotes-label">{dict.how.footnotesLabel}</h3>
+        <ol>
+          {#each dict.how.footnotes as fn, i (i)}
+            <li id={`fn-${i + 1}`}>
+              <span class="fn-num" aria-hidden="true">{i + 1}</span>
+              <div class="fn-body">
+                <p class="fn-text"><strong>{fn.term}</strong> — {fn.body}</p>
+                <p class="fn-meta">
+                  <a class="fn-href" href={fn.href} target="_blank" rel="noopener noreferrer"
+                    >{fn.hrefLabel}</a
+                  >
+                  <a
+                    class="fn-back"
+                    href={`#fnref-${i + 1}`}
+                    aria-label={dict.how.footnoteBackLabel}>↩</a
+                  >
+                </p>
+              </div>
+            </li>
+          {/each}
+        </ol>
+      </aside>
+    {/if}
   </div>
 </section>
 
@@ -148,7 +148,7 @@
 
   .how-footnotes {
     max-width: 82ch;
-    margin: 1.05rem 0 0;
+    margin: 2rem 0 0;
     padding-top: 0.6rem;
     border-top: 1px solid var(--hair);
   }
