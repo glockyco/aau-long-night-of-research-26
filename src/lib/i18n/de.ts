@@ -23,7 +23,7 @@ export const de: Dict = {
   hero: {
     metaWhen: 'Lange Nacht der Forschung 2026 · Station U27',
     kicker: 'Direkt aus dem Computerlabor',
-    headlineLines: ['Ein Abend.', 'Über 100 Webseiten.'],
+    headlineLines: ['Ein Abend.', 'Fast 100 Webseiten.'],
     deck: 'Sechs Stunden Mitmach-Station — herausgekommen sind Würfelspiele, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetterseiten, Quizze und mehr.',
     facts: [
       { value: '39', label: 'archivierte Kreationen' },
@@ -48,14 +48,14 @@ export const de: Dict = {
     paragraphs: [
       'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group die Station U27 in Raum S.2.42 an der Universität Klagenfurt. Clemens Bauer, Johann Glock und Martin Pinzger waren vor Ort — beantworteten Fragen, sortierten Ideen und halfen Besucher:innen dabei, das, was sie im Kopf hatten, in spielbare Webseiten zu verwandeln.',
       'Das Ziel: aktuelle KI-Werkzeuge fürs Programmieren greifbar machen. Auf jedem Rechner lief dieselbe einfache Schleife. Besucher:innen sagten in Alltagssprache, was sie sich vorstellten. Die KI schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Stimmte etwas nicht, sagte man es ihr — wie in jedem Gespräch.',
-      'Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich. Im Raum blieb es lebendig und neugierig, besonders wenn Kinder merkten, dass aus einer Idee — einem Würfelspiel, einem Quiz, einem kleinen Werkzeug — innerhalb weniger Minuten eine spielbare Webseite werden konnte. Am Ende des Abends waren über hundert Seiten entstanden.'
+      'Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich. Im Raum blieb es lebendig und neugierig, besonders wenn Kinder merkten, dass aus einer Idee — einem Würfelspiel, einem Quiz, einem kleinen Werkzeug — innerhalb weniger Minuten eine spielbare Webseite werden konnte. Am Ende des Abends waren fast hundert Seiten entstanden.'
     ]
   },
   creations: {
     sectionLabel: 'Was entstanden ist',
     sectionTitle: 'Der Index der Kreationen',
     intro:
-      'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 ausgewählte Kreationen: spielbar, gut unterscheidbar und geeignet für den öffentlichen Blick ins Archiv. Enge Duplikate, heikle Themen und Versuche, die keine zuverlässigen Ergebnisse lieferten, wurden nicht aufgenommen.',
+      'Über den Abend entstanden 91 Webseiten. Dieser Index zeigt 39 ausgewählte Kreationen: spielbar, gut unterscheidbar und geeignet für den öffentlichen Blick ins Archiv. Enge Duplikate, heikle Themen und Versuche, die keine zuverlässigen Ergebnisse lieferten, wurden nicht aufgenommen.',
     sectionMeta: '39 Kreationen · 13:23–22:22',
     trialLabel: 'Probeläufe vor Beginn',
     trialMeta: '4 Checks · vor 17:00',
