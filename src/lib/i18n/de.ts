@@ -43,7 +43,7 @@ export const de: Dict = {
       { label: 'Hinter den Kulissen', page: 'S. 7' },
       { label: 'Team und Impressum', page: 'S. 8' }
     ],
-    rhythmLabel: 'Verlauf des Abends',
+    rhythmLabel: 'Webseiten pro Stunde · 91 gesamt',
     rhythmAxisLabel: 'Webseiten pro Stunde'
   },
   context: {

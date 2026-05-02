@@ -43,7 +43,7 @@ export const en: Dict = {
       { label: 'Behind the scenes', page: 'p. 7' },
       { label: 'Team and credits', page: 'p. 8' }
     ],
-    rhythmLabel: 'Course of the evening',
+    rhythmLabel: 'Webpages per hour · 91 total',
     rhythmAxisLabel: 'webpages per hour'
   },
   context: {
