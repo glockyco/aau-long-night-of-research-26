@@ -66,7 +66,7 @@ export const de: Dict = {
     heading: 'Ideen zum Mitnehmen',
     meta: 'PDF verfügbar',
     intro:
-      'Auf dem Tisch lagen drei Stapel Aufgabenkarten: einfach, mittel und schwer. Jede Karte gab einen Startpunkt und eine kurze Checkliste für das Ergebnis. Darüber hinaus wurden Besucher:innen ermutigt, eigene Ideen zu probieren.',
+      'Auf dem Tisch lagen drei Stapel Aufgabenkarten: einfach, mittel und schwer. Jede Karte gab einen Startpunkt und eine kurze Checkliste für das Ergebnis. Wer etwas Eigenes im Kopf hatte, konnte natürlich auch damit loslegen.',
     tierEasy: 'Einfach',
     tierMedium: 'Mittel',
     tierHard: 'Schwer',
