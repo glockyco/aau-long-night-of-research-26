@@ -117,6 +117,6 @@ export const en: Dict = {
     firstEntry: 'First creation',
     lastEntry: 'Last creation',
     entryLabel: 'No.',
-    openStandalone: 'Open in new tab'
+    openStandalone: 'Open standalone page'
   }
 };
