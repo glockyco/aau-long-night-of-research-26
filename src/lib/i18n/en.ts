@@ -102,11 +102,14 @@ export const en: Dict = {
   },
   team: {
     sectionLabel: 'Who we are',
-    heading: 'The people at the station'
+    heading: 'The people at the station',
+    colophon:
+      'This Gazette gathers what Station U27 tried, discarded, repaired, and saved between 17:00 and 23:00.'
   },
   footer: {
     officialPage: 'Official station page',
-    repo: 'Source code'
+    repo: 'Source code',
+    folio: 'The U27 Gazette · Issue I · 24.IV.MMXXVI'
   },
   creationPage: {
     backToIndex: '← Back to creation index',

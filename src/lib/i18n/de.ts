@@ -102,11 +102,14 @@ export const de: Dict = {
   },
   team: {
     sectionLabel: 'Wer wir sind',
-    heading: 'Das Team an der Station'
+    heading: 'Das Team an der Station',
+    colophon:
+      'Diese Gazette sammelt, was an Station U27 zwischen 17 und 23 Uhr ausprobiert, verworfen, repariert und gespeichert wurde.'
   },
   footer: {
     officialPage: 'Offizielle Stationsseite',
-    repo: 'Quellcode'
+    repo: 'Quellcode',
+    folio: 'Die U27 Gazette · Ausgabe I · 24.IV.MMXXVI'
   },
   creationPage: {
     backToIndex: '← Zurück zum Index',

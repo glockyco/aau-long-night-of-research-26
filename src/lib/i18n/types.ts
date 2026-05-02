@@ -91,10 +91,12 @@ export interface Dict {
   team: {
     sectionLabel: string;
     heading: string;
+    colophon: string;
   };
   footer: {
     officialPage: string;
     repo: string;
+    folio: string;
   };
   creationPage: {
     backToIndex: string;

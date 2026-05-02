@@ -14,7 +14,7 @@
         <a href="https://github.com/glockyco/aau-long-night-of-research-26">{dict.footer.repo}</a>
       </li>
     </ul>
-    <span class="footer-folio"><span aria-hidden="true">✥</span> U27 Gazette · 2026</span>
+    <span class="footer-folio"><span aria-hidden="true">✥</span> {dict.footer.folio}</span>
   </div>
 </footer>
 

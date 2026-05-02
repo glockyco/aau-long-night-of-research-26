@@ -35,6 +35,7 @@
         > at the University of Klagenfurt.
       {/if}
     </p>
+    <p class="team-colophon">{dict.team.colophon}</p>
   </div>
 </section>
 
@@ -95,6 +96,12 @@
   .team-affiliation {
     margin-top: 0.9rem;
     color: var(--fg-muted);
+  }
+
+  .team-colophon {
+    margin-top: 0.55rem;
+    color: var(--fg-muted);
+    font-style: italic;
   }
 
   @media (max-width: 720px) {
