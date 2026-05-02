@@ -102,9 +102,7 @@ export const de: Dict = {
   },
   team: {
     sectionLabel: 'Wer wir sind',
-    heading: 'Das Team an der Station',
-    affiliation:
-      'Wir gehören zur Software Engineering Research Group (SERG) an der Universität Klagenfurt.'
+    heading: 'Das Team an der Station'
   },
   footer: {
     officialPage: 'Offizielle Stationsseite',

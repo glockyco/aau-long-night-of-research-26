@@ -102,9 +102,7 @@ export const en: Dict = {
   },
   team: {
     sectionLabel: 'Who we are',
-    heading: 'The people at the station',
-    affiliation:
-      'We are with the Software Engineering Research Group (SERG) at the University of Klagenfurt.'
+    heading: 'The people at the station'
   },
   footer: {
     officialPage: 'Official station page',

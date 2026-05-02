@@ -91,7 +91,6 @@ export interface Dict {
   team: {
     sectionLabel: string;
     heading: string;
-    affiliation: string;
   };
   footer: {
     officialPage: string;
