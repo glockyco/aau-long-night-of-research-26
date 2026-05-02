@@ -66,7 +66,7 @@ export const en: Dict = {
     heading: 'Ideas to take with you',
     meta: 'PDF available',
     intro:
-      'Three stacks of task cards sat on the table: easy, medium, hard. Each card gave visitors a concrete starting point and a short checklist for judging the result. Beyond this, they were highly encouraged to explore their own ideas.',
+      'Three stacks of task cards sat on the table: easy, medium, hard. Each card gave visitors a concrete starting point and a short checklist for judging the result. And if you came with your own idea, you could of course just start with that.',
     tierEasy: 'Easy',
     tierMedium: 'Medium',
     tierHard: 'Hard',
