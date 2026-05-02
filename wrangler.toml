@@ -1,5 +1,7 @@
 name = "lnf26-glockyco-com"
 compatibility_date = "2026-05-01"
+workers_dev = false
+preview_urls = false
 
 routes = [
   { pattern = "lnf26.glockyco.com", custom_domain = true, zone_name = "glockyco.com" }
