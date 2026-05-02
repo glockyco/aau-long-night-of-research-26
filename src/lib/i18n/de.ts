@@ -82,19 +82,19 @@ export const de: Dict = {
     footnotes: [
       {
         term: 'WebStorm',
-        body: 'Das Programm, in dem an der Station Code geschrieben und gespeichert wurde.',
+        body: 'Programm zum Schreiben von Code.',
         href: 'https://www.jetbrains.com/webstorm/',
         hrefLabel: 'jetbrains.com/webstorm'
       },
       {
         term: 'Claude-Code-Plugin',
-        body: 'Eine Erweiterung, die das Gespräch mit der KI direkt in WebStorm einklinkt.',
+        body: 'Verbindet WebStorm mit der KI.',
         href: 'https://plugins.jetbrains.com/plugin/27310-claude-code',
         hrefLabel: 'plugins.jetbrains.com/plugin/27310-claude-code'
       },
       {
         term: 'Claude',
-        body: 'Das KI-Modell hinter den Antworten — schreibt auf Zuruf HTML, CSS und JavaScript.',
+        body: 'Die KI, die den Code schreibt.',
         href: 'https://www.anthropic.com/claude-code',
         hrefLabel: 'anthropic.com/claude-code'
       }
