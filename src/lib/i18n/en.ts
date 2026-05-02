@@ -23,7 +23,7 @@ export const en: Dict = {
   hero: {
     metaWhen: 'Long Night of Research 2026 · Station U27',
     kicker: 'Filed from the lab floor',
-    headlineLines: ['One evening.', '100+ webpages.'],
+    headlineLines: ['One evening.', 'Over 100 webpages.'],
     deck: 'Visitors described what they wanted in plain language. Claude Code turned those requests into complete webpages: dice, platformers, racing games, drawing tools, weather, quizzes, and more.',
     facts: [
       { value: '39', label: 'creations archived' },
