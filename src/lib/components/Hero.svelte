@@ -27,7 +27,15 @@
       <div class="facts" aria-label={dict.hero.metaWhen}>
         {#each dict.hero.facts as fact (fact.label)}
           <div class="fact">
-            <b>{fact.value}</b>
+            <b>
+              <span class="fact-value">{fact.value}</span>
+              {#if fact.swatch}
+                <span class="fact-swatch" style="background: {fact.swatch}" aria-hidden="true"
+                ></span>
+              {:else if fact.keycap}
+                <kbd class="fact-keycap">{fact.keycap}</kbd>
+              {/if}
+            </b>
             <span>{fact.label}</span>
           </div>
         {/each}
@@ -123,7 +131,9 @@
   }
 
   .fact b {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.32em;
     color: var(--accent);
     font-family: var(--font-display);
     font-size: clamp(1.65rem, 2.8vw, 2.35rem);
@@ -131,7 +141,31 @@
     line-height: 1;
   }
 
-  .fact span {
+  .fact-swatch {
+    display: inline-block;
+    width: 0.62em;
+    height: 0.62em;
+    border: 1px solid var(--border);
+    border-radius: 0.12em;
+  }
+
+  .fact-keycap {
+    display: inline-block;
+    min-width: 1.1em;
+    padding: 0.08em 0.3em 0.04em;
+    border: 1px solid var(--fg);
+    border-bottom-width: 2px;
+    border-radius: 0.22em;
+    background: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 0.6em;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .fact > span {
     display: block;
     margin-top: 0.32rem;
     color: var(--fg-muted);

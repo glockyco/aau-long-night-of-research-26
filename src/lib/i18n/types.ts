@@ -6,6 +6,10 @@ export const DEFAULT_LANG: Lang = 'de';
 interface HeroFact {
   value: string;
   label: string;
+  /** Optional: render a small color swatch next to the value (CSS color string). */
+  swatch?: string;
+  /** Optional: render a keycap-styled glyph next to the value. */
+  keycap?: string;
 }
 
 interface IssueEntry {

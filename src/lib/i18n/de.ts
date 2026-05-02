@@ -26,14 +26,14 @@ export const de: Dict = {
     headlineLines: ['Ein Abend.', 'Fast 100 Webseiten.'],
     deck: 'Sechs Stunden Mitmach-Station — herausgekommen sind Würfelspiele, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetterseiten, Quizze und mehr.',
     facts: [
-      { value: '91', label: 'Webseiten am Abend' },
+      { value: '4', label: 'KI-Werkbänke' },
       { value: '39', label: 'archivierte Kreationen' },
       { value: '8', label: 'Mehrspielerspiele' },
       { value: '37 889', label: 'Zeilen Quellcode' },
-      { value: '64 / 91', label: 'in Mitternachtsblau' },
+      { value: '64', label: 'meistgenutzte Farbe', swatch: '#1a1a2e' },
       { value: '43 ⭐', label: 'meistgenutztes Emoji' },
-      { value: '27 ↑', label: 'meistgebundene Taste' },
-      { value: '7', label: 'Weihnachtsbäume im April' }
+      { value: '21', label: 'meistgebundene Taste', keycap: 'Leer' },
+      { value: '7 🎄', label: 'Weihnachtsbäume im April' }
     ],
     contentsLabel: 'In dieser Ausgabe',
     contents: [
