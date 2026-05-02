@@ -97,7 +97,7 @@ export const de: Dict = {
       { label: '4 · Ändern', text: 'Änderungen werden diskutiert.' }
     ],
     promptIntro:
-      'Bevor Besucher:innen kamen, bekam Claude einen kleinen Spickzettel: Was für eine Veranstaltung das war, wie Dateien heißen sollten, was nicht verwendet werden durfte und wie die Arbeit für Menschen ohne Programmiererfahrung angenehm bleibt. Technisch war das eine CLAUDE.md-Datei; an der Station waren es einfach die Hausregeln für den Assistenten.',
+      'Bevor Besucher:innen kamen, bekam Claude einen kleinen Spickzettel: Was für eine Veranstaltung das war, wie Dateien heißen sollten und wie die Arbeit für Menschen ohne Programmiererfahrung angenehm bleibt. Technisch war das eine CLAUDE.md-Datei; an der Station waren es einfach die Hausregeln für den Assistenten.',
     promptDocument: {
       label: 'Dokument — Hausregeln, an den Assistenten ausgehändigt',
       stamp: 'Vertraulich · Intern',

@@ -97,7 +97,7 @@ export const en: Dict = {
       { label: '4 · Revise', text: 'Changes get discussed.' }
     ],
     promptIntro:
-      'Before visitors arrived, Claude got a little instruction sheet: what kind of event this was, how to name files, what not to use, and how to keep the experience friendly for people without programming experience. In developer terms this was a CLAUDE.md file; at the station it was simply the house rules for the assistant.',
+      'Before visitors arrived, Claude got a little instruction sheet: what kind of event this was, how to name files, and how to keep the experience friendly for people without programming experience. In developer terms this was a CLAUDE.md file; at the station it was simply the house rules for the assistant.',
     promptDocument: {
       label: 'Document — house rules, handed to the assistant',
       stamp: 'Confidential · internal',
