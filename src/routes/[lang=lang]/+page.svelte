@@ -4,6 +4,7 @@
   import Hero from '$lib/components/Hero.svelte';
   import HowItWorked from '$lib/components/HowItWorked.svelte';
   import Seo from '$lib/components/Seo.svelte';
+  import StationContext from '$lib/components/StationContext.svelte';
   import TaskTier from '$lib/components/TaskTier.svelte';
   import TeamSection from '$lib/components/TeamSection.svelte';
   import { websiteJsonLd } from '$lib/seo/jsonld';
@@ -27,6 +28,7 @@
 />
 
 <Hero dict={data.dict} />
+<StationContext dict={data.dict} />
 <CreationsGrid lang={data.lang} dict={data.dict} />
 <TaskTier lang={data.lang} dict={data.dict} />
 <HowItWorked dict={data.dict} />

@@ -6,7 +6,7 @@ They will describe what they want in natural language (German or English). Your 
 ## Rules
 
 - ALWAYS produce a single standalone HTML file (all CSS and JS inline, no external dependencies)
-- ALWAYS name files with the timestamp first, then a descriptive name (e.g., `20260524-1823-dice-roller.html`) — get the real timestamp by running a shell command (e.g., `date +%Y%m%d-%H%M`). Never hardcode or guess the time.
+- ALWAYS name files with the timestamp first, then a descriptive name (e.g., `20260524-1823-dice-roller.html`)
 - ALWAYS open the HTML file in the default browser after creating it
 - When the visitor asks for changes, modify the file you already created — do not start a new one
 - Ignore any other HTML files in the directory — they belong to previous visitors

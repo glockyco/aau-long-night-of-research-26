@@ -15,9 +15,9 @@ export type TeamMember = z.infer<typeof teamMemberSchema>;
 
 export const team: TeamMember[] = [
   {
-    name: 'Martin Pinzger',
-    role: { de: 'Betreuer', en: 'Supervisor' },
-    url: 'https://pinzger.github.io/'
+    name: 'Clemens Bauer',
+    role: { de: 'Kollege', en: 'colleague' },
+    url: 'https://www.aau.at/en/team/bauer-clemens/'
   },
   {
     name: 'Johann Glock',
@@ -25,8 +25,8 @@ export const team: TeamMember[] = [
     url: 'https://glockyco.com/'
   },
   {
-    name: 'Clemens Bauer',
-    role: { de: 'Kollege', en: 'colleague' },
-    url: 'https://www.aau.at/en/team/bauer-clemens/'
+    name: 'Martin Pinzger',
+    role: { de: 'Betreuer', en: 'Supervisor' },
+    url: 'https://pinzger.github.io/'
   }
 ];

@@ -46,14 +46,13 @@
   <header class="creation-header">
     <a class="creation-back" href="/{lang}">{dict.creationPage.back}</a>
     <div class="creation-title-wrap">
+      <p class="print-meta">{dict.creations.builtAt} {creation.builtAt}</p>
       <h1 class="creation-title">{creation.titleNative}</h1>
-      <span class="creation-time">{creation.builtAt}</span>
     </div>
     <a class="creation-standalone" href={standalone} target="_blank" rel="noopener">
       ↗ {dict.creationPage.openStandalone}
     </a>
   </header>
-
 
   <CreationFrame {creation} />
 
@@ -70,59 +69,74 @@
   }
 
   .creation-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 1rem;
+    align-items: end;
     margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--fg);
+    border-bottom: 1px solid var(--hair);
   }
 
-  .creation-back {
+  .creation-back,
+  .creation-standalone {
     color: var(--fg-muted);
-    font-size: 0.9rem;
+    font-family: var(--font-sans);
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
     text-decoration: none;
+    text-transform: uppercase;
   }
 
-  .creation-back:hover {
+  .creation-back:hover,
+  .creation-standalone:hover {
     color: var(--accent);
   }
 
   .creation-title-wrap {
-    display: flex;
-    flex: 1;
-    align-items: baseline;
-    gap: 0.75rem;
     min-width: 0;
+    text-align: center;
   }
 
   .creation-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    overflow-wrap: anywhere;
+    font-size: clamp(2.25rem, 5.4vw, 4.6rem);
+    letter-spacing: -0.018em;
+    line-height: 0.98;
   }
 
-  .creation-time {
-    color: var(--fg-muted);
-    font-size: 0.85rem;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .creation-standalone {
-    border-bottom: 1px dotted var(--fg-muted);
-    color: var(--fg-muted);
-    font-size: 0.9rem;
-    text-decoration: none;
-  }
-
-  .creation-standalone:hover {
-    border-bottom-color: var(--accent);
+  .creation-title-wrap .print-meta {
+    margin-bottom: 0.3rem;
     color: var(--accent);
   }
 
+  .creation-standalone {
+    border-bottom: 1px dotted currentColor;
+  }
 
   .creation-caveat {
     margin-top: 0.75rem;
     color: var(--fg-muted);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-style: italic;
     text-align: center;
+  }
+
+  @media (max-width: 720px) {
+    .creation-page {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+
+    .creation-header {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .creation-title-wrap {
+      text-align: left;
+    }
   }
 </style>

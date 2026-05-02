@@ -6,7 +6,6 @@
   }
 
   const { creation }: Props = $props();
-
   const src = $derived(`/raw/${creation.slug}.html`);
 </script>
 
@@ -26,9 +25,12 @@
     width: 100%;
     height: calc(100vh - 8rem);
     min-height: 480px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: #000;
+    padding: 3px;
+    border: 1px solid var(--fg);
+    background: var(--surface-3);
+    box-shadow:
+      0 0 0 1px var(--hair),
+      0 0 0 6px rgba(24, 20, 16, 0.05);
   }
 
   iframe {
@@ -36,5 +38,6 @@
     width: 100%;
     height: 100%;
     border: 0;
+    background: #000;
   }
 </style>
