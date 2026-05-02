@@ -68,6 +68,16 @@
     padding-left: 0;
   }
 
+  .station-copy p:first-child::first-letter {
+    float: left;
+    margin: 0.18rem 0.55rem 0 0;
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 4.1rem;
+    font-weight: 700;
+    line-height: 0.82;
+  }
+
   .station-copy p + p {
     text-indent: 1.2em;
   }

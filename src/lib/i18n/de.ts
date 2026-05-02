@@ -50,9 +50,9 @@ export const de: Dict = {
     sectionLabel: 'Aus Raum S.2.42',
     heading: 'Eine Mitmachstation über KI und Code.',
     paragraphs: [
-      'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group (SERG) die Station U27 an der Universität Klagenfurt in Raum S.2.42. Clemens Bauer, Johann Glock und Martin Pinzger unterstützten Besucher:innen, beantworteten Fragen und halfen dabei, Ideen in funktionierende Webseiten zu verwandeln.',
-      'Das Ziel war, aktuelle KI-Werkzeuge fürs Programmieren greifbar zu machen. Besucher:innen beschrieben Spiele, Werkzeuge, Quizze und Experimente in Alltagssprache. Claude Code erzeugte HTML, CSS und JavaScript. Danach wurde getestet, angepasst, kaputtgemacht, repariert und verbessert. Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich.',
-      'Vor allem sollte die Station zeigen, dass Programmieren zugänglich sein kann. Über weite Strecken war der Raum aktiv und neugierig, besonders wenn Kinder merkten, dass aus ihren Ideen spielbare kleine Webseiten werden konnten.'
+      'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group die Station U27 in Raum S.2.42 an der Universität Klagenfurt. Clemens Bauer, Johann Glock und Martin Pinzger standen am Tisch — beantworteten Fragen, sortierten Ideen und halfen Besucher:innen dabei, das, was sie im Kopf hatten, in spielbare Webseiten zu verwandeln.',
+      'Auf jedem Rechner lief dieselbe einfache Schleife. Besucher:innen sagten in Alltagssprache, was sie sich vorstellten. Claude Code schrieb HTML, CSS und JavaScript, speicherte alles in einer einzigen Datei und öffnete sie im Browser. Stimmte etwas nicht, ging das Gespräch weiter — Änderungswünsche in Alltagssprache, ohne eine Zeile Code selbst zu tippen.',
+      'Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich. Der Raum blieb aktiv und neugierig, besonders wenn Kinder merkten, dass aus einer Idee — einem Würfelspiel, einem Quiz, einem kleinen Werkzeug — innerhalb weniger Minuten eine spielbare Webseite werden konnte. Am Ende des Abends waren über hundert Seiten entstanden.'
     ]
   },
   creations: {

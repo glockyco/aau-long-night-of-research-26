@@ -50,9 +50,9 @@ export const en: Dict = {
     sectionLabel: 'From room S.2.42',
     heading: 'A hands-on station about AI and code.',
     paragraphs: [
-      'At the Long Night of Research 2026, the Software Engineering Research Group (SERG) hosted Station U27 at the University of Klagenfurt in room S.2.42. Clemens Bauer, Johann Glock, and Martin Pinzger supported visitors, answered questions, and helped turn ideas into working webpages.',
-      'The goal was to make today’s AI programming tools tangible. Visitors described games, tools, quizzes, and experiments in everyday language. Claude Code generated the HTML, CSS, and JavaScript. Then everyone could test, revise, break, fix, and improve the result. Some things worked impressively fast. Some things showed the limits just as clearly.',
-      'More than anything, the station was meant to make programming feel approachable. For much of the evening the room was active and curious, especially when kids discovered that their ideas could become playable little webpages.'
+      'At the Long Night of Research 2026, the Software Engineering Research Group hosted Station U27 in room S.2.42 at the University of Klagenfurt. Clemens Bauer, Johann Glock, and Martin Pinzger worked the floor — answering questions, untangling ideas, and helping visitors turn what they had in mind into webpages they could open and play with.',
+      'Each computer ran the same simple loop. Visitors described what they wanted in plain language. Claude Code wrote the HTML, CSS, and JavaScript, saved it as a single file, and opened it in the browser. If something was off, the conversation kept going — change requests in plain words, no typing of code, no programming knowledge required.',
+      'Some things worked impressively fast. Others showed the limits just as plainly. The room stayed active and curious, especially when kids realised that a passing idea — a dice game, a quiz, a small tool of their own — could become a working webpage within minutes. By the end of the evening more than a hundred such pages had been built and archived.'
     ]
   },
   creations: {
