@@ -17,7 +17,7 @@ export const de: Dict = {
       'Universität Klagenfurt',
       '17 bis 23 Uhr'
     ],
-    pressBannerLead: 'Webseiten, gebaut von Besucher:innen, geschrieben von einer KI.',
+    pressBannerLead: 'Besucher:innen hatten die Ideen. Die KI half beim Bauen.',
     pressBannerTrail: 'Heft 39 · Bogen I · Druckschluss 22:22'
   },
   hero: {

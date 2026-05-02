@@ -17,7 +17,7 @@ export const en: Dict = {
       'University of Klagenfurt',
       '17:00 to 23:00'
     ],
-    pressBannerLead: 'Webpages built by visitors, written by an AI.',
+    pressBannerLead: 'Visitors brought the ideas. The AI helped build them.',
     pressBannerTrail: 'Issue 39 · Sheet I · press time 22:22'
   },
   hero: {
