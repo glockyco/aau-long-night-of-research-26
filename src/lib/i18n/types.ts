@@ -118,7 +118,8 @@ export interface Dict {
     resetLabel: string;
     revealWordLabel: string;
     revealAllLabel: string;
-    successLabel: string;
+    keywordLabel: string;
+    keywordSolvedLabel: string;
     cellAriaLabel: string;
   };
   footer: {

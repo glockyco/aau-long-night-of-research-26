@@ -76,14 +76,6 @@
 
   const activeCellSet = $derived(new Set(entryCells(activeEntry)));
 
-  const solved = $derived.by(() => {
-    if (cellInfo.size === 0) return false;
-    for (const [key, info] of cellInfo) {
-      if ((inputs[key] ?? '').toUpperCase() !== info.expected) return false;
-    }
-    return true;
-  });
-
   function cellId(r: number, c: number): string {
     return `xc-${lang}-${r}-${c}`;
   }
@@ -278,6 +270,31 @@
     return acrossFirst ? [across, down] : [down, across];
   });
 
+  const keywordIndexByCell = $derived.by(() => {
+    const m = new SvelteMap<string, number>();
+    for (const cell of data.keyword.cells) {
+      m.set(`${cell.row},${cell.col}`, cell.index);
+    }
+    return m;
+  });
+
+  const keywordSlots = $derived.by(() => {
+    const ordered = [...data.keyword.cells].sort((a, b) => a.index - b.index);
+    return ordered.map((cell) => {
+      const key = `${cell.row},${cell.col}`;
+      const expected = cellInfo.get(key)?.expected ?? '';
+      const typed = (inputs[key] ?? '').toUpperCase();
+      return {
+        index: cell.index,
+        expected,
+        typed,
+        correct: expected !== '' && typed === expected
+      };
+    });
+  });
+
+  const keywordSolved = $derived(keywordSlots.length > 0 && keywordSlots.every((s) => s.correct));
+
   const rowsArray = $derived(Array.from({ length: data.rows }, (_, i) => i));
   const colsArray = $derived(Array.from({ length: data.cols }, (_, i) => i));
 </script>
@@ -303,14 +320,19 @@
           {#each rowsArray as r (r)}
             {#each colsArray as c (c)}
               {@const info = cellInfo.get(`${r},${c}`)}
+              {@const keyIdx = keywordIndexByCell.get(`${r},${c}`)}
               {#if info}
                 <div
                   class="cw-cell"
                   class:cw-active={activeCellSet.has(`${r},${c}`)}
+                  class:cw-keyword-cell={keyIdx != null}
                   role="gridcell"
                 >
                   {#if info.num != null}
                     <span class="cw-num" aria-hidden="true">{info.num}</span>
+                  {/if}
+                  {#if keyIdx != null}
+                    <span class="cw-key-badge" aria-hidden="true">{keyIdx}</span>
                   {/if}
                   <input
                     id={cellId(r, c)}
@@ -339,6 +361,26 @@
         </div>
       </div>
 
+      <div class="cw-keyword" aria-label={dict.crossword.keywordLabel}>
+        <span class="cw-keyword-label">{dict.crossword.keywordLabel}</span>
+        <ol class="cw-keyword-track">
+          {#each keywordSlots as slot (slot.index)}
+            <li
+              class="cw-keyword-slot"
+              class:cw-keyword-correct={slot.correct}
+              class:cw-keyword-filled={slot.typed !== ''}
+            >
+              <span class="cw-keyword-index" aria-hidden="true">{slot.index}</span>
+              <span class="cw-keyword-letter">{slot.typed}</span>
+            </li>
+          {/each}
+        </ol>
+        {#if keywordSolved}
+          <span class="cw-keyword-success" role="status">
+            {dict.crossword.keywordSolvedLabel}
+          </span>
+        {/if}
+      </div>
       <div class="cw-clues">
         {#each clueColumns as col (col.dir)}
           <div class="cw-clue-col">
@@ -373,9 +415,6 @@
       <button type="button" class="cw-btn cw-btn-ghost" onclick={reset}
         >{dict.crossword.resetLabel}</button
       >
-      {#if solved}
-        <span class="cw-status" role="status">{dict.crossword.successLabel}</span>
-      {/if}
     </div>
   </div>
 </section>
@@ -449,6 +488,29 @@
     pointer-events: none;
   }
 
+  .cw-cell.cw-keyword-cell:not(.cw-active) {
+    background: #ead9cf;
+  }
+
+  .cw-key-badge {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    display: grid;
+    place-items: center;
+    width: calc(var(--cell) * 0.34);
+    height: calc(var(--cell) * 0.34);
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--surface);
+    font-family: var(--font-sans);
+    font-size: calc(var(--cell) * 0.22);
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .cw-input {
     appearance: none;
     display: block;
@@ -475,6 +537,83 @@
 
   .cw-input.cw-revealed {
     color: var(--accent);
+  }
+
+  .cw-keyword {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.85rem;
+    padding-top: 0.2rem;
+  }
+
+  .cw-keyword-label {
+    color: var(--accent);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .cw-keyword-track {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cw-keyword-slot {
+    position: relative;
+    width: 2.2rem;
+    height: 2.2rem;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid var(--fg);
+    background: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .cw-keyword-slot.cw-keyword-filled:not(.cw-keyword-correct) {
+    color: var(--fg-muted);
+  }
+
+  .cw-keyword-slot.cw-keyword-correct {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--surface);
+  }
+
+  .cw-keyword-index {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .cw-keyword-slot.cw-keyword-correct .cw-keyword-index {
+    color: rgba(243, 238, 226, 0.78);
+  }
+
+  .cw-keyword-letter {
+    line-height: 1;
+  }
+
+  .cw-keyword-success {
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-style: italic;
   }
 
   .cw-clues {
@@ -586,13 +725,6 @@
     background: var(--surface-2);
     border-color: var(--fg);
     color: var(--fg);
-  }
-
-  .cw-status {
-    color: var(--accent);
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-style: italic;
   }
 
   @media (min-width: 720px) {

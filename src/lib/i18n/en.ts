@@ -138,13 +138,15 @@ export const en: Dict = {
   crossword: {
     sectionLabel: 'Crossword',
     heading: 'A puzzle break',
-    intro: 'Ten words inspired by Klagenfurt and the Long Night of Research.',
+    intro:
+      'Ten words inspired by Klagenfurt and the Long Night of Research. The cells flagged in red, read in the numbered order, spell a hidden word.',
     acrossLabel: 'Across',
     downLabel: 'Down',
     resetLabel: 'Reset',
     revealWordLabel: 'Reveal word',
     revealAllLabel: 'Reveal all',
-    successLabel: 'Solved. Nicely done.',
+    keywordLabel: 'Hidden word',
+    keywordSolvedLabel: 'Eureka!',
     cellAriaLabel: 'Letter'
   },
   footer: {

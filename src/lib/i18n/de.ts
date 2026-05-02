@@ -139,13 +139,14 @@ export const de: Dict = {
     sectionLabel: 'Kreuzworträtsel',
     heading: 'Pause für ein Rätsel',
     intro:
-      'Zehn Wörter, inspiriert von Klagenfurt und der Langen Nacht der Forschung. Umlaute werden als AE, OE, UE geschrieben.',
+      'Zehn Wörter, inspiriert von Klagenfurt und der Langen Nacht der Forschung. Umlaute werden als AE, OE, UE geschrieben. Die rot markierten Felder ergeben in der angezeigten Reihenfolge ein Lösungswort.',
     acrossLabel: 'Waagrecht',
     downLabel: 'Senkrecht',
     resetLabel: 'Zurücksetzen',
     revealWordLabel: 'Wort zeigen',
     revealAllLabel: 'Alles zeigen',
-    successLabel: 'Vollständig gelöst.',
+    keywordLabel: 'Lösungswort',
+    keywordSolvedLabel: 'Heureka!',
     cellAriaLabel: 'Buchstabe'
   },
   footer: {

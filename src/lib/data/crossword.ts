@@ -16,10 +16,22 @@ export interface CrosswordEntry {
   clue: string;
 }
 
+export interface KeywordCell {
+  index: number;
+  row: number;
+  col: number;
+}
+
+export interface CrosswordKeyword {
+  word: string;
+  cells: readonly KeywordCell[];
+}
+
 export interface CrosswordData {
   rows: number;
   cols: number;
   entries: readonly CrosswordEntry[];
+  keyword: CrosswordKeyword;
 }
 
 export const crosswordDe: CrosswordData = {
@@ -116,7 +128,19 @@ export const crosswordDe: CrosswordData = {
       answer: 'WOERTHERSEE',
       clue: 'See unweit der AAU'
     }
-  ]
+  ],
+  keyword: {
+    word: 'HEUREKA',
+    cells: [
+      { index: 1, row: 6, col: 2 },
+      { index: 2, row: 3, col: 4 },
+      { index: 3, row: 7, col: 6 },
+      { index: 4, row: 8, col: 0 },
+      { index: 5, row: 3, col: 11 },
+      { index: 6, row: 0, col: 6 },
+      { index: 7, row: 5, col: 10 }
+    ]
+  }
 };
 
 export const crosswordEn: CrosswordData = {
@@ -213,5 +237,16 @@ export const crosswordEn: CrosswordData = {
       answer: 'NIGHT',
       clue: 'The Long ___ of Research'
     }
-  ]
+  ],
+  keyword: {
+    word: 'EUREKA',
+    cells: [
+      { index: 1, row: 3, col: 11 },
+      { index: 2, row: 1, col: 8 },
+      { index: 3, row: 6, col: 0 },
+      { index: 4, row: 8, col: 11 },
+      { index: 5, row: 0, col: 5 },
+      { index: 6, row: 4, col: 2 }
+    ]
+  }
 };
