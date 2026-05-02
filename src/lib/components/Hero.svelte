@@ -3,7 +3,7 @@
 
   let { dict }: { dict: Dict } = $props();
 
-  const sectionAnchors = ['#station', '#creations', '#tasks', '#how', '#team'];
+  const sectionAnchors = ['#station', '#creations', '#tasks', '#how', '#crossword', '#team'];
 
   const rhythmHours = [
     { hour: 17, saves: 22 },
