@@ -78,7 +78,29 @@ export const en: Dict = {
     sectionLabel: 'How it worked',
     heading: 'Plain language in, webpage out',
     intro:
-      'Each computer ran WebStorm with the Claude Code plugin. Visitors typed what they wanted in plain language. Claude wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
+      'Each computer ran WebStorm{1} with the Claude Code plugin{2}. Visitors typed what they wanted in plain language. Claude{3} wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
+    footnotes: [
+      {
+        term: 'WebStorm',
+        body: 'JetBrains’ editor for web development.',
+        href: 'https://www.jetbrains.com/webstorm/',
+        hrefLabel: 'jetbrains.com/webstorm'
+      },
+      {
+        term: 'Claude Code plugin',
+        body: 'Anthropic’s plugin for JetBrains IDEs.',
+        href: 'https://plugins.jetbrains.com/plugin/27310-claude-code',
+        hrefLabel: 'plugins.jetbrains.com/plugin/27310-claude-code'
+      },
+      {
+        term: 'Claude',
+        body: 'Anthropic’s Claude Code — the AI tool inside the plugin.',
+        href: 'https://www.anthropic.com/claude-code',
+        hrefLabel: 'anthropic.com/claude-code'
+      }
+    ],
+    footnotesLabel: 'Footnotes',
+    footnoteBackLabel: 'Back to text',
     processPhoto: {
       alt: 'A development setup showing WebStorm with Claude Code on the left and a live browser preview of a weather page on the right.',
       caption:

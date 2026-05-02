@@ -18,6 +18,13 @@ interface ProcessStep {
   text: string;
 }
 
+interface Footnote {
+  term: string;
+  body: string;
+  href: string;
+  hrefLabel: string;
+}
+
 export interface Dict {
   nav: {
     langSwitch: string;
@@ -74,6 +81,9 @@ export interface Dict {
     sectionLabel: string;
     heading: string;
     intro: string;
+    footnotes: Footnote[];
+    footnotesLabel: string;
+    footnoteBackLabel: string;
     processPhoto: {
       alt: string;
       caption: string;

@@ -53,7 +53,7 @@ export const de: Dict = {
     sectionLabel: 'Was entstanden ist',
     sectionTitle: 'Der Index der Kreationen',
     intro:
-      'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 ausgewählte Kreationen: spielbar, gut unterscheidbar und geeignet für den öffentlichen Blick ins Archiv. Enge Duplikate, heikle Themen und Versuche, die nicht zuverlässig liefen, wurden nicht aufgenommen.',
+      'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 ausgewählte Kreationen: spielbar, gut unterscheidbar und geeignet für den öffentlichen Blick ins Archiv. Enge Duplikate, heikle Themen und Versuche, die keine zuverlässigen Ergebnisse lieferten, wurden nicht aufgenommen.',
     sectionMeta: '39 Kreationen · 13:23–22:22',
     trialLabel: 'Probeläufe vor Beginn',
     trialMeta: '4 Checks · vor 17:00',
@@ -78,7 +78,29 @@ export const de: Dict = {
     sectionLabel: 'Ablauf',
     heading: 'Alltagssprache rein, Webseite raus',
     intro:
-      'Auf jedem Rechner lief WebStorm mit dem Claude-Code-Plugin. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Quellcode gewagt.',
+      'Auf jedem Rechner lief WebStorm{1} mit dem Claude-Code-Plugin{2}. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude{3} schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Quellcode gewagt.',
+    footnotes: [
+      {
+        term: 'WebStorm',
+        body: 'JetBrains’ Editor für Webentwicklung.',
+        href: 'https://www.jetbrains.com/webstorm/',
+        hrefLabel: 'jetbrains.com/webstorm'
+      },
+      {
+        term: 'Claude-Code-Plugin',
+        body: 'Anthropics Plugin für JetBrains-IDEs.',
+        href: 'https://plugins.jetbrains.com/plugin/27310-claude-code',
+        hrefLabel: 'plugins.jetbrains.com/plugin/27310-claude-code'
+      },
+      {
+        term: 'Claude',
+        body: 'Anthropics Claude Code — das KI-Werkzeug, das im Plugin steckt.',
+        href: 'https://www.anthropic.com/claude-code',
+        hrefLabel: 'anthropic.com/claude-code'
+      }
+    ],
+    footnotesLabel: 'Anmerkungen',
+    footnoteBackLabel: 'Zurück zum Text',
     processPhoto: {
       alt: 'Eine Entwicklungsumgebung mit WebStorm und Claude Code links und einer Live-Vorschau einer Wetter-Webseite rechts.',
       caption:
