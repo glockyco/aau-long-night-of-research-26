@@ -51,7 +51,7 @@ export const de: Dict = {
     heading: 'Eine Mitmachstation über KI und Code.',
     paragraphs: [
       'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group (SERG) die Station U27 an der Universität Klagenfurt in Raum S.2.42. Clemens Bauer, Johann Glock und Martin Pinzger unterstützten Besucher:innen, beantworteten Fragen und halfen dabei, Ideen in funktionierende Webseiten zu verwandeln.',
-      'Das Ziel war, aktuelle KI-Werkzeuge fürs Programmieren greifbar zu machen. Besucher:innen beschrieben Spiele, Werkzeuge, Quizze und Experimente in Alltagssprache; Claude Code erzeugte HTML, CSS und JavaScript; danach wurde getestet, angepasst, kaputtgemacht, repariert und verbessert. Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich.',
+      'Das Ziel war, aktuelle KI-Werkzeuge fürs Programmieren greifbar zu machen. Besucher:innen beschrieben Spiele, Werkzeuge, Quizze und Experimente in Alltagssprache. Claude Code erzeugte HTML, CSS und JavaScript. Danach wurde getestet, angepasst, kaputtgemacht, repariert und verbessert. Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich.',
       'Vor allem sollte die Station zeigen, dass Programmieren zugänglich sein kann. Über weite Strecken war der Raum aktiv und neugierig, besonders wenn Kinder merkten, dass aus ihren Ideen spielbare kleine Webseiten werden konnten.'
     ]
   },
@@ -97,7 +97,7 @@ export const de: Dict = {
       { label: '4 · Ändern', text: 'Änderungen werden diskutiert.' }
     ],
     promptIntro:
-      'Bevor Besucher:innen kamen, bekam Claude einen kleinen Spickzettel: Was für eine Veranstaltung das war, wie Dateien heißen sollten und wie die Arbeit für Menschen ohne Programmiererfahrung angenehm bleibt. Technisch war das eine CLAUDE.md-Datei; an der Station waren es einfach die Hausregeln für den Assistenten.',
+      'Bevor Besucher:innen kamen, bekam Claude einen kleinen Spickzettel: Was für eine Veranstaltung das war, wie Dateien heißen sollten und wie die Arbeit für Menschen ohne Programmiererfahrung angenehm bleibt. Technisch war das eine CLAUDE.md-Datei. An der Station waren es einfach die Hausregeln für den Assistenten.',
     promptDocument: {
       label: 'Dokument — Hausregeln, an den Assistenten ausgehändigt',
       stamp: 'Vertraulich · Intern',

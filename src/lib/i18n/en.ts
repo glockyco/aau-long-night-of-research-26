@@ -51,7 +51,7 @@ export const en: Dict = {
     heading: 'A hands-on station about AI and code.',
     paragraphs: [
       'At the Long Night of Research 2026, the Software Engineering Research Group (SERG) hosted Station U27 at the University of Klagenfurt in room S.2.42. Clemens Bauer, Johann Glock, and Martin Pinzger supported visitors, answered questions, and helped turn ideas into working webpages.',
-      'The goal was to make today’s AI programming tools tangible. Visitors described games, tools, quizzes, and experiments in everyday language; Claude Code generated the HTML, CSS, and JavaScript; then everyone could test, revise, break, fix, and improve the result. Some things worked impressively fast. Some things showed the limits just as clearly.',
+      'The goal was to make today’s AI programming tools tangible. Visitors described games, tools, quizzes, and experiments in everyday language. Claude Code generated the HTML, CSS, and JavaScript. Then everyone could test, revise, break, fix, and improve the result. Some things worked impressively fast. Some things showed the limits just as clearly.',
       'More than anything, the station was meant to make programming feel approachable. For much of the evening the room was active and curious, especially when kids discovered that their ideas could become playable little webpages.'
     ]
   },
@@ -97,7 +97,7 @@ export const en: Dict = {
       { label: '4 · Revise', text: 'Changes get discussed.' }
     ],
     promptIntro:
-      'Before visitors arrived, Claude got a little instruction sheet: what kind of event this was, how to name files, and how to keep the experience friendly for people without programming experience. In developer terms this was a CLAUDE.md file; at the station it was simply the house rules for the assistant.',
+      'Before visitors arrived, Claude got a little instruction sheet: what kind of event this was, how to name files, and how to keep the experience friendly for people without programming experience. In developer terms this was a CLAUDE.md file. At the station it was simply the house rules for the assistant.',
     promptDocument: {
       label: 'Document — house rules, handed to the assistant',
       stamp: 'Confidential · internal',
