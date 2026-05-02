@@ -24,7 +24,7 @@ export const en: Dict = {
     metaWhen: 'Long Night of Research 2026 · Station U27',
     kicker: 'Filed from the lab floor',
     headlineLines: ['One evening.', 'Over 100 webpages.'],
-    deck: 'Visitors described what they wanted in plain language. The AI turned those requests into complete webpages: dice, platformers, racing games, drawing tools, weather, quizzes, and more.',
+    deck: 'Six hours of hands-on station — what came out were dice rollers, platform games, racing games, drawing tools, weather dashboards, quizzes, and more.',
     facts: [
       { value: '39', label: 'creations archived' },
       { value: '13:23', label: 'first saved page' },
