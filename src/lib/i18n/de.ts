@@ -137,7 +137,7 @@ export const de: Dict = {
   },
   crossword: {
     sectionLabel: 'Kreuzworträtsel',
-    heading: 'Pause für ein Rätsel',
+    heading: 'Eine Pause zum Knobeln',
     intro:
       'Zehn Wörter, inspiriert von Klagenfurt und der Langen Nacht der Forschung. Umlaute werden als AE, OE, UE geschrieben. Die rot markierten Felder ergeben in der angezeigten Reihenfolge ein Lösungswort.',
     acrossLabel: 'Waagrecht',
