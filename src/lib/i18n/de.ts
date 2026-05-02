@@ -22,7 +22,7 @@ export const de: Dict = {
   },
   hero: {
     metaWhen: 'Lange Nacht der Forschung 2026 · Station U27',
-    kicker: 'Von Station U27',
+    kicker: 'Direkt aus dem Computerlabor',
     headlineLines: ['Ein Abend.', 'Über 100 Webseiten.'],
     deck: 'Sechs Stunden Mitmach-Station — herausgekommen sind Würfelspiele, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetterseiten, Quizze und mehr.',
     facts: [
