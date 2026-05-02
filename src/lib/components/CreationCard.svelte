@@ -11,10 +11,11 @@
 
   const { creation, lang, dict, index }: Props = $props();
   const href = $derived(`/${lang}/creations/${creation.slug}`);
+  const anchorId = $derived(`creation-${creation.slug}`);
   const number = $derived(String(index).padStart(2, '0'));
 </script>
 
-<a class="creation-card" {href}>
+<a id={anchorId} class="creation-card" {href}>
   <figure>
     <div class="creation-thumb" aria-hidden="true">
       <span class="creation-no">№ {number}</span>
@@ -36,6 +37,7 @@
 
     color: var(--fg);
     text-decoration: none;
+    scroll-margin-top: 1rem;
   }
 
   figure {

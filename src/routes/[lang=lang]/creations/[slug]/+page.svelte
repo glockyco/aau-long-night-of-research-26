@@ -19,7 +19,7 @@
       : `${creation.titleNative} — built at ${creation.builtAt} at Station U27, Long Night of Research 2026.`
   );
   const standalone = $derived(`/raw/${creation.slug}.html`);
-  const indexHref = $derived(`/${lang}#creations`);
+  const indexHref = $derived(`/${lang}#creation-${creation.slug}`);
   const creationNumber = $derived(String(data.creationIndex + 1).padStart(2, '0'));
   const previousNumber = $derived(String(data.creationIndex).padStart(2, '0'));
   const nextNumber = $derived(String(data.creationIndex + 2).padStart(2, '0'));
