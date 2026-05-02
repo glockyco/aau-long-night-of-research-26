@@ -5,12 +5,12 @@
 
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
 
-  const sectionPage = $derived(dict.hero.contents[4]?.page);
+  const sectionPage = $derived(dict.hero.contents[5]?.page);
 </script>
 
 <section class="section" id="team">
   <div class="container">
-    <SectionKicker section="§ 5" label={dict.team.sectionLabel} page={sectionPage} />
+    <SectionKicker section="§ 6" label={dict.team.sectionLabel} page={sectionPage} />
 
     <div class="section-title-row">
       <h2>{dict.team.heading}</h2>

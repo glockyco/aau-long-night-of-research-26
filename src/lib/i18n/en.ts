@@ -41,8 +41,8 @@ export const en: Dict = {
       { label: 'Creation index', page: 'p. 2' },
       { label: 'Task cards', page: 'p. 6' },
       { label: 'Behind the scenes', page: 'p. 7' },
-      { label: 'Team and credits', page: 'p. 8' },
-      { label: 'Crossword', page: 'p. 9' }
+      { label: 'Crossword', page: 'p. 8' },
+      { label: 'Team and credits', page: 'p. 9' }
     ],
     rhythmLabel: 'Webpages per hour · 91 total',
     rhythmAxisLabel: 'webpages per hour'
@@ -137,7 +137,7 @@ export const en: Dict = {
   },
   crossword: {
     sectionLabel: 'Crossword',
-    heading: 'A pause on the back page',
+    heading: 'A puzzle break',
     intro: 'Ten words inspired by Klagenfurt and the Long Night of Research.',
     acrossLabel: 'Across',
     downLabel: 'Down',

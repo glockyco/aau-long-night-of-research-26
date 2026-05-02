@@ -12,7 +12,7 @@
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
 
   const data = $derived<CrosswordData>(lang === 'de' ? crosswordDe : crosswordEn);
-  const sectionPage = $derived(dict.hero.contents[5]?.page);
+  const sectionPage = $derived(dict.hero.contents[4]?.page);
 
   type CellInfo = {
     row: number;
@@ -260,7 +260,7 @@
 
 <section class="section" id="crossword">
   <div class="container">
-    <SectionKicker section="§ 6" label={dict.crossword.sectionLabel} page={sectionPage} />
+    <SectionKicker section="§ 5" label={dict.crossword.sectionLabel} page={sectionPage} />
 
     <div class="section-title-row">
       <h2>{dict.crossword.heading}</h2>

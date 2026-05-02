@@ -41,8 +41,8 @@ export const de: Dict = {
       { label: 'Index der Kreationen', page: 'S. 2' },
       { label: 'Aufgabenkarten', page: 'S. 6' },
       { label: 'Hinter den Kulissen', page: 'S. 7' },
-      { label: 'Team und Impressum', page: 'S. 8' },
-      { label: 'Kreuzworträtsel', page: 'S. 9' }
+      { label: 'Kreuzworträtsel', page: 'S. 8' },
+      { label: 'Team und Impressum', page: 'S. 9' }
     ],
     rhythmLabel: 'Webseiten pro Stunde · 91 gesamt',
     rhythmAxisLabel: 'Webseiten pro Stunde'
@@ -137,7 +137,7 @@ export const de: Dict = {
   },
   crossword: {
     sectionLabel: 'Kreuzworträtsel',
-    heading: 'Eine Pause auf der letzten Seite',
+    heading: 'Pause für ein Rätsel',
     intro:
       'Zehn Wörter, inspiriert von Klagenfurt und der Langen Nacht der Forschung. Umlaute werden als AE, OE, UE geschrieben.',
     acrossLabel: 'Waagrecht',

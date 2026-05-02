@@ -33,5 +33,5 @@
 <CreationsGrid lang={data.lang} dict={data.dict} />
 <TaskTier lang={data.lang} dict={data.dict} />
 <HowItWorked dict={data.dict} />
-<TeamSection lang={data.lang} dict={data.dict} />
 <Crossword lang={data.lang} dict={data.dict} />
+<TeamSection lang={data.lang} dict={data.dict} />
