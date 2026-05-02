@@ -1,11 +1,11 @@
 {
-  "name": "LNF 2026 — Station U27",
-  "short_name": "LNF26 U27",
-  "description": "Showcase of the visitor-built creations from Station U27 at LNF 2026.",
+  "name": "Die U27 Gazette",
+  "short_name": "U27 Gazette",
+  "description": "Sonderausgabe zur Langen Nacht der Forschung 2026 in Klagenfurt — 91 Webseiten, an einem Abend mit KI an Station U27 gebaut.",
   "start_url": "/de",
   "display": "standalone",
-  "background_color": "#0f0f1a",
-  "theme_color": "#1a1a2e",
+  "background_color": "#f3eee2",
+  "theme_color": "#7a1d1d",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/favicon-32x32.png", "sizes": "32x32", "type": "image/png" },
