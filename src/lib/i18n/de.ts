@@ -1,6 +1,15 @@
 import type { Dict } from './types';
 
 export const de: Dict = {
+  seo: {
+    siteName: 'Die U27 Gazette',
+    homeTitle: 'Die U27 Gazette · Lange Nacht der Forschung 2026',
+    homeDescription:
+      'Eine Sonderausgabe zur Langen Nacht der Forschung 2026 in Klagenfurt: 91 Webseiten, in sechs Stunden mit KI an Station U27 gebaut — gesammelt und kommentiert.',
+    ogImagePath: '/og-default.png',
+    ogImageAlt:
+      'Titelblatt der U27 Gazette in Cremeton mit dem Schriftzug „Die U27 Gazette" und der Zeile „Sonderausgabe zur Langen Nacht der Forschung 2026".'
+  },
   nav: {
     langSwitch: 'EN',
     folio: 'Die U27 Gazette',

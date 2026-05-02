@@ -12,11 +12,18 @@
   const previousCreation = $derived(data.previousCreation);
   const nextCreation = $derived(data.nextCreation);
 
-  const title = $derived(`${creation.titleNative} — LNF 2026 / U27`);
+  const siteName = $derived(dict.seo.siteName);
+  const title = $derived(`${creation.titleNative} · ${siteName}`);
   const description = $derived(
     lang === 'de'
       ? `${creation.titleNative} — gebaut um ${creation.builtAt} an Station U27, Lange Nacht der Forschung 2026.`
       : `${creation.titleNative} — built at ${creation.builtAt} at Station U27, Long Night of Research 2026.`
+  );
+  const ogImage = $derived(`/creations/${creation.slug}-og.webp`);
+  const ogImageAlt = $derived(
+    lang === 'de'
+      ? `Screenshot der Kreation „${creation.titleNative}", gebaut an Station U27 um ${creation.builtAt}.`
+      : `Screenshot of the creation "${creation.titleNative}", built at Station U27 at ${creation.builtAt}.`
   );
   const standalone = $derived(`/raw/${creation.slug}.html`);
   const indexHref = $derived(`/${lang}#creation-${creation.slug}`);
@@ -37,7 +44,8 @@
       title: creation.titleNative,
       slug: creation.slug,
       builtAt: creation.builtAt,
-      lang
+      lang,
+      siteName
     })
   ]);
 </script>
@@ -47,7 +55,9 @@
   {description}
   path={page.url.pathname}
   {lang}
-  image="/creations/{creation.slug}-og.webp"
+  {siteName}
+  image={ogImage}
+  imageAlt={ogImageAlt}
   {jsonLd}
 />
 

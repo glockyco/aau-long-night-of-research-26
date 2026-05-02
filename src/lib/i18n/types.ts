@@ -29,7 +29,21 @@ interface Footnote {
   hrefLabel: string;
 }
 
+interface SeoBlock {
+  /** Brand name; used in og:site_name and as the suffix on inner page titles. */
+  siteName: string;
+  /** Full <title> for the landing page. */
+  homeTitle: string;
+  /** <meta name="description"> for the landing page. */
+  homeDescription: string;
+  /** Path to the OG card for this locale. */
+  ogImagePath: string;
+  /** Descriptive alt text for the OG card. */
+  ogImageAlt: string;
+}
+
 export interface Dict {
+  seo: SeoBlock;
   nav: {
     langSwitch: string;
     folio: string;

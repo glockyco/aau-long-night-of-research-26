@@ -8,24 +8,36 @@
   import StationContext from '$lib/components/StationContext.svelte';
   import TaskTier from '$lib/components/TaskTier.svelte';
   import TeamSection from '$lib/components/TeamSection.svelte';
-  import { websiteJsonLd } from '$lib/seo/jsonld';
+  import { eventJsonLd, websiteJsonLd } from '$lib/seo/jsonld';
 
   let { data } = $props();
 
-  const title = $derived(`${data.dict.hero.metaWhen} — Showcase`);
-  const description = $derived(
+  const seo = $derived(data.dict.seo);
+  const eventName = $derived(
     data.lang === 'de'
-      ? 'Was Besucher:innen am 24. April 2026 an Station U27 mit KI gebaut haben.'
-      : 'What visitors built with AI at Station U27 on 24 April 2026.'
+      ? 'Lange Nacht der Forschung 2026 · Station U27'
+      : 'Long Night of Research 2026 · Station U27'
   );
+  const jsonLd = $derived([
+    websiteJsonLd({ lang: data.lang, siteName: seo.siteName }),
+    eventJsonLd({
+      lang: data.lang,
+      name: eventName,
+      description: seo.homeDescription,
+      imagePath: seo.ogImagePath
+    })
+  ]);
 </script>
 
 <Seo
-  {title}
-  {description}
+  title={seo.homeTitle}
+  description={seo.homeDescription}
   path={page.url.pathname}
   lang={data.lang}
-  jsonLd={websiteJsonLd(data.lang)}
+  siteName={seo.siteName}
+  image={seo.ogImagePath}
+  imageAlt={seo.ogImageAlt}
+  {jsonLd}
 />
 
 <Hero dict={data.dict} />

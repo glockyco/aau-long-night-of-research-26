@@ -1,16 +1,15 @@
 /**
- * Canonical site identity for SEO.
- * Updating any constant here flows into <Seo>, the sitemap, and OG/Twitter.
+ * URL helpers and image dimensions for SEO.
+ *
+ * Localized strings (siteName, titles, descriptions, OG image path/alt)
+ * live in `Dict.seo`; everything here is language-neutral.
  */
 import type { Lang } from '$lib/i18n';
 
 export const SITE_URL = 'https://lnf26.glockyco.com';
-export const SITE_NAME = 'LNF 2026 — Station U27';
 
-export const OG_IMAGE_PATH = '/og-default.png';
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
-export const OG_IMAGE_ALT = 'LNF 2026 Station U27 logo and title card';
 
 export const OG_LOCALES: Record<Lang, string> = {
   de: 'de_AT',
@@ -28,8 +27,8 @@ export function canonicalUrl(path: string): string {
   return `${SITE_URL}${normalized.replace(/\/$/, '')}`;
 }
 
-/** Absolute URL for an OG image. Defaults to the site OG image. */
-export function ogImageUrl(path: string = OG_IMAGE_PATH): string {
+/** Absolute URL for an OG image path. */
+export function ogImageUrl(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   return `${SITE_URL}${normalized}`;
 }

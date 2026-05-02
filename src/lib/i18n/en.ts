@@ -1,6 +1,15 @@
 import type { Dict } from './types';
 
 export const en: Dict = {
+  seo: {
+    siteName: 'The U27 Gazette',
+    homeTitle: 'The U27 Gazette · Long Night of Research 2026',
+    homeDescription:
+      'A special issue for the Long Night of Research 2026 in Klagenfurt: ninety-one webpages, built in six hours with AI at Station U27 — collected and annotated.',
+    ogImagePath: '/og-default-en.png',
+    ogImageAlt:
+      'Cream Gazette nameplate reading "The U27 Gazette" above the line "Special issue for the Long Night of Research 2026".'
+  },
   nav: {
     langSwitch: 'DE',
     folio: 'The U27 Gazette',
