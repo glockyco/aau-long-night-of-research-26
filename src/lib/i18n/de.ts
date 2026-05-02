@@ -46,7 +46,7 @@ export const de: Dict = {
     paragraphs: [
       'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group die Station U27 in Raum S.2.42 an der Universität Klagenfurt. Clemens Bauer, Johann Glock und Martin Pinzger waren vor Ort — beantworteten Fragen, sortierten Ideen und halfen Besucher:innen dabei, das, was sie im Kopf hatten, in spielbare Webseiten zu verwandeln.',
       'Das Ziel: aktuelle KI-Werkzeuge fürs Programmieren greifbar machen. Auf jedem Rechner lief dieselbe einfache Schleife. Besucher:innen sagten in Alltagssprache, was sie sich vorstellten. Claude Code schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Stimmte etwas nicht, sagte man es Claude — wie in jedem Gespräch.',
-      'Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich. Der Raum blieb aktiv und neugierig, besonders wenn Kinder merkten, dass aus einer Idee — einem Würfelspiel, einem Quiz, einem kleinen Werkzeug — innerhalb weniger Minuten eine spielbare Webseite werden konnte. Am Ende des Abends waren über hundert Seiten entstanden.'
+      'Manches funktionierte beeindruckend schnell. Manches zeigte die Grenzen genauso deutlich. Im Raum blieb es lebendig und neugierig, besonders wenn Kinder merkten, dass aus einer Idee — einem Würfelspiel, einem Quiz, einem kleinen Werkzeug — innerhalb weniger Minuten eine spielbare Webseite werden konnte. Am Ende des Abends waren über hundert Seiten entstanden.'
     ]
   },
   creations: {
