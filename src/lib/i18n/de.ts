@@ -42,7 +42,7 @@ export const de: Dict = {
   },
   context: {
     sectionLabel: 'Aus Raum S.2.42',
-    heading: 'Eine Mitmachstation über KI und Code.',
+    heading: 'Eine Mitmachstation über KI und Code',
     paragraphs: [
       'Bei der Langen Nacht der Forschung 2026 betreute die Software Engineering Research Group die Station U27 in Raum S.2.42 an der Universität Klagenfurt. Clemens Bauer, Johann Glock und Martin Pinzger waren vor Ort — beantworteten Fragen, sortierten Ideen und halfen Besucher:innen dabei, das, was sie im Kopf hatten, in spielbare Webseiten zu verwandeln.',
       'Das Ziel: aktuelle KI-Werkzeuge fürs Programmieren greifbar machen. Auf jedem Rechner lief dieselbe einfache Schleife. Besucher:innen sagten in Alltagssprache, was sie sich vorstellten. Claude Code schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Stimmte etwas nicht, sagte man es Claude — wie in jedem Gespräch.',
@@ -51,7 +51,7 @@ export const de: Dict = {
   },
   creations: {
     sectionLabel: 'Was entstanden ist',
-    sectionTitle: 'Der Index der Arbeiten.',
+    sectionTitle: 'Der Index der Arbeiten',
     intro:
       'Insgesamt entstanden über 100 Webseiten. Dieser Index zeigt 39 kuratierte Arbeiten: spielbar, unterscheidbar und für die Präsentation geeignet. Enge Duplikate, problematische Themen und Versuche, die nicht zuverlässig liefen, bleiben draußen.',
     sectionMeta: '39 Einträge · 13:23–22:22',
@@ -63,7 +63,7 @@ export const de: Dict = {
   },
   tasks: {
     sectionLabel: 'Aufgabenkarten',
-    heading: 'Ideen zum Mitnehmen.',
+    heading: 'Ideen zum Mitnehmen',
     meta: 'PDF verfügbar',
     intro:
       'Auf dem Tisch lagen drei Stapel Aufgabenkarten: einfach, mittel und schwer. Jede Karte gab einen Startpunkt und eine kurze Checkliste für das Ergebnis. Darüber hinaus wurden Besucher:innen ermutigt, eigene Ideen zu probieren.',
@@ -76,7 +76,7 @@ export const de: Dict = {
   },
   how: {
     sectionLabel: 'Ablauf',
-    heading: 'Alltagssprache rein, Webseite raus.',
+    heading: 'Alltagssprache rein, Webseite raus',
     intro:
       'Kein Programmierwissen. Kein Code tippen. Auf jedem Rechner lief WebStorm mit dem Claude-Code-Plugin. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Source Code gewagt.',
     processPhoto: {
@@ -102,7 +102,7 @@ export const de: Dict = {
   },
   team: {
     sectionLabel: 'Wer wir sind',
-    heading: 'Das Team an der Station.',
+    heading: 'Das Team an der Station',
     affiliation:
       'Wir gehören zur Software Engineering Research Group (SERG) an der Universität Klagenfurt.'
   },

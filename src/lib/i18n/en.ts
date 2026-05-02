@@ -42,7 +42,7 @@ export const en: Dict = {
   },
   context: {
     sectionLabel: 'From room S.2.42',
-    heading: 'A hands-on station about AI and code.',
+    heading: 'A hands-on station about AI and code',
     paragraphs: [
       'At the Long Night of Research 2026, the Software Engineering Research Group hosted Station U27 in room S.2.42 at the University of Klagenfurt. Clemens Bauer, Johann Glock, and Martin Pinzger were on hand — answering questions, untangling ideas, and helping visitors turn what they had in mind into webpages they could open, play with, and refine.',
       'The goal: make today’s AI programming tools tangible. Every computer ran the same simple loop. Visitors described what they wanted in plain language. Claude Code wrote the HTML, CSS, and JavaScript, saved it as one file, and opened it in the browser. If something was off, the visitor just said so — and the conversation kept going, like any other.',
@@ -51,7 +51,7 @@ export const en: Dict = {
   },
   creations: {
     sectionLabel: 'What got built',
-    sectionTitle: 'The creation index.',
+    sectionTitle: 'The creation index',
     intro:
       'More than 100 webpages were created over the evening. This index shows 39 curated works: playable, distinct, and suitable for presentation. Close duplicates, problematic topics, and attempts that did not run reliably are left out.',
     sectionMeta: '39 entries · 13:23–22:22',
@@ -63,7 +63,7 @@ export const en: Dict = {
   },
   tasks: {
     sectionLabel: 'Task cards',
-    heading: 'Ideas to take with you.',
+    heading: 'Ideas to take with you',
     meta: 'PDF available',
     intro:
       'Three stacks of task cards sat on the table: easy, medium, hard. Each card gave visitors a concrete starting point and a short checklist for judging the result. Beyond this, they were highly encouraged to explore their own ideas.',
@@ -76,7 +76,7 @@ export const en: Dict = {
   },
   how: {
     sectionLabel: 'How it worked',
-    heading: 'Plain language in, webpage out.',
+    heading: 'Plain language in, webpage out',
     intro:
       'No programming knowledge. No typing code. Each computer ran WebStorm with the Claude Code plugin. Visitors typed what they wanted in plain language. Claude wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
     processPhoto: {
@@ -102,7 +102,7 @@ export const en: Dict = {
   },
   team: {
     sectionLabel: 'Who we are',
-    heading: 'The people at the station.',
+    heading: 'The people at the station',
     affiliation:
       'We are with the Software Engineering Research Group (SERG) at the University of Klagenfurt.'
   },
