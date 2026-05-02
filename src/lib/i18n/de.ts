@@ -7,7 +7,6 @@ export const de: Dict = {
     nameplatePrefix: 'Die U27',
     nameplateMiddle: '',
     nameplateTitle: 'Gazette',
-    edition: 'Sonderausgabe · 39 spielbare Webseiten · 24. April 2026',
     runningHead: '¶ Die U27 Gazette · Nachtdruck · Bogen I',
     archiveLine: 'Seite 1 · 24.IV.MMXXVI · Archiv-Nr. 7459',
     dateline: ['Klagenfurt, Freitag', '24. April 2026'],
@@ -22,13 +21,8 @@ export const de: Dict = {
     pressBannerTrail: 'Heft 39 · Bogen I · Druckschluss 22:22'
   },
   hero: {
-    line1: 'Besucher:innen beschrieben eine Webseite.',
-    line2: 'Claude baute sie im Browser.',
-    line3: 'Hier ist das Archiv.',
     metaWhen: 'Lange Nacht der Forschung 2026 · Station U27',
-    metaWhere: 'Universität Klagenfurt · 24. April · 17:00–23:00',
     kicker: 'Von Station U27',
-    headline: 'Ein Abend. 100+ Webseiten.',
     headlineLines: ['Ein Abend.', '100+ Webseiten.'],
     deck: 'Besucher:innen beschrieben in Alltagssprache, was sie bauen wollten. Claude Code machte daraus vollständige Webseiten: Würfel, Jump-and-Runs, Rennspiele, Zeichenwerkzeuge, Wetter, Quizze und mehr.',
     facts: [
@@ -104,8 +98,7 @@ export const de: Dict = {
       footerLeft: '¶ Seite 1 von 1 · Hausregeln, ungekürzt',
       footerMiddle: 'Gegenzeichnung JG ✓',
       footerRight: 'Druckfreigabe · 24. IV. MMXXVI · 12:55 Uhr'
-    },
-    promptLabel: 'Hausregeln für Claude vor Beginn der Veranstaltung'
+    }
   },
   team: {
     sectionLabel: 'Wer wir sind',
@@ -115,9 +108,7 @@ export const de: Dict = {
   },
   footer: {
     officialPage: 'Offizielle Stations-Seite',
-    repo: 'Repository',
-    systemPrompt: 'System-Prompt',
-    builtWith: 'Gebaut mit Claude Code'
+    repo: 'Repository'
   },
   creationPage: {
     backToIndex: '← Zurück zum Index',

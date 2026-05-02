@@ -7,7 +7,6 @@ export const en: Dict = {
     nameplatePrefix: 'The U27',
     nameplateMiddle: '',
     nameplateTitle: 'Gazette',
-    edition: 'Special issue · 39 playable webpages · 24 April 2026',
     runningHead: '¶ The U27 Gazette · Station U27 · Sheet I',
     archiveLine: 'Page 1 · 24.IV.MMXXVI · Archive No. 7459',
     dateline: ['Klagenfurt, Friday', '24 April 2026'],
@@ -22,13 +21,8 @@ export const en: Dict = {
     pressBannerTrail: 'Issue 39 · Sheet I · final save 22:22'
   },
   hero: {
-    line1: 'Visitors described a webpage.',
-    line2: 'Claude built it in the browser.',
-    line3: 'Here is the archive.',
     metaWhen: 'Long Night of Research 2026 · Station U27',
-    metaWhere: 'University of Klagenfurt · 24 April · 17:00–23:00',
     kicker: 'Filed from the lab floor',
-    headline: 'One evening. 100+ webpages.',
     headlineLines: ['One evening.', '100+ webpages.'],
     deck: 'Visitors described what they wanted in plain language. Claude Code turned those requests into complete webpages: dice, platformers, racing games, drawing tools, weather, quizzes, and more.',
     facts: [
@@ -104,8 +98,7 @@ export const en: Dict = {
       footerLeft: '¶ Page 1 of 1 · House rules, unabridged',
       footerMiddle: 'Countersigned JG ✓',
       footerRight: 'Print clearance · 24. IV. MMXXVI · 12:55'
-    },
-    promptLabel: 'House rules given to Claude before visitors arrived'
+    }
   },
   team: {
     sectionLabel: 'Who we are',
@@ -115,9 +108,7 @@ export const en: Dict = {
   },
   footer: {
     officialPage: 'Official station page',
-    repo: 'Repository',
-    systemPrompt: 'System prompt',
-    builtWith: 'Built with Claude Code'
+    repo: 'Repository'
   },
   creationPage: {
     backToIndex: '← Back to creation index',

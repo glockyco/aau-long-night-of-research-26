@@ -25,7 +25,6 @@ export interface Dict {
     nameplatePrefix: string;
     nameplateMiddle: string;
     nameplateTitle: string;
-    edition: string;
     runningHead: string;
     archiveLine: string;
     dateline: string[];
@@ -35,13 +34,8 @@ export interface Dict {
     pressBannerTrail: string;
   };
   hero: {
-    line1: string;
-    line2: string;
-    line3: string;
     metaWhen: string;
-    metaWhere: string;
     kicker: string;
-    headline: string;
     headlineLines: string[];
     deck: string;
     facts: HeroFact[];
@@ -93,7 +87,6 @@ export interface Dict {
       footerMiddle: string;
       footerRight: string;
     };
-    promptLabel: string;
   };
   team: {
     sectionLabel: string;
@@ -103,8 +96,6 @@ export interface Dict {
   footer: {
     officialPage: string;
     repo: string;
-    systemPrompt: string;
-    builtWith: string;
   };
   creationPage: {
     backToIndex: string;
