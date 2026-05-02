@@ -78,7 +78,7 @@ export const de: Dict = {
     sectionLabel: 'Ablauf',
     heading: 'Alltagssprache rein, Webseite raus',
     intro:
-      'Kein Programmierwissen. Kein Code tippen. Auf jedem Rechner lief WebStorm mit dem Claude-Code-Plugin. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Quellcode gewagt.',
+      'Auf jedem Rechner lief WebStorm mit dem Claude-Code-Plugin. Besucher:innen beschrieben in Alltagssprache, was sie wollten. Claude schrieb HTML, CSS und JavaScript, speicherte alles in eine Datei und öffnete sie im Browser. Wenn etwas nicht passte, wurden Änderungswünsche wieder in Alltagssprache mit Claude diskutiert — oder ein Blick hinter die Kulissen auf den Quellcode gewagt.',
     processPhoto: {
       alt: 'Eine Entwicklungsumgebung mit WebStorm und Claude Code links und einer Live-Vorschau einer Wetter-Webseite rechts.',
       caption:

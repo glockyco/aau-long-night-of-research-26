@@ -78,7 +78,7 @@ export const en: Dict = {
     sectionLabel: 'How it worked',
     heading: 'Plain language in, webpage out',
     intro:
-      'No programming knowledge. No typing code. Each computer ran WebStorm with the Claude Code plugin. Visitors typed what they wanted in plain language. Claude wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
+      'Each computer ran WebStorm with the Claude Code plugin. Visitors typed what they wanted in plain language. Claude wrote HTML, CSS, and JavaScript, saved everything to a file, and opened it in the browser. If something was off, changes were discussed with Claude in plain language — or visitors took a look behind the scenes at the source code.',
     processPhoto: {
       alt: 'A development setup showing WebStorm with Claude Code on the left and a live browser preview of a weather page on the right.',
       caption:
