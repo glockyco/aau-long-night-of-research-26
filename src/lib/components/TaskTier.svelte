@@ -4,6 +4,7 @@
   import type { Dict, Lang } from '$lib/i18n';
   import SectionKicker from './SectionKicker.svelte';
   import TaskRow from './TaskRow.svelte';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   interface Props {
     lang: Lang;
@@ -22,7 +23,7 @@
 
   const activeTasks = $derived(tasksByDifficulty(active));
   const pdfHref = $derived(`/tasks/${active}.pdf`);
-  const sectionPage = $derived(dict.hero.contents[2]?.page);
+  const sectionPage = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.tasks));
 </script>
 
 <section class="section" id="tasks">

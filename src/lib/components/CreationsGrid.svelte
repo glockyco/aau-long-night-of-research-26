@@ -5,6 +5,7 @@
   import type { Dict, Lang } from '$lib/i18n';
   import CreationCard from './CreationCard.svelte';
   import SectionKicker from './SectionKicker.svelte';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
 
@@ -41,7 +42,7 @@
   const filteredTrial = $derived(trialIndexed.filter((e) => matchesFilters(e.creation)));
   const filteredEvent = $derived(eventIndexed.filter((e) => matchesFilters(e.creation)));
 
-  const sectionPage = $derived(dict.hero.contents[1]?.page);
+  const sectionPage = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.creations));
 
   async function toggleFilter(key: 'mobile' | 'multi') {
     const url = new URL(page.url);

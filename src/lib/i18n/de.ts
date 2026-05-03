@@ -46,15 +46,18 @@ export const de: Dict = {
     ],
     contentsLabel: 'In dieser Ausgabe',
     contents: [
-      { label: 'Aus Raum S.2.42', page: 'S. 1' },
-      { label: 'Index der Kreationen', page: 'S. 2' },
-      { label: 'Aufgabenkarten', page: 'S. 6' },
-      { label: 'Hinter den Kulissen', page: 'S. 7' },
-      { label: 'Kreuzworträtsel', page: 'S. 8' },
-      { label: 'Team und Impressum', page: 'S. 9' }
+      { label: 'Aus Raum S.2.42' },
+      { label: 'Index der Kreationen' },
+      { label: 'Aufgabenkarten' },
+      { label: 'Hinter den Kulissen' },
+      { label: 'Kreuzworträtsel' },
+      { label: 'Team und Impressum' }
     ],
+    pageLabelTemplate: 'S. {n}',
     rhythmLabel: 'Webseiten pro Stunde · 91 gesamt',
-    rhythmAxisLabel: 'Webseiten pro Stunde'
+    rhythmAxisLabel: 'Webseiten pro Stunde',
+    sectionLensLabel: 'Sprung zu Abschnitt',
+    languageSwitchLabel: 'Sprache'
   },
   context: {
     sectionLabel: 'Aus Raum S.2.42',

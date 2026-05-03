@@ -2,10 +2,11 @@
   import { team } from '$lib/data/team';
   import type { Dict, Lang } from '$lib/i18n';
   import SectionKicker from './SectionKicker.svelte';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
 
-  const sectionPage = $derived(dict.hero.contents[5]?.page);
+  const sectionPage = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.team));
 </script>
 
 <section class="section" id="team">

@@ -14,7 +14,6 @@ interface HeroFact {
 
 interface IssueEntry {
   label: string;
-  page: string;
 }
 
 interface ProcessStep {
@@ -66,8 +65,14 @@ export interface Dict {
     facts: HeroFact[];
     contentsLabel: string;
     contents: IssueEntry[];
+    /** Template for the print-style page label. `{n}` is replaced with the computed page number. */
+    pageLabelTemplate: string;
     rhythmLabel: string;
     rhythmAxisLabel: string;
+    /** A11y label for the floating navigation lens (TOC + language). */
+    sectionLensLabel: string;
+    /** Heading inside the lens menu for the language switcher. */
+    languageSwitchLabel: string;
   };
   context: {
     sectionLabel: string;

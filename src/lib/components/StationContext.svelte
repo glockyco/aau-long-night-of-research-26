@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { Dict } from '$lib/i18n';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
   import SectionKicker from './SectionKicker.svelte';
 
   let { dict }: { dict: Dict } = $props();
 
-  const pageNo = $derived(dict.hero.contents[0]?.page);
+  const pageNo = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.station));
 </script>
 
 <section class="section station-context" id="station">

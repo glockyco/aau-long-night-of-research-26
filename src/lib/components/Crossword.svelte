@@ -8,11 +8,12 @@
   import type { Dict, Lang } from '$lib/i18n';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import SectionKicker from './SectionKicker.svelte';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   let { lang, dict }: { lang: Lang; dict: Dict } = $props();
 
   const data = $derived<CrosswordData>(lang === 'de' ? crosswordDe : crosswordEn);
-  const sectionPage = $derived(dict.hero.contents[4]?.page);
+  const sectionPage = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.crossword));
 
   type CellInfo = {
     row: number;

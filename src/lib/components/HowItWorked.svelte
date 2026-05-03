@@ -2,10 +2,11 @@
   import { systemPrompt } from '$lib/content/system-prompt';
   import type { Dict } from '$lib/i18n';
   import SectionKicker from './SectionKicker.svelte';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   let { dict }: { dict: Dict } = $props();
 
-  const sectionPage = $derived(dict.hero.contents[3]?.page);
+  const sectionPage = $derived(formatPage(dict.hero.pageLabelTemplate, pageNumbers.how));
 
   type IntroPart = { kind: 'text'; value: string } | { kind: 'fn'; n: number };
 

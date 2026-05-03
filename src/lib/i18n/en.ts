@@ -46,15 +46,18 @@ export const en: Dict = {
     ],
     contentsLabel: 'In this issue',
     contents: [
-      { label: 'From room S.2.42', page: 'p. 1' },
-      { label: 'Creation index', page: 'p. 2' },
-      { label: 'Task cards', page: 'p. 6' },
-      { label: 'Behind the scenes', page: 'p. 7' },
-      { label: 'Crossword', page: 'p. 8' },
-      { label: 'Team and credits', page: 'p. 9' }
+      { label: 'From room S.2.42' },
+      { label: 'Creation index' },
+      { label: 'Task cards' },
+      { label: 'Behind the scenes' },
+      { label: 'Crossword' },
+      { label: 'Team and credits' }
     ],
+    pageLabelTemplate: 'p. {n}',
     rhythmLabel: 'Webpages per hour · 91 total',
-    rhythmAxisLabel: 'webpages per hour'
+    rhythmAxisLabel: 'webpages per hour',
+    sectionLensLabel: 'Jump to section',
+    languageSwitchLabel: 'Language'
   },
   context: {
     sectionLabel: 'From room S.2.42',

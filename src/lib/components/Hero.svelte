@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { SECTION_ANCHORS, SECTION_IDS } from '$lib/data/sections';
   import type { Dict } from '$lib/i18n';
+  import { formatPage, pageNumbers } from '$lib/state/page-numbers.svelte';
 
   let { dict }: { dict: Dict } = $props();
-
-  const sectionAnchors = ['#station', '#creations', '#tasks', '#how', '#crossword', '#team'];
 
   const rhythmHours = [
     { hour: 17, saves: 22 },
@@ -49,10 +49,12 @@
         <ol>
           {#each dict.hero.contents as item, index (item.label)}
             <li>
-              <a class="contents-row" href={sectionAnchors[index] ?? '#'}>
-                <span class="contents-no">{String(index + 1).padStart(2, '0')}</span>
+              <a class="contents-row" href={SECTION_ANCHORS[index] ?? '#'}>
+                <span class="contents-no">§ {index + 1}</span>
                 <span class="contents-title">{item.label}</span>
-                <span class="page-no">{item.page}</span>
+                <span class="page-no"
+                  >{formatPage(dict.hero.pageLabelTemplate, pageNumbers[SECTION_IDS[index]])}</span
+                >
               </a>
             </li>
           {/each}
@@ -272,7 +274,7 @@
 
   .contents-row {
     display: grid;
-    grid-template-columns: 2.4em minmax(0, 1fr) auto;
+    grid-template-columns: 2.8em minmax(0, 1fr) auto;
     gap: 0.7rem;
     align-items: baseline;
     padding: 0.32rem 0;
@@ -304,6 +306,12 @@
 
   .contents-no {
     color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .page-no {
