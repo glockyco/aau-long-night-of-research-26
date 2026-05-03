@@ -33,12 +33,6 @@
 
   const activeSection = $derived(sections.find((s) => s.id === activeId) ?? sections[0]);
 
-  function jumpToTop(event: MouseEvent) {
-    event.preventDefault();
-    menuOpen = false;
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }
-
   $effect(() => {
     if (typeof window === 'undefined') return;
 
@@ -150,7 +144,7 @@
       role="dialog"
       aria-label={dict.hero.sectionLensLabel}
     >
-      <a class="lens-top-link" href={page.url.pathname} onclick={jumpToTop}>
+      <a class="lens-top-link" href="#top" onclick={() => (menuOpen = false)}>
         <span class="top-arrow" aria-hidden="true">↑</span>
         <span>{dict.hero.topLinkLabel}</span>
       </a>

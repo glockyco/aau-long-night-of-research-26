@@ -25,7 +25,7 @@
   });
 </script>
 
-<header class="site-masthead" class:compact={isCreationPage}>
+<header class="site-masthead" class:compact={isCreationPage} id="top">
   <div class="masthead-inner">
     <div class="folio-row">
       <a class="site-brand" href="/{data.lang}"
