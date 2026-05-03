@@ -57,7 +57,8 @@ export const de: Dict = {
     rhythmLabel: 'Webseiten pro Stunde · 91 gesamt',
     rhythmAxisLabel: 'Webseiten pro Stunde',
     sectionLensLabel: 'Sprung zu Abschnitt',
-    languageSwitchLabel: 'Sprache'
+    languageSwitchLabel: 'Sprache',
+    topLinkLabel: 'Zum Anfang'
   },
   context: {
     sectionLabel: 'Aus Raum S.2.42',

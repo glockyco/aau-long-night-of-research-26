@@ -73,6 +73,8 @@ export interface Dict {
     sectionLensLabel: string;
     /** Heading inside the lens menu for the language switcher. */
     languageSwitchLabel: string;
+    /** Label for the lens menu jump back to the page top. */
+    topLinkLabel: string;
   };
   context: {
     sectionLabel: string;

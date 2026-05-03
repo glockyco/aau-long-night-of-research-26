@@ -33,6 +33,12 @@
 
   const activeSection = $derived(sections.find((s) => s.id === activeId) ?? sections[0]);
 
+  function jumpToTop(event: MouseEvent) {
+    event.preventDefault();
+    menuOpen = false;
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }
+
   $effect(() => {
     if (typeof window === 'undefined') return;
 
@@ -144,6 +150,11 @@
       role="dialog"
       aria-label={dict.hero.sectionLensLabel}
     >
+      <a class="lens-top-link" href={page.url.pathname} onclick={jumpToTop}>
+        <span class="top-arrow" aria-hidden="true">↑</span>
+        <span>{dict.hero.topLinkLabel}</span>
+      </a>
+
       <ol class="lens-toc">
         {#each sections as section (section.id)}
           {@const isActive = section.id === activeId}
@@ -265,6 +276,7 @@
     list-style: none;
   }
 
+  .lens-top-link,
   .lens-toc a {
     display: grid;
     grid-template-columns: 2.4rem minmax(0, 1fr) max-content;
@@ -281,11 +293,37 @@
       color 0.1s;
   }
 
+  .lens-top-link {
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    border-bottom: 1px solid var(--hair);
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .top-arrow {
+    color: var(--fg-muted);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: none;
+  }
+
+  .lens-top-link:hover .top-arrow {
+    color: var(--accent);
+  }
+
+  .lens-top-link:hover,
   .lens-toc a:hover {
     background: rgba(122, 29, 29, 0.06);
     color: var(--accent);
   }
 
+  .lens-top-link:focus-visible,
   .lens-toc a:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
