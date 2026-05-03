@@ -1,6 +1,10 @@
 <script lang="ts">
   import Footer from '$lib/components/Footer.svelte';
   import { page } from '$app/state';
+  import {
+    restoreLanguageScroll,
+    switchLanguagePreservingScroll
+  } from '$lib/navigation/language-scroll';
 
   let { data, children } = $props();
 
@@ -14,6 +18,11 @@
       ? `${data.dict.nav.nameplatePrefix} — ${data.dict.nav.nameplateMiddle}${data.dict.nav.nameplateTitle}`
       : `${data.dict.nav.nameplatePrefix} ${data.dict.nav.nameplateTitle}`
   );
+
+  $effect(() => {
+    const path = page.url.pathname;
+    return restoreLanguageScroll(path);
+  });
 </script>
 
 <header class="site-masthead" class:compact={isCreationPage}>
@@ -26,7 +35,13 @@
       {#if !isCreationPage}
         <span class="archive-line">{data.dict.nav.archiveLine}</span>
       {/if}
-      <a class="lang-toggle" href={altPath} hreflang={altLang}>{data.dict.nav.langSwitch}</a>
+      <a
+        class="lang-toggle"
+        href={altPath}
+        hreflang={altLang}
+        onclick={(event) => switchLanguagePreservingScroll(event, altPath)}
+        >{data.dict.nav.langSwitch}</a
+      >
     </div>
 
     {#if !isCreationPage}

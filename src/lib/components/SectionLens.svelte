@@ -2,6 +2,7 @@
   import { page } from '$app/state';
   import { buildSections, SECTION_IDS, type SectionId } from '$lib/data/sections';
   import type { Dict, Lang } from '$lib/i18n';
+  import { switchLanguagePreservingScroll } from '$lib/navigation/language-scroll';
   import { SvelteSet } from 'svelte/reactivity';
   import {
     attachPageNumberTracker,
@@ -166,8 +167,14 @@
         <span class="langs-label">{dict.hero.languageSwitchLabel}</span>
         <span class="langs-current" aria-current="true">{lang.toUpperCase()}</span>
         <span class="langs-sep" aria-hidden="true">·</span>
-        <a class="langs-link" href={altPath} hreflang={altLang} onclick={() => (menuOpen = false)}
-          >{altLang.toUpperCase()}</a
+        <a
+          class="langs-link"
+          href={altPath}
+          hreflang={altLang}
+          onclick={(event) => {
+            switchLanguagePreservingScroll(event, altPath);
+            menuOpen = false;
+          }}>{altLang.toUpperCase()}</a
         >
       </div>
     </div>
