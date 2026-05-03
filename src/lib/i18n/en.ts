@@ -64,9 +64,9 @@ export const en: Dict = {
     sectionLabel: 'From room S.2.42',
     heading: 'A hands-on station about AI and code',
     paragraphs: [
-      'At the Long Night of Research 2026, the Software Engineering Research Group hosted Station U27 in room S.2.42 at the University of Klagenfurt. Clemens Bauer, Johann Glock, and Martin Pinzger were on hand — answering questions, untangling ideas, and helping visitors turn what they had in mind into webpages they could open, play with, and refine.',
-      'The goal: make today’s AI programming tools tangible. Every computer ran the same simple loop. Visitors described what they wanted in plain language. The AI wrote the HTML, CSS, and JavaScript, saved it as one file, and opened it in the browser. If something was off, the visitor just said so — and the conversation kept going, like any other.',
-      'Some things worked impressively fast. Others showed the limits just as plainly. The room stayed active and curious, especially when kids realised that a passing idea — a dice game, a quiz, a small tool of their own — could become a working webpage within minutes. By the end of the evening over ninety such pages had been built.'
+      'At the Long Night of Research 2026, the Software Engineering Research Group hosted Station U27 in room S.2.42 at the University of Klagenfurt. Clemens Bauer, Johann Glock, and Martin Pinzger were there to support the visitors — answering questions, untangling ideas, and helping visitors turn what they had imagined into playable webpages.',
+      'The goal: make today’s AI programming tools tangible. Every computer ran the same simple loop. Visitors described what they wanted in plain language. The AI wrote the HTML, CSS, and JavaScript, saved it as one file, and opened it in the browser. If something was off, the visitor said so — like any conversation, as a back and forth between visitor and AI.',
+      'Some things worked impressively fast. Others showed the limits just as plainly. The room stayed active and curious, especially when kids realized that a passing idea — a dice game, a quiz, a small tool of their own — could become a working webpage within minutes. By the end of the evening, over ninety pages had been built — a visible archive of the night.'
     ]
   },
   creations: {
