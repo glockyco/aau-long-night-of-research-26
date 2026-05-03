@@ -165,7 +165,7 @@ export const creations: Creation[] = [
     titleNative: 'Hundespiel',
     builtAt: '18:13',
     thumbnail: '/creations/hundespiel-1813.webp',
-    mobile: 'yes',
+    mobile: 'no',
     players: 1
   },
   {
@@ -309,7 +309,7 @@ export const creations: Creation[] = [
     titleNative: 'Darts 301 – Harpunen Edition',
     builtAt: '21:04',
     thumbnail: '/creations/darts-301-2104.webp',
-    mobile: 'limited',
+    mobile: 'yes',
     players: 2
   },
   {
@@ -327,7 +327,7 @@ export const creations: Creation[] = [
     titleNative: 'Defender Highway',
     builtAt: '21:13',
     thumbnail: '/creations/defender-highway-2113.webp',
-    mobile: 'yes',
+    mobile: 'limited',
     players: 1
   },
   {
