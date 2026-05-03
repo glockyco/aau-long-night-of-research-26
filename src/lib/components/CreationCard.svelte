@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Creation } from '$lib/data/creations';
   import type { Dict, Lang } from '$lib/i18n';
+  import CreationTags from './CreationTags.svelte';
 
   interface Props {
     creation: Creation;
@@ -24,6 +25,9 @@
     <figcaption class="creation-meta">
       <h3 class="creation-title">{creation.titleNative}</h3>
       <span class="creation-time">{dict.creations.builtAt} {creation.builtAt}</span>
+      <div class="tags-row">
+        <CreationTags {creation} {dict} />
+      </div>
     </figcaption>
   </figure>
 </a>
@@ -101,6 +105,11 @@
     text-transform: uppercase;
     white-space: nowrap;
     text-align: right;
+  }
+
+  .tags-row {
+    grid-column: 1 / -1;
+    padding-top: 0.42rem;
   }
 
   .creation-card:hover {

@@ -75,7 +75,17 @@ export const en: Dict = {
     trialMeta: '4 checks · before 17:00',
     eventLabel: 'Built during the event',
     eventMeta: '35 visitor creations · from 17:06',
-    builtAt: 'built at'
+    builtAt: 'built at',
+    tagMobileYes: 'MOBILE · YES',
+    tagMobileLimited: 'MOBILE · PARTIAL',
+    tagMobileNo: 'MOBILE · NO',
+    tagPlayersSolo: '1 PLAYER',
+    tagPlayersMany: '{count} PLAYERS',
+    filterLabel: 'Filter',
+    filterMobile: 'Mobile',
+    filterMultiplayer: 'Multiplayer',
+    filterCount: '{shown} of {total}',
+    filterEmpty: 'No entries match this filter.'
   },
   tasks: {
     sectionLabel: 'Task cards',
@@ -170,6 +180,8 @@ export const en: Dict = {
     firstEntry: 'First creation',
     lastEntry: 'Last creation',
     entryLabel: 'No.',
-    openStandalone: 'Open standalone page'
+    openStandalone: 'Open standalone page',
+    mobileNoteLimited: 'Built around a mouse — playable on a phone, just limited.',
+    mobileNoteNo: 'The game opens on a phone, but you can\u2019t play it — no keyboard.'
   }
 };

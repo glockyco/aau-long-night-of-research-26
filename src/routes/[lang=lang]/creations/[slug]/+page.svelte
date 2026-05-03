@@ -1,8 +1,10 @@
 <script lang="ts">
   import { page } from '$app/state';
   import CreationFrame from '$lib/components/CreationFrame.svelte';
+  import CreationTags from '$lib/components/CreationTags.svelte';
   import Seo from '$lib/components/Seo.svelte';
   import { breadcrumbJsonLd, creationJsonLd } from '$lib/seo/jsonld';
+  import { MediaQuery } from 'svelte/reactivity';
 
   let { data } = $props();
 
@@ -34,6 +36,14 @@
     previousCreation ? `/${lang}/creations/${previousCreation.slug}` : null
   );
   const nextHref = $derived(nextCreation ? `/${lang}/creations/${nextCreation.slug}` : null);
+
+  const coarsePointer = new MediaQuery('(pointer: coarse)');
+  const mobileNote = $derived.by(() => {
+    if (!coarsePointer.current) return null;
+    if (creation.mobile === 'limited') return dict.creationPage.mobileNoteLimited;
+    if (creation.mobile === 'no') return dict.creationPage.mobileNoteNo;
+    return null;
+  });
 
   const jsonLd = $derived([
     breadcrumbJsonLd([
@@ -96,6 +106,9 @@
         {dict.creationPage.entryLabel} {creationNumber}/{data.totalCreations} · {dict.creations.builtAt} {creation.builtAt}
       </p>
       <h1 class="creation-title">{creation.titleNative}</h1>
+      <div class="creation-tags-wrap">
+        <CreationTags {creation} {dict} />
+      </div>
     </div>
   </header>
 
@@ -105,6 +118,9 @@
     <a class="creation-standalone" href={standalone} target="_blank" rel="noopener">
       ↗ {dict.creationPage.openStandalone}
     </a>
+    {#if mobileNote}
+      <p class="creation-mobile-note">{mobileNote}</p>
+    {/if}
   </div>
 
   <nav class="creation-pagination" aria-label={dict.creationPage.backToIndex}>
@@ -212,6 +228,12 @@
     line-height: 0.98;
   }
 
+  .creation-tags-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.7rem;
+  }
+
   .creation-title-wrap .print-meta {
     margin-bottom: 0.3rem;
     color: var(--accent);
@@ -219,8 +241,19 @@
 
   .creation-actions {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
     margin-top: 0.85rem;
+  }
+
+  .creation-mobile-note {
+    max-width: 42ch;
+    color: var(--fg-muted);
+    font-style: italic;
+    font-size: 0.86rem;
+    line-height: 1.35;
+    text-align: right;
   }
 
   .creation-standalone {

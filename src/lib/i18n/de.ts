@@ -75,7 +75,17 @@ export const de: Dict = {
     trialMeta: '4 Checks · vor 17:00',
     eventLabel: 'Während der Veranstaltung gebaut',
     eventMeta: '35 Kreationen · ab 17:06',
-    builtAt: 'gebaut um'
+    builtAt: 'gebaut um',
+    tagMobileYes: 'HANDY · JA',
+    tagMobileLimited: 'HANDY · TEILS',
+    tagMobileNo: 'HANDY · NEIN',
+    tagPlayersSolo: '1 SPIELER',
+    tagPlayersMany: '{count} SPIELER',
+    filterLabel: 'Filter',
+    filterMobile: 'Handy',
+    filterMultiplayer: 'Mehrspieler',
+    filterCount: '{shown} von {total}',
+    filterEmpty: 'Kein Eintrag passt zu diesem Filter.'
   },
   tasks: {
     sectionLabel: 'Aufgabenkarten',
@@ -170,6 +180,8 @@ export const de: Dict = {
     firstEntry: 'Erste Kreation',
     lastEntry: 'Letzte Kreation',
     entryLabel: 'Nr.',
-    openStandalone: 'Eigenständige Seite öffnen'
+    openStandalone: 'Eigenständige Seite öffnen',
+    mobileNoteLimited: 'Auf eine Maus gebaut — am Handy spielbar, aber eingeschränkt.',
+    mobileNoteNo: 'Am Handy startet das Spiel, lässt sich aber nicht spielen — Tastatur fehlt.'
   }
 };

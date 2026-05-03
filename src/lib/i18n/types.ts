@@ -84,6 +84,18 @@ export interface Dict {
     eventLabel: string;
     eventMeta: string;
     builtAt: string;
+    tagMobileYes: string;
+    tagMobileLimited: string;
+    tagMobileNo: string;
+    tagPlayersSolo: string;
+    /** Template with `{count}` placeholder for 2/3/4-player entries. */
+    tagPlayersMany: string;
+    filterLabel: string;
+    filterMobile: string;
+    filterMultiplayer: string;
+    /** Template with `{shown}` and `{total}` placeholders. */
+    filterCount: string;
+    filterEmpty: string;
   };
   tasks: {
     sectionLabel: string;
@@ -149,5 +161,9 @@ export interface Dict {
     lastEntry: string;
     entryLabel: string;
     openStandalone: string;
+    /** Note shown only on touch viewports for `mobile: 'limited'` entries. */
+    mobileNoteLimited: string;
+    /** Note shown only on touch viewports for `mobile: 'no'` entries. */
+    mobileNoteNo: string;
   };
 }
