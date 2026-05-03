@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 /**
- * Build-time renderer for raster icons + OG cards.
+ * Build-time renderer for OG social cards.
  *
- * Sources `static/favicon.svg` and the Gazette palette. Produces:
- *   - static/favicon-32x32.png       (32x32, browser tab)
- *   - static/apple-touch-icon.png    (180x180, iOS home screen)
+ * Sources the Gazette palette. Produces:
  *   - static/og-card.png             (1200x630, German social card)
  *   - static/og-card-en.png          (1200x630, English social card)
  *
@@ -13,8 +11,10 @@
  * Fonts ship in `scripts/fonts/` as static + variable TTFs sourced from
  * the Google Fonts mirror (OFL/SIL). Resvg-js does not load WOFF, hence
  * the TTFs rather than the @fontsource packages.
+ *
+ * Favicon variants are produced by `scripts/generate-favicon.mjs`.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
@@ -40,8 +40,6 @@ const COLORS = {
   rule: '#181410'
 };
 
-const faviconSvg = readFileSync(resolve(projectRoot, 'static/favicon.svg'), 'utf8');
-
 function rasterize(svg, width) {
   const resvg = new Resvg(svg, {
     fitTo: { mode: 'width', value: width },
@@ -54,11 +52,7 @@ function rasterize(svg, width) {
   return resvg.render().asPng();
 }
 
-// 1. Favicon variants — straight rasterize.
-writeFileSync(resolve(projectRoot, 'static/favicon-32x32.png'), rasterize(faviconSvg, 32));
-writeFileSync(resolve(projectRoot, 'static/apple-touch-icon.png'), rasterize(faviconSvg, 180));
-
-// 2. OG cards — 1200×630 cream Gazette card per language.
+// OG cards — 1200×630 cream Gazette card per language.
 const OG_W = 1200;
 const OG_H = 630;
 
@@ -177,6 +171,4 @@ for (const card of cards) {
   writeFileSync(resolve(projectRoot, card.out), rasterize(card.svg, OG_W));
 }
 
-console.log(
-  'Generated favicon-32x32.png (32×32), apple-touch-icon.png (180×180), og-card.png (1200×630), og-card-en.png (1200×630)'
-);
+console.log('Generated og-card.png (1200×630), og-card-en.png (1200×630)');
