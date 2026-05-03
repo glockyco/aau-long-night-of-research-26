@@ -63,7 +63,6 @@
       </p>
 
       <div class="red-banner">
-        <span class="num">№ 39</span>
         <span>{data.dict.nav.pressBannerLead}</span>
         <span class="pip" aria-hidden="true"></span>
         <span>{data.dict.nav.pressBannerTrail}</span>
@@ -244,15 +243,6 @@
     line-height: 1.35;
     text-align: center;
     text-transform: uppercase;
-  }
-
-  .red-banner .num {
-    font-family: var(--font-masthead);
-    font-size: 1.02rem;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-transform: none;
   }
 
   .red-banner .pip {
