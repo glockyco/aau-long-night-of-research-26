@@ -74,27 +74,34 @@
 <main class="creation-page">
   <nav class="creation-nav" aria-label={dict.creationPage.backToIndex}>
     <a class="creation-back" href={indexHref}>{dict.creationPage.backToIndex}</a>
+    <span class="mobile-entry-meta" aria-hidden="true">{creationNumber}/{data.totalCreations}</span>
 
     <div class="top-pager">
       {#if previousCreation && previousHref}
         <a class="nav-link" href={previousHref}>
-          <span>{dict.creationPage.previous}</span>
-          <small>{dict.creationPage.entryLabel} {previousNumber}</small>
+          <span class="desktop-nav-label">{dict.creationPage.previous}</span>
+          <small class="desktop-nav-meta">{dict.creationPage.entryLabel} {previousNumber} · {previousCreation.builtAt}</small>
+          <strong class="desktop-nav-title">{previousCreation.titleNative}</strong>
+          <span class="mobile-nav-label">← {dict.creationPage.entryLabel} {previousNumber}</span>
         </a>
       {:else}
         <span class="nav-link muted">
-          <span>{dict.creationPage.firstEntry}</span>
+          <span class="desktop-nav-label">{dict.creationPage.firstEntry}</span>
+          <span class="mobile-nav-label">{dict.creationPage.firstEntry}</span>
         </span>
       {/if}
 
       {#if nextCreation && nextHref}
         <a class="nav-link next" href={nextHref}>
-          <span>{dict.creationPage.next}</span>
-          <small>{dict.creationPage.entryLabel} {nextNumber}</small>
+          <span class="desktop-nav-label">{dict.creationPage.next}</span>
+          <small class="desktop-nav-meta">{dict.creationPage.entryLabel} {nextNumber} · {nextCreation.builtAt}</small>
+          <strong class="desktop-nav-title">{nextCreation.titleNative}</strong>
+          <span class="mobile-nav-label">{dict.creationPage.entryLabel} {nextNumber} →</span>
         </a>
       {:else}
         <span class="nav-link muted next">
-          <span>{dict.creationPage.lastEntry}</span>
+          <span class="desktop-nav-label">{dict.creationPage.lastEntry}</span>
+          <span class="mobile-nav-label">{dict.creationPage.lastEntry}</span>
         </span>
       {/if}
     </div>
@@ -103,7 +110,9 @@
   <header class="creation-header">
     <div class="creation-title-wrap">
       <p class="print-meta">
-        {dict.creationPage.entryLabel} {creationNumber}/{data.totalCreations} · {dict.creations.builtAt} {creation.builtAt}
+        <span class="entry-count">{dict.creationPage.entryLabel} {creationNumber}/{data.totalCreations}</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span>{dict.creations.builtAt} {creation.builtAt}</span>
       </p>
       <h1 class="creation-title">{creation.titleNative}</h1>
       <div class="creation-tags-wrap">
@@ -123,31 +132,6 @@
     {/if}
   </div>
 
-  <nav class="creation-pagination" aria-label={dict.creationPage.backToIndex}>
-    {#if previousCreation && previousHref}
-      <a class="pagination-link" href={previousHref}>
-        <span>{dict.creationPage.previous}</span>
-        <small>{dict.creationPage.entryLabel} {previousNumber} · {previousCreation.builtAt}</small>
-        <strong>{previousCreation.titleNative}</strong>
-      </a>
-    {:else}
-      <span class="pagination-link muted">
-        <span>{dict.creationPage.firstEntry}</span>
-      </span>
-    {/if}
-
-    {#if nextCreation && nextHref}
-      <a class="pagination-link next" href={nextHref}>
-        <span>{dict.creationPage.next}</span>
-        <small>{dict.creationPage.entryLabel} {nextNumber} · {nextCreation.builtAt}</small>
-        <strong>{nextCreation.titleNative}</strong>
-      </a>
-    {:else}
-      <span class="pagination-link muted next">
-        <span>{dict.creationPage.lastEntry}</span>
-      </span>
-    {/if}
-  </nav>
 </main>
 
 <style>
@@ -167,8 +151,7 @@
 
   .creation-back,
   .nav-link,
-  .creation-standalone,
-  .pagination-link {
+  .creation-standalone {
     color: var(--fg-muted);
     font-family: var(--font-sans);
     font-size: 0.74rem;
@@ -180,14 +163,13 @@
 
   .creation-back:hover,
   .nav-link:hover,
-  .creation-standalone:hover,
-  .pagination-link:hover {
+  .creation-standalone:hover {
     color: var(--accent);
   }
 
   .top-pager {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 12.5rem);
     justify-content: flex-end;
     gap: 0.8rem 1.2rem;
     text-align: right;
@@ -195,15 +177,43 @@
 
   .nav-link {
     display: grid;
+    min-width: 0;
+    width: 100%;
     gap: 0.12rem;
   }
 
-  .nav-link small,
-  .pagination-link small {
+  .nav-link small {
     color: var(--accent);
     font-size: 0.64rem;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.12em;
+  }
+
+  .desktop-nav-title {
+    overflow: hidden;
+    min-width: 0;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.12;
+    text-overflow: ellipsis;
+    text-transform: none;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover .desktop-nav-title {
+    color: var(--accent);
+  }
+
+  .mobile-entry-meta {
+    display: none;
+  }
+
+  .mobile-nav-label {
+    display: none;
   }
 
   .muted {
@@ -260,81 +270,101 @@
     border-bottom: 1px dotted currentColor;
   }
 
-  .creation-pagination {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.25rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--fg);
-  }
-
-  .pagination-link {
-    display: grid;
-    min-height: 4rem;
-    gap: 0.18rem;
-    align-content: start;
-    padding-right: 1rem;
-  }
-
-  .pagination-link.next {
-    justify-items: end;
-    padding-right: 0;
-    padding-left: 1rem;
-    text-align: right;
-  }
-
-  .pagination-link strong {
-    overflow-wrap: anywhere;
-    color: var(--fg);
-    font-family: var(--font-body);
-    font-size: 1.2rem;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.15;
-    text-transform: none;
-  }
-
-  .pagination-link:hover strong {
-    color: var(--accent);
-  }
 
   @media (max-width: 720px) {
     .creation-page {
-      padding-right: 1rem;
-      padding-left: 1rem;
+      padding: 0.55rem 1rem 2.35rem;
     }
 
     .creation-nav {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.38rem 0.85rem;
+      align-items: baseline;
+      padding: 0.28rem 0 0.4rem;
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .mobile-entry-meta {
+      display: inline-block;
+      justify-self: end;
+      color: var(--accent);
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.12em;
+      line-height: 1.35;
+      text-transform: uppercase;
     }
 
     .top-pager {
-      justify-content: space-between;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      justify-content: stretch;
+      padding-top: 0.15rem;
       text-align: left;
     }
 
+    .desktop-nav-label,
+    .desktop-nav-meta,
+    .desktop-nav-title {
+      display: none;
+    }
+
+    .mobile-nav-label {
+      display: inline;
+    }
+
+    .nav-link {
+      min-width: 0;
+      padding-top: 0.18rem;
+      border-top: 1px dotted var(--hair);
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+    }
+
     .nav-link.next {
+      justify-items: end;
       text-align: right;
     }
 
     .creation-header {
+      margin-bottom: 0.45rem;
+      padding: 0.42rem 0 0.52rem;
       text-align: left;
+    }
+
+    .creation-title {
+      font-size: clamp(2rem, 10.6vw, 3rem);
+      line-height: 1.14;
+    }
+
+    .entry-count,
+    .meta-sep {
+      display: none;
+    }
+
+    .creation-title-wrap .print-meta {
+      margin-bottom: 0.55rem;
+      font-size: 0.68rem;
+    }
+
+    .creation-tags-wrap {
+      justify-content: flex-start;
+      margin-top: 0.48rem;
     }
 
     .creation-actions {
+      align-items: flex-start;
       justify-content: flex-start;
+      margin-top: 0.7rem;
     }
 
-    .creation-pagination {
-      grid-template-columns: 1fr;
-    }
-
-    .pagination-link.next {
-      justify-items: start;
-      padding-left: 0;
+    .creation-mobile-note {
       text-align: left;
     }
+
   }
 </style>
