@@ -36,33 +36,56 @@
     if (typeof window === 'undefined') return;
 
     const visible = new SvelteSet<Element>();
+
+    function isAtPageBottom() {
+      return window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+    }
+
+    function selectVisibleSection() {
+      if (isAtPageBottom()) {
+        activeId = SECTION_IDS[SECTION_IDS.length - 1];
+        return;
+      }
+      if (visible.size === 0) return;
+
+      // Pick the topmost intersecting section so the lens tracks
+      // reading position rather than whichever section happens to
+      // appear last in observer batch order.
+      const topmost = [...visible].reduce((a, b) =>
+        a.getBoundingClientRect().top < b.getBoundingClientRect().top ? a : b
+      );
+      const id = topmost.id;
+      if ((SECTION_IDS as readonly string[]).includes(id)) {
+        activeId = id as SectionId;
+      }
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) visible.add(entry.target);
           else visible.delete(entry.target);
         }
-        if (visible.size === 0) return;
-        // Pick the topmost intersecting section so the lens tracks
-        // reading position rather than whichever section happens to
-        // appear last in observer batch order.
-        const topmost = [...visible].reduce((a, b) =>
-          a.getBoundingClientRect().top < b.getBoundingClientRect().top ? a : b
-        );
-        const id = topmost.id;
-        if ((SECTION_IDS as readonly string[]).includes(id)) {
-          activeId = id as SectionId;
-        }
+        selectVisibleSection();
       },
       { rootMargin: '-25% 0% -65% 0%', threshold: 0 }
     );
+
+    window.addEventListener('scroll', selectVisibleSection, { passive: true });
+    window.addEventListener('resize', selectVisibleSection);
 
     for (const id of SECTION_IDS) {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     }
 
-    return () => observer.disconnect();
+    selectVisibleSection();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', selectVisibleSection);
+      window.removeEventListener('resize', selectVisibleSection);
+    };
   });
 
   /**
