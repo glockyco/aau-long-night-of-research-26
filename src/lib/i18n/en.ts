@@ -38,7 +38,7 @@ export const en: Dict = {
       { value: '4', label: 'AI workbenches' },
       { value: '9', label: 'task cards' },
       { value: '39', label: 'creations archived' },
-      { value: '37 889', label: 'lines of source' },
+      { value: '37 889', label: 'lines of code' },
       { value: '64', label: 'most-used color', swatch: '#1a1a2e' },
       { value: '43 ⭐', label: 'most-used emoji' },
       { value: '21', label: 'most-bound key', keycap: 'Space' },
