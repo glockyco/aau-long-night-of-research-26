@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-const localizedTextSchema = z.object({
-  de: z.string(),
-  en: z.string()
-});
-
 export const creationSchema = z.object({
   /** Stable URL slug — typically `<filename-stem>-<HHMM>`. */
   slug: z.string().regex(/^[a-z0-9-]+$/),
@@ -15,12 +10,8 @@ export const creationSchema = z.object({
   /** Time of day from filename, formatted as HH:MM. */
   builtAt: z.string().regex(/^\d{2}:\d{2}$/),
   /** Path under /creations/ — produced by the thumbnail capture script. */
-  thumbnail: z.string().regex(/^\/creations\/[a-z0-9-]+\.webp$/),
-  /** Optional caveat ("needs sound", "best on desktop", etc.). */
-  caveat: localizedTextSchema.optional()
+  thumbnail: z.string().regex(/^\/creations\/[a-z0-9-]+\.webp$/)
 });
-
-export const creationsSchema = z.array(creationSchema);
 
 export type Creation = z.infer<typeof creationSchema>;
 
@@ -51,11 +42,7 @@ export const creations: Creation[] = [
     filename: '20260424-1350-jump-and-run.html',
     titleNative: 'Jump & Run',
     builtAt: '13:50',
-    thumbnail: '/creations/jump-and-run-1350.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/jump-and-run-1350.webp'
   },
   {
     slug: 'reaktionstest-1706',
@@ -69,11 +56,7 @@ export const creations: Creation[] = [
     filename: '20260424-1714-jump-and-run.html',
     titleNative: 'Jump & Run – 2 Spieler',
     builtAt: '17:14',
-    thumbnail: '/creations/jump-and-run-1714.webp',
-    caveat: {
-      de: 'Zwei Spieler an einer Tastatur.',
-      en: 'Two players on one keyboard.'
-    }
+    thumbnail: '/creations/jump-and-run-1714.webp'
   },
   {
     slug: 'wetter-klagenfurt-1720',
@@ -108,22 +91,14 @@ export const creations: Creation[] = [
     filename: '20260424-1750-snake.html',
     titleNative: 'Snake',
     builtAt: '17:50',
-    thumbnail: '/creations/snake-1750.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/snake-1750.webp'
   },
   {
     slug: 'zeichenprogramm-1755',
     filename: '20260424-1755-zeichenprogramm.html',
     titleNative: 'Zeichenprogramm',
     builtAt: '17:55',
-    thumbnail: '/creations/zeichenprogramm-1755.webp',
-    caveat: {
-      de: 'Maus oder Touch zum Zeichnen.',
-      en: 'Use mouse or touch to draw.'
-    }
+    thumbnail: '/creations/zeichenprogramm-1755.webp'
   },
   {
     slug: 'reaktionstest-1803',
@@ -151,11 +126,7 @@ export const creations: Creation[] = [
     filename: '20260424-1826-jump-and-run.html',
     titleNative: 'Jump & Run',
     builtAt: '18:26',
-    thumbnail: '/creations/jump-and-run-1826.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/jump-and-run-1826.webp'
   },
   {
     slug: 'tiere-quiz-1844',
@@ -197,11 +168,7 @@ export const creations: Creation[] = [
     filename: '20260424-1955-platformer.html',
     titleNative: 'Jump & Run',
     builtAt: '19:55',
-    thumbnail: '/creations/platformer-1955.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/platformer-1955.webp'
   },
   {
     slug: 'autorennspiel-2018',
@@ -229,11 +196,7 @@ export const creations: Creation[] = [
     filename: '20260424-2034-tron-lightcycle.html',
     titleNative: 'TRON Lightcycle Race',
     builtAt: '20:34',
-    thumbnail: '/creations/tron-lightcycle-2034.webp',
-    caveat: {
-      de: 'Zwei Spieler an einer Tastatur.',
-      en: 'Two players on one keyboard.'
-    }
+    thumbnail: '/creations/tron-lightcycle-2034.webp'
   },
   {
     slug: 'casino-2036',
@@ -247,22 +210,14 @@ export const creations: Creation[] = [
     filename: '20260424-2039-space-blaster.html',
     titleNative: 'Space Blaster 2P',
     builtAt: '20:39',
-    thumbnail: '/creations/space-blaster-2039.webp',
-    caveat: {
-      de: 'Zwei Spieler an einer Tastatur.',
-      en: 'Two players on one keyboard.'
-    }
+    thumbnail: '/creations/space-blaster-2039.webp'
   },
   {
     slug: 'fangspiel-2043',
     filename: '20260424-2043-fangspiel.html',
     titleNative: 'Fangspiel – 3 Spieler',
     builtAt: '20:43',
-    thumbnail: '/creations/fangspiel-2043.webp',
-    caveat: {
-      de: 'Drei Spieler an einer Tastatur.',
-      en: 'Three players on one keyboard.'
-    }
+    thumbnail: '/creations/fangspiel-2043.webp'
   },
   {
     slug: 'darts-301-2104',
@@ -304,22 +259,14 @@ export const creations: Creation[] = [
     filename: '20260424-2143-billard.html',
     titleNative: 'Billard',
     builtAt: '21:43',
-    thumbnail: '/creations/billard-2143.webp',
-    caveat: {
-      de: 'Maus zum Zielen.',
-      en: 'Use the mouse to aim.'
-    }
+    thumbnail: '/creations/billard-2143.webp'
   },
   {
     slug: 'jump-and-run-2201',
     filename: '20260424-2201-jump-and-run.html',
     titleNative: 'Jump & Run',
     builtAt: '22:01',
-    thumbnail: '/creations/jump-and-run-2201.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/jump-and-run-2201.webp'
   },
   {
     slug: 'space-shooter-2208',
@@ -333,25 +280,13 @@ export const creations: Creation[] = [
     filename: '20260424-2208-tetris.html',
     titleNative: 'Tetris',
     builtAt: '22:08',
-    thumbnail: '/creations/tetris-2208.webp',
-    caveat: {
-      de: 'Pfeiltasten zum Spielen.',
-      en: 'Play with the arrow keys.'
-    }
+    thumbnail: '/creations/tetris-2208.webp'
   },
   {
     slug: 'pulse-roguelike-2222',
     filename: '20260424-2222-pulse-roguelike.html',
     titleNative: 'PULSE — Roguelike',
     builtAt: '22:22',
-    thumbnail: '/creations/pulse-roguelike-2222.webp',
-    caveat: {
-      de: 'Tastatur und Maus empfohlen.',
-      en: 'Keyboard and mouse recommended.'
-    }
+    thumbnail: '/creations/pulse-roguelike-2222.webp'
   }
 ];
-
-export function findCreation(slug: string): Creation | undefined {
-  return creations.find((creation) => creation.slug === slug);
-}
