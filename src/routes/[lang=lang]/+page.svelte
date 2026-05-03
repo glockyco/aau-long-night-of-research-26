@@ -5,6 +5,7 @@
   import Hero from '$lib/components/Hero.svelte';
   import HowItWorked from '$lib/components/HowItWorked.svelte';
   import Seo from '$lib/components/Seo.svelte';
+  import SectionLens from '$lib/components/SectionLens.svelte';
   import StationContext from '$lib/components/StationContext.svelte';
   import TaskTier from '$lib/components/TaskTier.svelte';
   import TeamSection from '$lib/components/TeamSection.svelte';
@@ -47,3 +48,5 @@
 <HowItWorked dict={data.dict} />
 <Crossword lang={data.lang} dict={data.dict} />
 <TeamSection lang={data.lang} dict={data.dict} />
+
+<SectionLens dict={data.dict} lang={data.lang} />

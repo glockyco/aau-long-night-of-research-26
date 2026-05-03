@@ -40,6 +40,13 @@ body {
 html {
   min-height: 100%;
   background: #d6cab1;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
