@@ -98,7 +98,7 @@
     {:else}
       <section class="creation-group" aria-labelledby="trial-title">
         <div class="group-head">
-          <h3 id="trial-title"><span>№</span> {dict.creations.trialLabel}</h3>
+          <h3 id="trial-title">{dict.creations.trialLabel}</h3>
           <span>
             {#if anyFilter}
               {formatCount(filteredTrial.length, trialAll.length)}
@@ -120,7 +120,7 @@
 
       <section class="creation-group" aria-labelledby="event-title">
         <div class="group-head">
-          <h3 id="event-title"><span>№</span> {dict.creations.eventLabel}</h3>
+          <h3 id="event-title">{dict.creations.eventLabel}</h3>
           <span>
             {#if anyFilter}
               {formatCount(filteredEvent.length, eventAll.length)}
@@ -249,15 +249,6 @@
 
   .group-head h3 {
     color: var(--accent);
-  }
-
-  .group-head h3 span {
-    font-family: var(--font-display);
-    font-size: 0.98rem;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0;
-    text-transform: none;
   }
 
   .group-head span:last-child {
