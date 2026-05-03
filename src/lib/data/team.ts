@@ -17,7 +17,7 @@ export const team: TeamMember[] = [
   {
     name: 'Clemens Bauer',
     role: { de: 'Kollege', en: 'colleague' },
-    url: 'https://www.aau.at/en/team/bauer-clemens/'
+    url: 'https://clemi2806.github.io/'
   },
   {
     name: 'Johann Glock',
